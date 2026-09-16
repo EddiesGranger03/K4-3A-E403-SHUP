@@ -1,0 +1,16 @@
+# Security: DO NOT commit course data pack
+data/
+*.csv
+*.jsonl
+
+# Environment variables & API keys
+.env
+.env.*
+!.env.example
+
+# Node / Python / OS temp
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
