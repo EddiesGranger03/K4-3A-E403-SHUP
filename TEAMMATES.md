@@ -3,7 +3,7 @@
 - **Lớp:** 3A
 - **Phòng:** E403 · **Cụm:** 4
 - **Track dự thi:** Track A · VLearn Tutor (A1 · Tối ưu AI Tutor VLearn)
-- **Tên dự án:** VLearn Grounded Tutor — Tối ưu AI Tutor Có Căn Cứ & Đúng Trọng Tâm
+- **Tên dự án:** VLearn Hub & Spoke Tutor — Bot Hỗ Trợ Định Vị Bản Đồ Tri Thức & Các Bot Con Chuyên Sâu Theo Day
 
 ---
 

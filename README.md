@@ -4,14 +4,14 @@
 
 ## 👥 Thành viên nhóm & Phân công vai trò
 
-**Lớp:** 3A · **Phòng:** E403 · **Cụm:** 4 · **Track:** A (A1 · Tối ưu VLearn AI Tutor)
+**Lớp:** 3A · **Phòng:** E403 · **Cụm:** 4 · **Track:** A (A1 · VLearn Hub & Spoke Tutor)
 
 | Họ và Tên | Mã Học Viên | Vai trò chính | Phần việc đảm nhiệm trong dự án |
 |---|---|---|---|
-| Nguyễn Khánh Sơn | 2A202602388 | Đội trưởng / Product Lead | Quản lý tiến độ, cấu trúc Spec (§1, §2, §4), điều phối nộp các mốc Checkpoint |
-| Bùi Thị Thu Uyên | 2A202602613 | User Research & Data Mining Lead | Phân tích 13.494 chatlog VLearn, trích xuất bằng chứng số liệu, thiết kế luồng sư phạm (§1, §6) |
-| Lê Châu Trần Phát | 2A2026025245 | AI & Evaluation Lead | Thiết kế Prompt trích dẫn nguồn `[trang N]` & hỏi ngược, xây dựng Golden Set 20 cases (§5, §7) |
-| Ngô Xuân Hoàng | 2A202602597 | Technical & Prototype Lead | Phát triển Web Prototype mô phỏng VLearn Tutor, tích hợp API mô hình, chuẩn bị video demo CP3 (§4, codebase) |
+| Nguyễn Khánh Sơn | 2A202602388 | Đội trưởng / Product Lead | Quản lý tiến độ, kiến trúc luồng Hub & Spoke, hoàn thiện Spec (§1, §2, §4) |
+| Bùi Thị Thu Uyên | 2A202602613 | User Research & Data Mining Lead | Khảo sát nhu cầu học viên, phân tích 13.494 chatlog, xây dựng ma trận từ khóa liên ngày (§1, §6) |
+| Lê Châu Trần Phát | 2A2026025245 | AI & Evaluation Lead | Thiết kế Prompt Routing (Bot Hỗ Trợ) & Grounding (Bot Con), xây dựng Golden Set 20 cases (§5, §7) |
+| Ngô Xuân Hoàng | 2A202602597 | Technical & Prototype Lead | Phát triển Web Prototype mô phỏng kiến trúc Hub & Spoke, tích hợp API, chuẩn bị video demo CP3 (§4, codebase) |
 
 > Nhóm copy nguyên file README này về repo của mình, rồi điền bảng trên. Cột **Phần việc đảm nhiệm** ghi càng cụ thể càng tốt.
 
