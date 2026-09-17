@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect, Suspense } from "react";
-import { Search, ChevronDown, ChevronRight, CheckCircle, Flag, ArrowLeft, Send, Sparkles, X, FileText, Layout, File, MessageSquare, Menu, Clock, PlayCircle, Folder, FileQuestion, ThumbsUp, ThumbsDown, BookOpen } from "lucide-react";
+import { Search, RotateCcw, ChevronDown, ChevronRight, CheckCircle, Flag, ArrowLeft, Send, Sparkles, X, FileText, Layout, File, MessageSquare, Menu, Clock, PlayCircle, Folder, FileQuestion, ThumbsUp, ThumbsDown, BookOpen } from "lucide-react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 
 type Message = { role: "user" | "bot"; text: string };
-type ContentView = "slide" | "lab";
+type ContentView = "slide" | "lab" | "transcript";
 
 // ── Sidebar data ─────────────────────────────────────────────
 const SLIDES = [
@@ -153,6 +153,7 @@ function LessonContent() {
   
   const [page, setPage] = useState(initialSlide ? Number(initialSlide) : 1);
   const [contentView, setContentView] = useState<ContentView>(initialLab ? "lab" : "slide");
+  const [transcriptContent, setTranscriptContent] = useState("");
   const [activeLabId, setActiveLabId] = useState<number | null>(initialLab ? Number(initialLab) : null);
   const [liked, setLiked] = useState<null | "up" | "down">(null);
   
@@ -169,6 +170,13 @@ function LessonContent() {
       setActiveLabId(Number(initialLab));
     }
   }, [initialSlide, initialLab, highlightSlideLine]);
+  useEffect(() => {
+    if (contentView === "transcript") {
+      fetch(`/transcripts/day${day}.md`)
+        .then(res => res.ok ? res.text() : "Chưa có transcript cho bài này.")
+        .then(text => setTranscriptContent(text));
+    }
+  }, [contentView, day]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
