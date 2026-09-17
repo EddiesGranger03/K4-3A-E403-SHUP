@@ -19,8 +19,8 @@ Mỗi lần chạy tạo 1 folder trong eval/index_runs/:
     └── run.log               ← full log toàn bộ quá trình
 
 Usage:
-  python auto_index.py --slide slides/d1-slide-hackathon.pdf \\
-                       --transcript transcript/transcript-04-clean.md \\
+  python auto_index.py --slide slides/d1-slide-hackathon.pdf \
+                       --transcript transcript/transcript-04-clean.md \
                        --day 1
   python auto_index.py --slide slides/d1-slide-hackathon.pdf --day 1 --auto
 """
@@ -37,6 +37,8 @@ from datetime import datetime, timezone, timedelta
 # ── Thư viện cần cài ─────────────────────────────────────────────────────────
 try:
     import pdfplumber
+    # Tắt warning "Could not get FontBBox" của pdfminer (thư viện lõi của pdfplumber)
+    logging.getLogger("pdfminer").setLevel(logging.ERROR)
 except ImportError:
     print("[ERROR] Thiếu pdfplumber. Chạy: pip install pdfplumber")
     sys.exit(1)
@@ -66,7 +68,7 @@ except ImportError:
 REPO_ROOT          = Path(__file__).parent.parent.parent
 KNOWLEDGE_INDEX    = REPO_ROOT / "eval" / "knowledge_index.json"
 INDEX_RUNS_DIR     = REPO_ROOT / "eval" / "index_runs"
-GEMINI_MODEL       = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+GEMINI_MODEL       = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
 # Giá tham khảo Gemini 2.0 Flash (USD per 1M tokens) — cập nhật nếu đổi model
 PRICE_INPUT_PER_1M  = 0.075
@@ -86,18 +88,27 @@ Mỗi khái niệm là một unit kiến thức độc lập mà học viên c�
 
 QUY TẮC:
 - Không extract: câu hỏi ôn tập, ví dụ nhỏ, tiêu đề chương, phần giới thiệu giảng viên
-- Mỗi khái niệm phải gắn được với range slide cụ thể (ước lượng nếu không chắc)
-- prerequisites: tên khái niệm cần biết TRƯỚC (dùng tên ngắn, ví dụ: "RAG", "Transformer")
-- level: basic (người mới hiểu được) | intermediate | advanced (cần nền tảng vững)
+- "concept_id": viết bằng Tiếng Anh, chữ thường, nối bằng dấu gạch dưới (VD: "llm_concept"). ĐÂY LÀ KHÓA CHÍNH.
+- "concept_name": Tên khái niệm hiển thị (Tiếng Việt).
+- "prerequisites": Mảng chứa các "concept_id" của những khái niệm cần học trước.
+- "slide_refs": Mảng các object chứa vị trí trên slide. Trích xuất chính xác số trang (page), đoạn text nguyên bản (quote) và vị trí dòng ước lượng (line_number). Nếu không có, để [].
+- "transcript_refs": Mảng các object chứa vị trí trong transcript. Trích xuất đoạn text (quote), timestamp (nếu có), và vị trí dòng ước lượng (line_number). Nếu không có, để [].
 
 Trả về JSON array THUẦN TÚY, KHÔNG thêm markdown hay text khác:
 [
   {{
-    "concept": "tên khái niệm ngắn gọn",
-    "slides": "X-Y hoặc X nếu chỉ 1 slide",
+    "concept_id": "english_key_id",
+    "concept_name": "Tên khái niệm hiển thị (Tiếng Việt)",
+    "slide_refs": [
+      {{ "page": 1, "quote": "Đoạn text chính xác trên slide", "line_number": 5 }}
+    ],
+    "transcript_refs": [
+      {{ "quote": "Đoạn text chính xác trong transcript", "timestamp": "12:05", "line_number": 142 }}
+    ],
     "level": "basic | intermediate | advanced",
     "summary": "1 câu mô tả súc tích bằng tiếng Việt",
-    "prerequisites": ["khái niệm A", "khái niệm B"]
+    "prerequisites": ["concept_id_A", "concept_id_B"],
+    "keywords": ["từ khóa 1", "từ khóa 2"]
   }}
 ]
 
@@ -241,9 +252,9 @@ def read_transcript(path: str | None, log: RunLogger) -> str:
 def extract_concepts(slide_content: str, transcript_content: str,
                      day: int, log: RunLogger,
                      client: genai.Client) -> list[dict]:
-    # Giới hạn input để tránh vượt context window
-    slide_truncated      = slide_content[:10_000]
-    transcript_truncated = transcript_content[:6_000]
+    # Pass full content without aggressive truncation (Gemini supports 1M+ tokens)
+    slide_truncated      = slide_content
+    transcript_truncated = transcript_content
 
     prompt = EXTRACT_PROMPT.format(
         day=day,
@@ -302,18 +313,25 @@ def admin_review(concepts: list[dict], day: int, log: RunLogger) -> tuple[list, 
 
     for i, c in enumerate(concepts, start=1):
         prereqs = c.get("prerequisites", [])
+        s_refs = c.get("slide_refs", [])
+        t_refs = c.get("transcript_refs", [])
+        keywords = c.get("keywords", [])
+        
         print(f"\n[{i}/{len(concepts)}] ───────────────────────────────────────")
-        print(f"  Concept   : {c.get('concept','?')}")
-        print(f"  Slides    : Day {day} · Slide {c.get('slides','?')}")
+        print(f"  Concept ID: {c.get('concept_id','?')}")
+        print(f"  Name      : {c.get('concept_name','?')}")
+        print(f"  Slide refs: {s_refs}")
+        print(f"  Trans refs: {t_refs}")
         print(f"  Level     : {c.get('level','?')}")
         print(f"  Summary   : {c.get('summary','?')}")
         print(f"  Prereqs   : {prereqs if prereqs else '(không có)'}")
+        print(f"  Keywords  : {keywords}")
 
         action = input("\n  → [Enter/r/e/s]: ").strip().lower()
-        log.debug(f"[REVIEW] Concept '{c.get('concept')}' — action='{action}'")
+        log.debug(f"[REVIEW] Concept '{c.get('concept_id')}' — action='{action}'")
 
         if action == "r":
-            log.info(f"[REVIEW] REJECT: {c.get('concept')}")
+            log.info(f"[REVIEW] REJECT: {c.get('concept_id')}")
             c["day"] = day
             c["_review_action"] = "rejected"
             rejected.append(c)
@@ -321,17 +339,31 @@ def admin_review(concepts: list[dict], day: int, log: RunLogger) -> tuple[list, 
 
         elif action == "e":
             print("  ✏️  Edit (Enter để giữ nguyên):")
-            c["concept"] = input(f"    Concept [{c['concept']}]: ").strip() or c["concept"]
-            c["slides"]  = input(f"    Slides  [{c['slides']}]: ").strip()  or c["slides"]
-            c["level"]   = input(f"    Level   [{c['level']}]: ").strip()   or c["level"]
-            c["summary"] = input(f"    Summary [{c['summary']}]: ").strip() or c["summary"]
-            new_pre = input(f"    Prereqs [{', '.join(prereqs)}]: ").strip()
+            c["concept_id"]   = input(f"    Concept ID   [{c.get('concept_id')}]: ").strip() or c.get("concept_id")
+            c["concept_name"] = input(f"    Concept Name [{c.get('concept_name')}]: ").strip() or c.get("concept_name")
+            
+            new_slides = input(f"    Slides       [{slides}]: ").strip()
+            if new_slides:
+                try:
+                    c["slides"] = [int(x.strip()) for x in new_slides.split(",") if x.strip()]
+                except ValueError:
+                    print("    (Lỗi: Slides phải là số nguyên cách nhau bằng dấu phẩy. Giữ nguyên.)")
+                    
+            c["level"]   = input(f"    Level        [{c.get('level')}]: ").strip()   or c.get("level")
+            c["summary"] = input(f"    Summary      [{c.get('summary')}]: ").strip() or c.get("summary")
+            
+            new_pre = input(f"    Prereqs      [{prereqs}]: ").strip()
             if new_pre:
-                c["prerequisites"] = [p.strip() for p in new_pre.split(",")]
+                c["prerequisites"] = [p.strip() for p in new_pre.split(",") if p.strip()]
+                
+            new_kws = input(f"    Keywords     [{keywords}]: ").strip()
+            if new_kws:
+                c["keywords"] = [k.strip() for k in new_kws.split(",") if k.strip()]
+                
             c["day"] = day
             c["_review_action"] = "edited_and_approved"
             approved.append(c)
-            log.info(f"[REVIEW] EDIT+APPROVE: {c['concept']}")
+            log.info(f"[REVIEW] EDIT+APPROVE: {c['concept_id']}")
             print("  ✅ Edited & Confirmed")
 
         elif action == "s":
@@ -343,7 +375,7 @@ def admin_review(concepts: list[dict], day: int, log: RunLogger) -> tuple[list, 
             c["day"] = day
             c["_review_action"] = "approved"
             approved.append(c)
-            log.info(f"[REVIEW] APPROVE: {c.get('concept')}")
+            log.info(f"[REVIEW] APPROVE: {c.get('concept_id')}")
             print("  ✅ Confirmed")
 
     print(f"\n  Kết quả: ✅ {len(approved)} approved · ❌ {len(rejected)} rejected")
@@ -362,16 +394,17 @@ def merge_to_index(approved: list[dict], log: RunLogger) -> None:
 
     added = updated = 0
     for entry in approved:
-        key = (entry["concept"].lower()
-               .replace(" ", "_")
-               .replace("-", "_")
-               .replace("/", "_"))
+        key = entry.get("concept_id")
+        if not key:
+            log.error(f"[MERGE] Thiếu concept_id, bỏ qua entry: {entry}")
+            continue
+            
         action = "UPDATE" if key in index else "ADD"
         if action == "UPDATE":
             updated += 1
         else:
             added += 1
-        log.info(f"[MERGE] {action}: '{entry['concept']}' → key='{key}'")
+        log.info(f"[MERGE] {action}: '{entry.get('concept_name')}' → key='{key}'")
 
         # Bỏ internal field trước khi lưu
         clean = {k: v for k, v in entry.items() if not k.startswith("_")}

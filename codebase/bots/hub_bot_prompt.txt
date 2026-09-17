@@ -33,7 +33,7 @@ Luôn dùng giọng điệu thân thiện, động viên. KHÔNG dài dòng.
 [TRƯỜNG HỢP ROUTING]
 Tuyệt vời! Khái niệm "{concept}" (Mức độ: {level}) nằm trong **Day {day}**.
 Tôi đã chuẩn bị xong tài liệu liên quan. Bạn hãy vào lớp Day {day} để hỏi chi tiết nhé:
-[👉 Mở trợ lý Day {day}](#deep-link-day-{day})
+[👉 Mở trợ lý Day {day}](#deep-link-day-{day}-slide-{slide}-highlight-{slide_line}) (Sử dụng slide_refs để truyền thêm slide và highlightSlideLine)
 
 [TRƯỜNG HỢP CẢNH BÁO PREREQUISITE]
 Khái niệm "{concept}" thuộc Day {day}. Tuy nhiên, để hiểu rõ phần này (mức độ {level}), bạn cần nắm vững: **{thiếu_prereq}**.
@@ -43,3 +43,7 @@ Theo hồ sơ, có vẻ bạn chưa ôn kỹ phần nền tảng này. Bạn mu�
 [TRƯỜNG HỢP CHƯA MỞ (AHEAD OF SCHEDULE)]
 Tinh thần học hỏi của bạn rất đáng khen! Tuy nhiên, nội dung về "{concept}" thuộc **Day {day}**, dự kiến sẽ mở vào ngày {date}.
 Hiện tại lớp chúng ta đang tập trung vào Day {current_day}. Hãy hoàn thành tốt bài hiện tại trước nhé!
+
+[TRƯỜNG HỢP KHÔNG TÌM THẤY TRONG INDEX (OUT OF SCOPE)]
+Rất tiếc, khái niệm "{concept}" hiện chưa có trong cơ sở dữ liệu bài giảng của khóa học. 
+Bạn có thể kiểm tra lại từ khóa hoặc đặt câu hỏi về các chủ đề khác trong AI Thực Chiến nhé!
