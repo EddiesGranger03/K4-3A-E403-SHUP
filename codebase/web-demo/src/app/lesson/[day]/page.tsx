@@ -8,139 +8,7 @@ import ReactMarkdown from "react-markdown";
 type Message = { role: "user" | "bot"; text: string };
 type ContentView = "slide" | "lab" | "transcript";
 
-
-const DAY_METADATA: Record<string, { totalSlides: number; title: string }> = {
-  "1": { totalSlides: 29, title: "Day 1: AI & Product Thinking" },
-  "2": { totalSlides: 29, title: "Day 2: Problem Hunt & Agentic Workflow" },
-};
-
-// ── Sidebar data ─────────────────────────────────────────────
-const SLIDES = [
-  { id: 1, title: "Slide - GV Mai Anh", active: true },
-  { id: 2, title: "4-day02-lecture-slides-v2" },
-  { id: 3, title: "b2" },
-  { id: 4, title: "k4-d2-slide-blue (2)" },
-  { id: 5, title: "Day 02_C401_Xac Dinh Bai Toan" },
-  { id: 6, title: "Day 02_C401_AI Product Lab" },
-];
-
-const LAB_ITEMS = [
-  {
-    id: 1,
-    short: '"So tay tu dien" bo tui cho nguoi moi',
-    title: '\u{1F4D6} "So tay tu dien" bo tui cho nguoi moi (Non-Tech Dictionary)',
-    about: "Di tu van de that quanh minh den mot Problem Statement du chat, biet chon dung muc giai phap (No AI / Rule / Workflow / Agent) va ra quyet dinh Go / Not Yet / No-Go co can cu.",
-    content: `## Bai thuc hanh Ngay 2 - Tim Dung Bai Toan Cho AI
-
-Chao mung ban quay lai! Neu Ngay 1 la luc ban tap **bat loi** cach AI nhin the gioi, thi Ngay 2 la luc ban tap **tim dung bai toan** truoc khi nghi toi AI.
-
-Day la buoi thuc hanh **4 tieng, vua lam ca nhan vua lam nhom**. Khong co dong lenh, khong can cai dat gi - cong cu chinh cua ban hom nay la quan sat, dat cau hoi, ve workflow va tranh luan co can cu voi nhom.
-
-**Muc tieu lon nhat:** Dong vai mot Product Thinker, di tu mot van de that quanh minh den mot Problem Statement du chat, roi tu quyet dinh co nen dung AI hay khong - va neu co thi dung o muc nao.
-
-\`\`\`
-[Van de that quanh minh]
-       |
-[Scan ca nhan bang 4 lang kinh] ----(Problem Card: actor, workflow, bottleneck)----> Chon top 3!
-       |
-[Hoi tu cung nhom] ----------------(Cluster -> Shortlist -> Score -> chon 1 candidate)
-       |
-[Kiem chung + Research] -----------(Interview/khao sat nhanh + so sanh giai phap da co)
-       |
-[Problem Statement] + [AI Decision Matrix]
-\`\`\``,
-  },
-  {
-    id: 2,
-    short: "Phan 1: Chuan bi ban lam viec",
-    title: "Phan 1: Chuan bi ban lam viec (khoang 20 phut)",
-    about: "Thiet lap moi truong lam viec ca nhan truoc khi bat dau scan van de.",
-    content: `## Phan 1: Chuan bi ban lam viec
-
-**Thoi gian:** 20 phut ca nhan
-
-**Cong viec:**
-- Mo Notion hoac bat ky cong cu ghi chu nao ban thich
-- Tao mot trang moi voi tieu de: **Problem Hunt - Ngay 2**
-- Chuan bi 4 cot tuong ung 4 lang kinh scan
-
-**4 Lang kinh scan van de:**
-1. **Actor** - Ai dang gap van de nay?
-2. **Workflow** - Ho dang lam gi? Quy trinh ra sao?
-3. **Bottleneck** - Diem nghen la o dau?
-4. **AI Fit** - Phan nao co the AI ho tro?`,
-  },
-  {
-    id: 3,
-    short: "Phan 2: Scan ca nhan",
-    title: "Phan 2: Scan ca nhan - tim it nhat 5 bai",
-    about: "Quan sat moi truong xung quanh va ghi lai it nhat 5 van de tiem nang.",
-    content: `## Phan 2: Scan ca nhan
-
-**Thoi gian:** 45 phut
-
-**Nhiem vu:** Tim it nhat **5 van de that** trong cuoc song / cong viec cua ban.
-
-Moi van de ghi thanh 1 Problem Card:
-| Truong | Noi dung |
-|--------|----------|
-| Actor | Ai gap van de? |
-| Workflow | Ho dang lam gi? |
-| Bottleneck | Van de cu the la gi? |
-| AI Level | No AI / Rule / Workflow / Agent |
-
-**Tips:** Dung chi nghi cac van de "lon". Cac van de nho, lap di lap lai hang ngay thuong la moi truong tot de AI phat huy tac dung.`,
-  },
-  {
-    id: 4,
-    short: "Phan 3: Chon Top 3 Problem Card",
-    title: "Phan 3: Chon Top 3 Problem Card",
-    about: "Tu danh sach van de da scan, lua chon 3 van de tiem nang nhat.",
-    content: `## Phan 3: Chon Top 3
-
-**Thoi gian:** 15 phut
-
-**Tieu chi chon:**
-- **Tan suat:** Van de xay ra bao nhieu lan/tuan?
-- **Dau don:** Khi van de xay ra, ban mat bao nhieu thoi gian/cong suc?
-- **Kha nang AI:** AI co the giai quyet duoc bao nhieu % cua van de nay?
-
-**Score:** Cham 1-5 moi tieu chi, chon 3 van de co tong diem cao nhat.`,
-  },
-  {
-    id: 5,
-    short: "Phan 4: Hoi tu cung nhom",
-    title: "Phan 4: Hoi tu cung nhom - tu 9-12h",
-    about: "Chia se van de ca nhan, cluster va vote chon 1 candidate chinh.",
-    content: `## Phan 4: Hoi tu cung nhom
-
-**Thoi gian:** 45 phut (co the keo dai den 12h)
-
-**Quy trinh:**
-1. Moi nguoi trinh bay 3 Problem Card cua minh (3 phut/nguoi)
-2. Nhom cluster cac van de tuong tu lai
-3. Vote chon cluster nao dang quan tam nhat
-4. Shortlist xuong con 1-2 van de chinh
-5. Score tap the va chon 1 candidate chinh thuc`,
-  },
-  {
-    id: 6,
-    short: "Phan 5: Kiem chung nhanh + Research",
-    title: "Phan 5: Kiem chung nhanh + Research",
-    about: "Validate van de bang interview nhanh va research giai phap da co tren thi truong.",
-    content: `## Phan 5: Kiem chung + Research
-
-**Thoi gian:** 60 phut
-
-**Nhiem vu:**
-- **Interview nhanh:** Noi chuyen voi 2-3 nguoi co the gap van de tuong tu. Dat cau hoi mo, khong dan dat.
-- **Desk research:** Tim cac giai phap da co tren thi truong. Bao nhieu nguoi dang dung? Diem yeu la gi?
-
-**Output:**
-- Problem Statement hoan chinh (1 doan van < 100 tu)
-- AI Decision Matrix (chon muc No AI / Rule / Workflow / Agent)`,
-  },
-];
+import { DAY_METADATA, LESSON_CONTENT } from "@/constants/lessonData";
 
 // ── Component ────────────────────────────────────────────────
 
@@ -148,6 +16,10 @@ function LessonContent() {
   const { day } = useParams<{ day: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const currentContent = LESSON_CONTENT[day as string] || [];
+  const SLIDES = currentContent.filter(item => item.type === "slide");
+  const LAB_ITEMS = currentContent.filter(item => item.type === "lab");
   
   const initialSlide = searchParams.get("slide");
   const initialLab = searchParams.get("lab");
@@ -160,7 +32,7 @@ function LessonContent() {
   const [page, setPage] = useState(initialSlide ? Number(initialSlide) : 1);
   const [contentView, setContentView] = useState<ContentView>(initialLab ? "lab" : "slide");
   const [transcriptContent, setTranscriptContent] = useState("");
-  const [activeLabId, setActiveLabId] = useState<number | null>(initialLab ? Number(initialLab) : null);
+  const [activeLabId, setActiveLabId] = useState<string | null>(initialLab ? String(initialLab) : null);
   const [liked, setLiked] = useState<null | "up" | "down">(null);
   
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -173,7 +45,7 @@ function LessonContent() {
       setActiveLabId(null);
     } else if (initialLab) {
       setContentView("lab");
-      setActiveLabId(Number(initialLab));
+      setActiveLabId(String(initialLab));
     }
   }, [initialSlide, initialLab, highlightSlideLine]);
   useEffect(() => {
@@ -208,9 +80,10 @@ function LessonContent() {
   };
 
   const activeLabItem = LAB_ITEMS.find((l) => l.id === activeLabId);
+  const activeLabIndex = LAB_ITEMS.findIndex((l) => l.id === activeLabId);
   const isEmpty = messages.length === 0;
 
-  const handleLabClick = (id: number) => {
+  const handleLabClick = (id: string) => {
     setActiveLabId(id);
     setContentView("lab");
   };
@@ -273,13 +146,13 @@ function LessonContent() {
                     : "hover:bg-gray-50"
                 }`}
               >
-                <div className={`p-1 rounded shrink-0 ${contentView === "slide" && s.id === 1 ? "bg-indigo-100" : "bg-orange-50"}`}>
-                  <BookOpen className={`w-3 h-3 ${contentView === "slide" && s.id === 1 ? "text-indigo-600" : "text-orange-500"}`} />
+                <div className={`p-1 rounded shrink-0 ${contentView === "slide" && s.id === SLIDES[0]?.id ? "bg-indigo-100" : "bg-orange-50"}`}>
+                  <BookOpen className={`w-3 h-3 ${contentView === "slide" && s.id === SLIDES[0]?.id ? "text-indigo-600" : "text-orange-500"}`} />
                 </div>
-                <span className={`text-[12px] flex-1 truncate font-medium ${contentView === "slide" && s.id === 1 ? "text-indigo-700 font-semibold" : "text-gray-700"}`}>
+                <span className={`text-[12px] flex-1 truncate font-medium ${contentView === "slide" && s.id === SLIDES[0]?.id ? "text-indigo-700 font-semibold" : "text-gray-700"}`}>
                   {s.title}
                 </span>
-                {s.id === 1 && contentView === "slide" && (
+                {s.id === SLIDES[0]?.id && contentView === "slide" && (
                   <span className="text-[10px] font-bold text-indigo-500 shrink-0">Đang học</span>
                 )}
               </button>
@@ -302,7 +175,7 @@ function LessonContent() {
               <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
             </div>
             <div className="flex flex-col gap-0.5 mt-1">
-              {LAB_ITEMS.map((item) => (
+              {LAB_ITEMS.map((item, idx) => (
                 <button
                   key={item.id}
                   onClick={() => handleLabClick(item.id)}
@@ -317,7 +190,7 @@ function LessonContent() {
                       ? "bg-indigo-600 text-white"
                       : "border border-gray-300 text-gray-400"
                   }`}>
-                    {item.id}
+                    {idx + 1}
                   </div>
                   <span className={`text-[12px] leading-snug line-clamp-2 ${activeLabId === item.id ? "text-indigo-700 font-semibold" : "text-gray-600 font-medium"}`}>
                     {item.short}
@@ -428,7 +301,7 @@ function LessonContent() {
 
                 {/* Markdown content */}
                 <div className="prose prose-sm max-w-none text-gray-800">
-                  {activeLabItem.content.split("\n").map((line, i) => {
+                  {(activeLabItem.content || "").split("\n").map((line, i) => {
                     if (line.startsWith("## ")) return <h2 key={i} className="text-xl font-bold text-gray-900 mt-6 mb-3">{line.replace("## ", "")}</h2>;
                     if (line.startsWith("**") && line.endsWith("**")) return <p key={i} className="font-bold text-gray-900 my-2">{line.replace(/\*\*/g, "")}</p>;
                     if (line.startsWith("- ")) return <li key={i} className="ml-4 text-[14px] text-gray-700 leading-relaxed list-disc">{line.replace("- ", "").replace(/\*\*(.*?)\*\*/g, "$1")}</li>;
@@ -446,17 +319,17 @@ function LessonContent() {
                 </div>
 
                 {/* Code block sections */}
-                {activeLabItem.content.includes("```") && (
+                {(activeLabItem.content || "").includes("```") && (
                   <div className="mt-4 bg-gray-900 rounded-xl p-4 font-mono text-[13px] text-green-400 leading-relaxed whitespace-pre overflow-x-auto">
-                    {activeLabItem.content.split("```")[1]?.replace(/^[a-z]*\n/, "")}
+                    {(activeLabItem.content || "").split("```")[1]?.replace(/^[a-z]*\n/, "")}
                   </div>
                 )}
 
                 {/* Nav buttons */}
                 <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
                   <button
-                    onClick={() => activeLabItem.id > 1 && handleLabClick(activeLabItem.id - 1)}
-                    disabled={activeLabItem.id === 1}
+                    onClick={() => activeLabIndex > 0 && handleLabClick(LAB_ITEMS[activeLabIndex - 1].id)}
+                    disabled={activeLabIndex <= 0}
                     className="flex items-center gap-2 text-[13px] font-semibold text-gray-500 hover:text-gray-900 disabled:opacity-30"
                   >
                     <ArrowLeft className="w-4 h-4" /> Trang trước
@@ -467,8 +340,8 @@ function LessonContent() {
                     <Flag className="w-4 h-4 cursor-pointer hover:text-gray-600" />
                   </div>
                   <button
-                    onClick={() => activeLabItem.id < LAB_ITEMS.length && handleLabClick(activeLabItem.id + 1)}
-                    disabled={activeLabItem.id === LAB_ITEMS.length}
+                    onClick={() => activeLabIndex < LAB_ITEMS.length - 1 && handleLabClick(LAB_ITEMS[activeLabIndex + 1].id)}
+                    disabled={activeLabIndex === LAB_ITEMS.length - 1 || activeLabIndex === -1}
                     className="flex items-center gap-2 text-[13px] font-semibold text-indigo-600 hover:text-indigo-800 disabled:opacity-30"
                   >
                     Tiep theo <ChevronRight className="w-4 h-4" />
