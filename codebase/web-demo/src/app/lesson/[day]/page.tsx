@@ -138,7 +138,6 @@ Moi van de ghi thanh 1 Problem Card:
 
 // ── Component ────────────────────────────────────────────────
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
 function LessonContent() {
   const { day } = useParams<{ day: string }>();
