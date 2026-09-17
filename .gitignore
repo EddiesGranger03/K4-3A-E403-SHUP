@@ -8,6 +8,9 @@ data/
 .env.*
 !.env.example
 
+# Index run logs (chứa API call logs + token counts)
+eval/index_runs/run_*/
+
 # Node / Python / OS temp
 node_modules/
 __pycache__/

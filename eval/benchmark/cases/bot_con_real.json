@@ -1,0 +1,112 @@
+[
+  {
+    "case_id": "D4_BOT_01",
+    "dimension": "D4",
+    "description": "Yêu cầu support code/lỗi nằm ngoài phạm vi Slide",
+    "input": {
+      "user_query": "Dựa trên ví dụ về agent hỗ trợ khách hàng, tại sao việc hiểu rõ cấu trúc đường ống dữ liệu lại quan trọng khi xảy ra lỗi ở bảng feature?",
+      "target_bot": "Day 1"
+    },
+    "expected_action": "REJECT",
+    "expected_citation": false
+  },
+  {
+    "case_id": "D4_BOT_02",
+    "dimension": "D4",
+    "description": "Yêu cầu support code/lỗi nằm ngoài phạm vi Slide",
+    "input": {
+      "user_query": "Decoder-only Transformer architecture giải thích lại",
+      "target_bot": "Day 1"
+    },
+    "expected_action": "REJECT",
+    "expected_citation": false
+  },
+  {
+    "case_id": "D4_BOT_03",
+    "dimension": "D4",
+    "description": "Yêu cầu support code/lỗi nằm ngoài phạm vi Slide",
+    "input": {
+      "user_query": "(Currently on the part “Day 04_ C401_ Mini lab_System Prompt Engineering & Tool Calling Engine” of this lesson) lấy link nộp bài lab",
+      "target_bot": "Day 1"
+    },
+    "expected_action": "REJECT",
+    "expected_citation": false
+  },
+  {
+    "case_id": "D4_BOT_04",
+    "dimension": "D4",
+    "description": "Yêu cầu support code/lỗi nằm ngoài phạm vi Slide",
+    "input": {
+      "user_query": "_Prompt-Engineering-Tool-Calling” của buổi này) k hiểu phần code ấy",
+      "target_bot": "Day 1"
+    },
+    "expected_action": "REJECT",
+    "expected_citation": false
+  },
+  {
+    "case_id": "D4_BOT_05",
+    "dimension": "D4",
+    "description": "Yêu cầu support code/lỗi nằm ngoài phạm vi Slide",
+    "input": {
+      "user_query": "code lab này nên tích hợp gemini API làm LLM không",
+      "target_bot": "Day 1"
+    },
+    "expected_action": "REJECT",
+    "expected_citation": false
+  },
+  {
+    "case_id": "D35_BOT_01",
+    "dimension": "D3_D5",
+    "description": "Hỏi thông số, so sánh. Bắt buộc có Citation.",
+    "input": {
+      "user_query": "bạn có thể so sánh slide, tổng hợp slide từ day 1 đến day 3",
+      "target_bot": "Day 2"
+    },
+    "expected_action": "ANSWER",
+    "expected_citation": true
+  },
+  {
+    "case_id": "D35_BOT_02",
+    "dimension": "D3_D5",
+    "description": "Hỏi thông số, so sánh. Bắt buộc có Citation.",
+    "input": {
+      "user_query": "tham số số lượng phân cụm (centroids) là gì",
+      "target_bot": "Day 2"
+    },
+    "expected_action": "ANSWER",
+    "expected_citation": true
+  },
+  {
+    "case_id": "D35_BOT_03",
+    "dimension": "D3_D5",
+    "description": "Hỏi thông số, so sánh. Bắt buộc có Citation.",
+    "input": {
+      "user_query": "Sự khác biệt giữa multi-step reasoning và suy luận 1 bước là gì?",
+      "target_bot": "Day 2"
+    },
+    "expected_action": "ANSWER",
+    "expected_citation": true
+  },
+  {
+    "case_id": "D35_BOT_04",
+    "dimension": "D3_D5",
+    "description": "Hỏi thông số, so sánh. Bắt buộc có Citation.",
+    "input": {
+      "user_query": "Giới hạn của bạn có thể tạo bao nhiêu câu hỏi",
+      "target_bot": "Day 2"
+    },
+    "expected_action": "ANSWER",
+    "expected_citation": true
+  },
+  {
+    "case_id": "D35_BOT_05",
+    "dimension": "D3_D5",
+    "description": "Hỏi thông số, so sánh. Bắt buộc có Citation.",
+    "input": {
+      "user_query": "Tóm tắt toàn bộ trong 5 ý.  Liệt kê tất cả công thức.  Liệt kê toàn bộ thuật ngữ.  Tạo mindmap.  Tạo FAQ.",
+      "target_bot": "Day 2"
+    },
+    "expected_action": "ANSWER",
+    "expected_citation": true
+  }
+]

@@ -1,0 +1,156 @@
+{
+  "các_tầng_của_ai_(ai_hierarchy)": {
+    "concept": "Các tầng của AI (AI Hierarchy)",
+    "slides": "3",
+    "level": "basic",
+    "summary": "Phân chia các cấp độ từ rộng đến hẹp của AI bao gồm Trí tuệ nhân tạo, Học máy, Học sâu, AI tạo sinh và Mô hình ngôn ngữ lớn.",
+    "prerequisites": [],
+    "day": 1
+  },
+  "ba_nhóm_ai_chính": {
+    "concept": "Ba nhóm AI chính",
+    "slides": "4",
+    "level": "basic",
+    "summary": "Phân loại AI thành ba nhóm chính gồm AI phân loại, AI tạo sinh và AI hành động với các phương thức hoạt động khác nhau.",
+    "prerequisites": [
+      "Các tầng của AI (AI Hierarchy)"
+    ],
+    "day": 1
+  },
+  "lịch_sử_phát_triển_ai": {
+    "concept": "Lịch sử phát triển AI",
+    "slides": "5-9",
+    "level": "basic",
+    "summary": "Tổng quan hành trình 70 năm của AI qua các mốc từ hệ chuyên gia, cuộc cách mạng dữ liệu ImageNet, bước ngoặt Transformer đến ChatGPT.",
+    "prerequisites": [],
+    "day": 1
+  },
+  "mô_hình_ngôn_ngữ_lớn_(llm)": {
+    "concept": "Mô hình ngôn ngữ lớn (LLM)",
+    "slides": "10",
+    "level": "basic",
+    "summary": "LLM là bộ não ngôn ngữ nền tảng dùng chung cho nhiều tác vụ khác nhau dựa trên việc dự đoán mảnh chữ tiếp theo.",
+    "prerequisites": [
+      "Các tầng của AI (AI Hierarchy)"
+    ],
+    "day": 1
+  },
+  "cơ_chế_sinh_văn_bản_của_llm": {
+    "concept": "Cơ chế sinh văn bản của LLM",
+    "slides": "11-12",
+    "level": "intermediate",
+    "summary": "Mô hình chấm điểm xác suất cho toàn bộ từ vựng, chọn từ theo xác suất rồi lặp lại quy trình nối vào ngữ cảnh để sinh văn bản.",
+    "prerequisites": [
+      "Mô hình ngôn ngữ lớn (LLM)"
+    ],
+    "day": 1
+  },
+  "token_trong_llm": {
+    "concept": "Token trong LLM",
+    "slides": "13",
+    "level": "basic",
+    "summary": "Token là các mảnh chữ nhỏ mà mô hình dùng để đọc và xử lý văn bản thay vì đọc nguyên từ.",
+    "prerequisites": [
+      "Mô hình ngôn ngữ lớn (LLM)"
+    ],
+    "day": 1
+  },
+  "context_window_(bàn_làm_việc_của_ai)": {
+    "concept": "Context Window (Bàn làm việc của AI)",
+    "slides": "14",
+    "level": "basic",
+    "summary": "Giới hạn lượng thông tin đầu vào mà mô hình có thể xử lý trong một lần, ảnh hưởng đến chi phí, tốc độ và khả năng ghi nhớ.",
+    "prerequisites": [
+      "Token trong LLM"
+    ],
+    "day": 1
+  },
+  "cơ_chế_attention": {
+    "concept": "Cơ chế Attention",
+    "slides": "15-16",
+    "level": "advanced",
+    "summary": "Cho phép mỗi token chủ động nhìn sang các token khác để liên kết ngữ nghĩa trong câu và xác định trọng tâm.",
+    "prerequisites": [
+      "Mô hình ngôn ngữ lớn (LLM)"
+    ],
+    "day": 1
+  },
+  "tham_số_và_kiến_trúc_moe": {
+    "concept": "Tham số và Kiến trúc MoE",
+    "slides": "17",
+    "level": "intermediate",
+    "summary": "Tham số là các khớp nối thần kinh của mô hình, trong khi kiến trúc MoE giúp tối ưu hóa hiệu năng và chi phí xử lý.",
+    "prerequisites": [
+      "Mô hình ngôn ngữ lớn (LLM)"
+    ],
+    "day": 1
+  },
+  "quy_trình_huấn_luyện_llm": {
+    "concept": "Quy trình huấn luyện LLM",
+    "slides": "18-19",
+    "level": "intermediate",
+    "summary": "Các bước huấn luyện từ Pre-training, SFT, RLHF đến luyện suy luận để chuyển một cỗ máy đoán chữ thành trợ lý an toàn và hữu ích.",
+    "prerequisites": [
+      "Mô hình ngôn ngữ lớn (LLM)"
+    ],
+    "day": 1
+  },
+  "mô_hình_double_diamond": {
+    "concept": "Mô hình Double Diamond",
+    "slides": "3-4",
+    "level": "basic",
+    "summary": "Mô hình tư duy thiết kế gồm 4 giai đoạn Discover, Define, Develop và Deliver để tìm đúng vấn đề trước khi tìm đúng giải pháp.",
+    "prerequisites": [],
+    "day": 2
+  },
+  "4_lenses_xác_định_bài_toán_ai": {
+    "concept": "4 Lenses xác định bài toán AI",
+    "slides": "6",
+    "level": "basic",
+    "summary": "Bốn góc nhìn (Tác vụ lặp lại, Tiêu tốn thời gian, Lợi thế của AI, Điểm đau người dùng) giúp quan sát và tìm kiếm bài toán thực tế.",
+    "prerequisites": [
+      "Mô hình Double Diamond"
+    ],
+    "day": 2
+  },
+  "anti_patterns_trong_bài_toán_ai": {
+    "concept": "Anti-patterns trong bài toán AI",
+    "slides": "7",
+    "level": "intermediate",
+    "summary": "Các sai lầm phổ biến như ưu tiên giải pháp trước, mơ hồ hiện trạng, bỏ qua đánh giá hoặc mập mờ ranh giới tự chủ của AI.",
+    "prerequisites": [
+      "4 Lenses xác định bài toán AI"
+    ],
+    "day": 2
+  },
+  "khung_quick_problem_card": {
+    "concept": "Khung Quick Problem Card",
+    "slides": "9",
+    "level": "basic",
+    "summary": "Khung chuẩn gồm 6 thành phần (Bài toán, Đối tượng, Quy trình, Nút thắt, Chỉ số, Hướng giải pháp) để định hình vấn đề rõ ràng.",
+    "prerequisites": [
+      "Mô hình Double Diamond"
+    ],
+    "day": 2
+  },
+  "định_lượng_hóa_bài_toán_(baseline_&_target)": {
+    "concept": "Định lượng hóa bài toán (Baseline & Target)",
+    "slides": "11-12",
+    "level": "intermediate",
+    "summary": "Phương pháp xác định hiện trạng (Baseline), mục tiêu (Target) và chỉ số đo lường (Output/Input metrics) để chứng minh giá trị thực tế.",
+    "prerequisites": [
+      "Khung Quick Problem Card"
+    ],
+    "day": 2
+  },
+  "khung_google_pair_xác_định_ứng_dụng_ai": {
+    "concept": "Khung Google PAIR xác định ứng dụng AI",
+    "slides": "8, 13, 14",
+    "level": "advanced",
+    "summary": "Bộ 3 bước cốt lõi của Google PAIR để đánh giá giao điểm nhu cầu-thế mạnh AI, chọn Automate/Augment và thiết lập reward function.",
+    "prerequisites": [
+      "Định lượng hóa bài toán (Baseline & Target)"
+    ],
+    "day": 2
+  }
+}

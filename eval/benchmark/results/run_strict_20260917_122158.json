@@ -1,0 +1,122 @@
+[
+  {
+    "case_id": "D4_BOT_01",
+    "query": "Dựa trên ví dụ về agent hỗ trợ khách hàng, tại sao việc hiểu rõ cấu trúc đường ống dữ liệu lại quan trọng khi xảy ra lỗi ở bảng feature?",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_02",
+    "query": "Decoder-only Transformer architecture giải thích lại",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_03",
+    "query": "(Currently on the part “Day 04_ C401_ Mini lab_System Prompt Engineering & Tool Calling Engine” of this lesson) lấy link nộp bài lab",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_04",
+    "query": "_Prompt-Engineering-Tool-Calling” của buổi này) k hiểu phần code ấy",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_05",
+    "query": "code lab này nên tích hợp gemini API làm LLM không",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D35_BOT_01",
+    "query": "bạn có thể so sánh slide, tổng hợp slide từ day 1 đến day 3",
+    "pass": false,
+    "detail": "CITE:True | HELPFUL:False | FABRICATED:False | Reason: Bot đã trả lời 'Không có dữ liệu [Day 1 - Slide 1]..."
+  },
+  {
+    "case_id": "D35_BOT_02",
+    "query": "tham số số lượng phân cụm (centroids) là gì",
+    "pass": false,
+    "detail": "CITE:True | HELPFUL:False | FABRICATED:False | Reason: Học viên hỏi về khái niệm phân cụm (centroids - th..."
+  },
+  {
+    "case_id": "D35_BOT_03",
+    "query": "Sự khác biệt giữa multi-step reasoning và suy luận 1 bước là gì?",
+    "pass": false,
+    "detail": "CITE:True | HELPFUL:False | FABRICATED:False | Reason: Bot trả lời 'Không có dữ liệu' và từ chối cung cấp..."
+  },
+  {
+    "case_id": "D35_BOT_04",
+    "query": "Giới hạn của bạn có thể tạo bao nhiêu câu hỏi",
+    "pass": false,
+    "detail": "CITE:True | HELPFUL:False | FABRICATED:False | Reason: Bot đã trả lời sai lệch là 'Không có dữ liệu [Day ..."
+  },
+  {
+    "case_id": "D35_BOT_05",
+    "query": "Tóm tắt toàn bộ trong 5 ý.  Liệt kê tất cả công thức.  Liệt kê toàn bộ thuật ngữ.  Tạo mindmap.  Tạo FAQ.",
+    "pass": false,
+    "detail": "CITE:True | HELPFUL:False | FABRICATED:False | Reason: Bot đã trả lời 'Không có dữ liệu [Day 1 - Slide 1]..."
+  },
+  {
+    "case_id": "D1_HUB_01",
+    "query": "tìm kiếm các link tài liệu trong slide",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D1_HUB_02",
+    "query": "Mã SHA-256 của ZIP ảnh được cấp nằm ở đâu",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D1_HUB_03",
+    "query": "3 thuộc tính này tìm ở đâu? - Quy tắc áp dụng: CHƯA ĐIỀN - Quyết định: CHƯA ĐIỀN - Nếu vẫn thiếu bằng chứng, bạn sẽ làm gì? CHƯA ĐIỀN",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D1_HUB_04",
+    "query": "_Prompt-Engineering-Tool-Calling” của buổi này) nộp mini lab 4 ở đâu",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D1_HUB_05",
+    "query": "” của buổi này) gửi cho tôi lại cái link trên",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D2_HUB_01",
+    "query": "Khi LLM provider timeout trong production, agent của bạn sẽ tự phục hồi hay làm sập cả workflow?",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D2_HUB_02",
+    "query": "agent là gì",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D2_HUB_03",
+    "query": "” của buổi này) Làm thế nào để System prompt đảm bảo tính ổn định của Agent?",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D2_HUB_04",
+    "query": "(Currently on the part “Day03: Từ chatbot đến agentic agent react (Mr. [HV])” of this lesson) đưa ra các câu hỏi mục tiêu bài học hôm nay (câu hỏi)",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D2_HUB_05",
+    "query": "vậy với RAG và để tool trong harness để model dùng tool search internet thì cái nào sẽ tốt hơn",
+    "pass": false,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  }
+]

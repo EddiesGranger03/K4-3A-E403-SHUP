@@ -1,0 +1,6 @@
+# Index run results — chứa API logs và token counts, không commit
+run_*/
+
+# Giữ lại README và .gitkeep
+!README.md
+!.gitkeep

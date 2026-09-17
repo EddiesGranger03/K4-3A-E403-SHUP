@@ -254,68 +254,12 @@ Sau đó ra quyết định:
 
 ---
 
-## §4f. Auto-Index Pipeline — Cập nhật Knowledge Index khi có Lab mới
-
-> Script: [`codebase/pipeline/auto_index.py`](codebase/pipeline/auto_index.py)
-
-### Vấn đề cần giải
-Nếu knowledge index phải cập nhật tay mỗi khi có lab mới → tốn 2–3 giờ/buổi → không scale. Pipeline tự động giảm xuống còn **10–15 phút review/buổi**.
-
-### Sơ đồ pipeline
-
-```mermaid
-flowchart LR
-    A["📄 Slide PDF\n+ Transcript"] --> B["Parse per-slide\npdfplumber"]
-    B --> C["LLM Extract\nGemini API"]
-    C --> D["Suggest entries\nconcept · slides · level\nsummary · prereq"]
-    D --> E{"Admin Review\nCLI"}
-    E -->|"Confirm ✅"| F["Merge →\nknowledge_index.json"]
-    E -->|"Reject ❌"| G["Bỏ qua"]
-    E -->|"Edit ✏️"| D
-    F --> H["Hub Bot tự nhận\nindex mới"]
-```
-
-### Các bước chi tiết
-
-| Bước | Công việc | Đầu ra |
-|---|---|---|
-| **1. Parse** | `pdfplumber` đọc PDF → text từng slide `[Slide N]...` | Chuỗi text có đánh số slide |
-| **2. Extract** | Gemini nhận text slide + transcript → trả JSON array khái niệm | List `{concept, slides, level, summary, prerequisites}` |
-| **3. Review** | Admin bấm Enter (confirm) / r (reject) / e (edit) từng entry trong CLI | List entries đã approve |
-| **4. Merge** | Append vào `eval/knowledge_index.json`, tự tạo file nếu chưa có | `knowledge_index.json` cập nhật |
-
-### Cách chạy
-
-```bash
-export GEMINI_API_KEY=your_key_here
-
-python codebase/pipeline/auto_index.py \
-  --slide hackathon_docs/data/vlearn-pack/day5_slide.pdf \
-  --transcript hackathon_docs/data/vlearn-pack/day5_transcript.txt \
-  --day 5
-
-# Không hỏi (auto-confirm, dùng để test)
-python codebase/pipeline/auto_index.py --slide day5.pdf --day 5 --auto
-```
-
-### Lý do cần Admin review — LLM không chạy 100% tự động được
-
-| LLM giỏi ✅ | LLM cần người kiểm ⚠️ |
-|---|---|
-| Extract khái niệm từ slide | Biết prerequisite đúng của lộ trình khóa này |
-| Tóm tắt 1 câu súc tích | Phân biệt khái niệm quan trọng vs slide phụ |
-| Phân level basic/advanced | Biết thứ tự học đúng của K4 |
-
-→ LLM làm 80% việc nặng · Admin chỉ verify = **10–15 phút/buổi**.
-
----
-
 ## §8. Phân công & kế hoạch
 
-- **Nguyễn Khánh Sơn (Product Lead):** Cấu trúc Spec, thiết kế toàn bộ luồng Hub & Spoke + Admin flow + Auto-Index Pipeline, điều phối nộp các mốc Checkpoint.
-- **Bùi Thị Thu Uyên (User Research & Data Lead):** Phân tích chatlog 13.494 lượt · chạy `auto_index.py` trên data pack để build `knowledge_index.json` · xây dựng `cohort_schedule.json` và `student_progress.json` (3 mock profile).
-- **Lê Châu Trần Phát (AI & Evaluation Lead):** Thiết kế system prompt Hub (logic cohort + progress + prerequisite check) và system prompt Bot Con (RAG Day 1, Day 2, Day 4) · viết EXTRACT_PROMPT cho pipeline · xây dựng Golden Set 20 cases.
-- **Ngô Xuân Hoàng (Technical Lead):** Web prototype 3 màn hình (Profile selector + Hub chat + Bot Con Day X) · tích hợp API · Admin panel upload & confirm flow · chuẩn bị video demo CP3 + CP5.
+- **Nguyễn Khánh Sơn (Product Lead):** Cấu trúc Spec, thiết kế toàn bộ luồng Hub & Spoke + Admin flow, điều phối nộp các mốc Checkpoint.
+- **Bùi Thị Thu Uyên (User Research & Data Lead):** Phân tích chatlog 13.494 lượt, xây dựng `knowledge_index.json` (top 20–30 khái niệm từ chatlog), `cohort_schedule.json`, `student_progress.json` (3 mock profile).
+- **Lê Châu Trần Phát (AI & Evaluation Lead):** Thiết kế system prompt Hub (có logic cohort + progress + prerequisite check) và system prompt Bot Con (RAG Day 1, Day 2, Day 4), xây dựng Golden Set 20 cases.
+- **Ngô Xuân Hoàng (Technical Lead):** Web prototype 3 màn hình (Profile selector + Hub chat + Bot Con Day X), tích hợp API, Admin panel upload & confirm flow, chuẩn bị video demo CP3 + CP5.
 - **Willing users (khai báo CP1 cho CP5):** 2 bạn học viên phòng E403 (Cụm 4).
 
 ---
@@ -325,8 +269,7 @@ python codebase/pipeline/auto_index.py --slide day5.pdf --day 5 --auto
 | Thời điểm | Đổi gì | Vì sao |
 |---|---|---|
 | 16/9 | Đổi tên thành Bot Hỗ Trợ & Bot Con theo chuẩn Hub & Spoke | Thống nhất thuật ngữ thân thiện, chuẩn hóa tên gọi trợ lý VLearn |
-| 17/9 (lần 1) | Đính chính mô tả bot cũ tại §1, §3: scoped theo từng Day, không phải monolithic RAG | Làm rõ đúng bản chất giới hạn của bot cũ |
-| 17/9 (lần 2) | Thêm Admin flow: upload lab → LLM extract → review → publish | Hệ thống không thể tự duy trì nếu không có quy trình admin rõ ràng |
-| 17/9 (lần 3) | Thêm multi-cohort (mock K4) và student progress (mock 3 profile) vào Hub logic | Hub phải biết học viên đang ở đâu để navigate đúng lộ trình |
-| 17/9 (lần 4) | Mở rộng §1 sang 2 nhóm user (Học viên + Admin), cập nhật §2, §4d, §5, §6 | Admin là user quan trọng của hệ thống |
-| 17/9 (lần 5) | Thêm §4f Auto-Index Pipeline + script `codebase/pipeline/auto_index.py` | Knowledge index phải cập nhật tay 2–3h/buổi nếu không có pipeline → không scale |
+| 17/9 (lần 1) | Đính chính mô tả bot cũ tại §1, §3: bot hiện tại scoped theo từng Day, không phải monolithic RAG | Làm rõ đúng bản chất giới hạn của bot cũ — gap là thiếu cross-day navigation, không phải context bleeding |
+| 17/9 (lần 2) | Thêm Admin flow: upload lab → LLM extract → review → publish + cohort schedule management | Hệ thống không thể tự duy trì nếu không có quy trình admin rõ ràng khi lab mới được thêm vào |
+| 17/9 (lần 3) | Thêm multi-cohort (mock K4) và student progress (mock 3 profile) vào Hub logic | Hub phải biết học viên đang ở đâu trong lộ trình để navigate đúng, tránh cho học viên học sai thứ tự prerequisite |
+| 17/9 (lần 4) | Mở rộng §1 sang 2 nhóm user (Học viên + Admin), cập nhật bảng impact §2, bổ sung Non-goals §4d, thêm case ahead-of-schedule vào §5 và §6 | Phản ánh đúng thiết kế đầy đủ sau khi xác định Admin là user quan trọng của hệ thống |
