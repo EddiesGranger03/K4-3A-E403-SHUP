@@ -1,12 +1,9 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import {
-  ArrowLeft, BookOpen, FileText, Send, Sparkles,
-  ThumbsUp, ThumbsDown, Flag, ChevronDown, ChevronRight,
-  RotateCcw, X, CheckCircle,
-} from "lucide-react";
+import { useState, useRef, useEffect, Suspense } from "react";
+import { Search, ChevronDown, ChevronRight, CheckCircle, Flag, ArrowLeft, Send, Sparkles, X, FileText, Layout, File, MessageSquare, Menu, Clock, PlayCircle, Folder, FileQuestion, ThumbsUp, ThumbsDown, BookOpen } from "lucide-react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
+import ReactMarkdown from "react-markdown";
 
 type Message = { role: "user" | "bot"; text: string };
 type ContentView = "slide" | "lab";
@@ -219,21 +216,21 @@ function LessonContent() {
         <button onClick={() => router.push("/")} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <span className="font-semibold text-[15px] text-gray-900">Bai 2 · DAY 0{day}</span>
+        <span className="font-semibold text-[15px] text-gray-900">Bài {day} · DAY 0{day}</span>
         <div className="flex-1" />
         <div className="flex items-center gap-2 text-[12px] text-gray-500 font-medium">
-          <span>0/24 bai</span>
+          <span>0/24 bài</span>
           <div className="w-28 h-1.5 bg-gray-200 rounded-full overflow-hidden">
             <div className="w-0 h-full bg-indigo-500 rounded-full" />
           </div>
         </div>
         <button className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-lg text-[12px] font-semibold hover:bg-indigo-100 transition-colors">
           <Sparkles className="w-3.5 h-3.5" />
-          Dat cau hoi voi AI
+          Đặt câu hỏi với AI
         </button>
         <button className="flex items-center gap-1.5 text-[12px] font-semibold text-gray-600 hover:text-gray-900 px-2">
           <Send className="w-3.5 h-3.5" />
-          Gui yeu cau
+          Gửi yêu cầu
         </button>
         <div className="w-8 h-8 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold text-sm cursor-pointer">L</div>
       </header>
@@ -244,7 +241,7 @@ function LessonContent() {
         {/* ── LEFT SIDEBAR ── */}
         <aside className="w-[260px] bg-white border-r border-gray-200 flex flex-col shrink-0 overflow-y-auto">
           <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-            <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Noi dung bai hoc</span>
+            <span className="text-[10px] font-bold text-gray-400 tracking-widest uppercase">Nội dung bài học</span>
             <button className="text-gray-300 hover:text-gray-500"><X className="w-3.5 h-3.5" /></button>
           </div>
 
@@ -271,7 +268,7 @@ function LessonContent() {
                   {s.title}
                 </span>
                 {s.id === 1 && contentView === "slide" && (
-                  <span className="text-[10px] font-bold text-indigo-500 shrink-0">Dang hoc</span>
+                  <span className="text-[10px] font-bold text-indigo-500 shrink-0">Đang học</span>
                 )}
               </button>
             ))}
@@ -314,7 +311,7 @@ function LessonContent() {
                     {item.short}
                   </span>
                   {activeLabId === item.id && (
-                    <span className="text-[10px] font-bold text-indigo-500 shrink-0 mt-0.5">Dang hoc</span>
+                    <span className="text-[10px] font-bold text-indigo-500 shrink-0 mt-0.5">Đang học</span>
                   )}
                 </button>
               ))}
@@ -331,27 +328,15 @@ function LessonContent() {
               <div className="w-full max-w-3xl flex flex-col gap-4">
                 {/* Slide */}
                 <div className="bg-[#8DAA91] rounded-2xl shadow-lg overflow-hidden relative" style={{ aspectRatio: "16/9.5" }}>
-                  <div className="absolute top-5 left-6 text-[9px] font-bold tracking-[0.2em] text-white/50 uppercase">
-                    AI IN ACTION · DAY 0{day}
-                  </div>
-                  <div className="absolute inset-0 flex flex-col justify-center px-12 pb-8 pt-16">
-                    <h1 className={`text-[38px] font-extrabold text-[#1C2B1E] leading-tight mb-4 inline-block w-fit px-1 rounded ${highlightSlideLine === "1" ? "bg-yellow-300/80 shadow-[0_0_15px_rgba(253,224,71,0.5)] ring-2 ring-yellow-400 transition-all duration-1000" : ""}`}>
-                      Xac dinh <em className="font-serif font-light italic">bai toan</em> cho AI.
-                    </h1>
-                    <p className={`text-[14px] text-[#2d3d2f] font-medium inline-block w-fit px-1 rounded ${highlightSlideLine === "2" ? "bg-yellow-300/80 shadow-[0_0_15px_rgba(253,224,71,0.5)] ring-2 ring-yellow-400 transition-all duration-1000" : ""}`}>
-                      Tu <strong>yeu cau mo ho</strong> den <strong>Problem Statement</strong> ro rang.
-                    </p>
-                  </div>
-                  <div className="absolute bottom-4 left-6 text-[11px] text-white/40 font-medium">
-                    Instructor: Mai Anh Nguyen (Blue)
-                  </div>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none select-none -rotate-12">
+                  <iframe 
+                    src={`/slides/day${day}.pdf#page=${page}&toolbar=0&navpanes=0`} 
+                    className="w-full h-full border-none absolute inset-0 z-10"
+                    title="Slide Viewer"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none select-none -rotate-12 z-0">
                     <span className="text-[20px] font-bold tracking-widest text-black whitespace-nowrap">
                       26A_PHATLCT@VINUNI.EDU.VN
                     </span>
-                  </div>
-                  <div className="absolute top-4 right-4 bg-white/15 hover:bg-white/30 backdrop-blur-md p-2 rounded-full cursor-pointer transition-colors">
-                    <Sparkles className="w-4 h-4 text-white" />
                   </div>
                 </div>
 
@@ -372,16 +357,16 @@ function LessonContent() {
                     <button onClick={() => setPage((p) => Math.min(76, p + 1))} className="px-2 py-0.5 hover:text-gray-900">&gt;</button>
                   </div>
                   <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-[12px] font-semibold text-gray-700">
-                    <FileText className="w-3.5 h-3.5" /> So ghi chu
+                    <FileText className="w-3.5 h-3.5" /> Sổ ghi chú
                   </button>
                 </div>
 
                 {/* Note */}
                 <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                   <div className="flex items-center gap-2 text-[12px] font-bold text-gray-700 mb-2">
-                    <FileText className="w-3.5 h-3.5 text-gray-400" /> Ghi chu cua giang vien
+                    <FileText className="w-3.5 h-3.5 text-gray-400" /> Ghi chú của giảng viên
                   </div>
-                  <p className="text-[13px] text-gray-400">Chua co ghi chu cho phan nay.</p>
+                  <p className="text-[13px] text-gray-400">Chưa có ghi chú cho phần này.</p>
                 </div>
 
                 {/* Reactions */}
@@ -389,6 +374,21 @@ function LessonContent() {
                   <button onClick={() => setLiked("up")} className={`p-1.5 rounded-lg transition-colors ${liked === "up" ? "text-indigo-600 bg-indigo-50" : "hover:bg-gray-100"}`}><ThumbsUp className="w-4 h-4" /></button>
                   <button onClick={() => setLiked("down")} className={`p-1.5 rounded-lg transition-colors ${liked === "down" ? "text-red-500 bg-red-50" : "hover:bg-gray-100"}`}><ThumbsDown className="w-4 h-4" /></button>
                   <button className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"><Flag className="w-4 h-4" /></button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          
+          {/* TRANSCRIPT VIEW */}
+          {contentView === "transcript" && (
+            <div className="flex-1 p-8 overflow-y-auto">
+              <div className="w-full max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">Transcript Day {day}</h1>
+                <div className="prose prose-sm max-w-none text-gray-800 transcript-viewer">
+                  <ReactMarkdown>
+                    {transcriptContent}
+                  </ReactMarkdown>
                 </div>
               </div>
             </div>
@@ -442,7 +442,7 @@ function LessonContent() {
                     disabled={activeLabItem.id === 1}
                     className="flex items-center gap-2 text-[13px] font-semibold text-gray-500 hover:text-gray-900 disabled:opacity-30"
                   >
-                    <ArrowLeft className="w-4 h-4" /> Trang truoc
+                    <ArrowLeft className="w-4 h-4" /> Trang trước
                   </button>
                   <div className="flex items-center gap-3 text-gray-400">
                     <ThumbsUp className={`w-4 h-4 cursor-pointer hover:text-indigo-600 ${liked === "up" ? "text-indigo-600" : ""}`} onClick={() => setLiked("up")} />

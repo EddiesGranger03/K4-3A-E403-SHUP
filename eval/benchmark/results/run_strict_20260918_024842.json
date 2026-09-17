@@ -1,0 +1,122 @@
+[
+  {
+    "case_id": "D4_BOT_01",
+    "query": "Dựa trên ví dụ về agent hỗ trợ khách hàng, tại sao việc hiểu rõ cấu trúc đường ống dữ liệu lại quan trọng khi xảy ra lỗi ở bảng feature?",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_02",
+    "query": "Decoder-only Transformer architecture giải thích lại",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_03",
+    "query": "(Currently on the part “Day 04_ C401_ Mini lab_System Prompt Engineering & Tool Calling Engine” of this lesson) lấy link nộp bài lab",
+    "pass": true,
+    "detail": "REJECT_STATUS: True"
+  },
+  {
+    "case_id": "D4_BOT_04",
+    "query": "_Prompt-Engineering-Tool-Calling” của buổi này) k hiểu phần code ấy",
+    "pass": true,
+    "detail": "REJECT_STATUS: True"
+  },
+  {
+    "case_id": "D4_BOT_05",
+    "query": "code lab này nên tích hợp gemini API làm LLM không",
+    "pass": true,
+    "detail": "REJECT_STATUS: True"
+  },
+  {
+    "case_id": "D35_BOT_01",
+    "query": "bạn có thể so sánh slide, tổng hợp slide từ day 1 đến day 3",
+    "pass": true,
+    "detail": "CITE:True | HELPFUL:True | FABRICATED:False | Reason: Knowledge Index chỉ cung cấp dữ liệu cho Day 1, ho..."
+  },
+  {
+    "case_id": "D35_BOT_02",
+    "query": "tham số số lượng phân cụm (centroids) là gì",
+    "pass": true,
+    "detail": "CITE:True | HELPFUL:True | FABRICATED:False | Reason: Câu hỏi hỏi về 'tham số số lượng phân cụm (centroi..."
+  },
+  {
+    "case_id": "D35_BOT_03",
+    "query": "Sự khác biệt giữa multi-step reasoning và suy luận 1 bước là gì?",
+    "pass": true,
+    "detail": "CITE:True | HELPFUL:True | FABRICATED:False | Reason: Knowledge Index chỉ chứa thông tin về Day 1 (các k..."
+  },
+  {
+    "case_id": "D35_BOT_04",
+    "query": "Giới hạn của bạn có thể tạo bao nhiêu câu hỏi",
+    "pass": true,
+    "detail": "CITE:True | HELPFUL:True | FABRICATED:False | Reason: Bot đã từ chối trả lời chính xác vì câu hỏi nằm ng..."
+  },
+  {
+    "case_id": "D35_BOT_05",
+    "query": "Tóm tắt toàn bộ trong 5 ý.  Liệt kê tất cả công thức.  Liệt kê toàn bộ thuật ngữ.  Tạo mindmap.  Tạo FAQ.",
+    "pass": true,
+    "detail": "CITE:True | HELPFUL:True | FABRICATED:False | Reason: Bot đã thực hiện đúng nguyên tắc của một trợ lý AI..."
+  },
+  {
+    "case_id": "D1_HUB_01",
+    "query": "tìm kiếm các link tài liệu trong slide",
+    "pass": true,
+    "detail": "ROUTE: Day 99 - Học viên đang ở Day 99 và muốn tìm kiếm các link tài liệu trong slide của bài học hiện tại."
+  },
+  {
+    "case_id": "D1_HUB_02",
+    "query": "Mã SHA-256 của ZIP ảnh được cấp nằm ở đâu",
+    "pass": true,
+    "detail": "ROUTE: Day 99 - Câu hỏi liên quan đến việc xác định thông tin hoặc tài nguyên của bài học hiện tại (Day 99)."
+  },
+  {
+    "case_id": "D1_HUB_03",
+    "query": "3 thuộc tính này tìm ở đâu? - Quy tắc áp dụng: CHƯA ĐIỀN - Quyết định: CHƯA ĐIỀN - Nếu vẫn thiếu bằng chứng, bạn sẽ làm gì? CHƯA ĐIỀN",
+    "pass": true,
+    "detail": "ROUTE: Day 99 - Học viên đang hỏi về cách xác định các thuộc tính, quy tắc áp dụng, quyết định và cách xử lý khi thiếu bằng chứng trong khung định nghĩa bài toán AI, thuộc phạm vi kiến thức về khung phân tích vấn đề."
+  },
+  {
+    "case_id": "D1_HUB_04",
+    "query": "_Prompt-Engineering-Tool-Calling” của buổi này) nộp mini lab 4 ở đâu",
+    "pass": true,
+    "detail": "ROUTE: Day 99 - Học viên đang ở Day 99 và hỏi về nơi nộp mini lab 4 của chủ đề Prompt-Engineering-Tool-Calling, hệ thống điều hướng đúng lộ trình hiện tại."
+  },
+  {
+    "case_id": "D1_HUB_05",
+    "query": "” của buổi này) gửi cho tôi lại cái link trên",
+    "pass": true,
+    "detail": "ROUTE: Day 99 - Học viên đang ở Day 99 và yêu cầu lấy lại link bài học của buổi hiện tại."
+  },
+  {
+    "case_id": "D2_HUB_01",
+    "query": "Khi LLM provider timeout trong production, agent của bạn sẽ tự phục hồi hay làm sập cả workflow?",
+    "pass": true,
+    "detail": "WARN_PREREQUISITE: Day 3 - Học viên đang ở Day 1 nhưng câu hỏi đề cập đến agent và lỗi timeout trong production của hệ thống agent, nội dung này thuộc kiến thức về AI Agent ở Day 3."
+  },
+  {
+    "case_id": "D2_HUB_02",
+    "query": "agent là gì",
+    "pass": true,
+    "detail": "WARN_PREREQUISITE: Day 3 - Khái niệm Agent nằm trong nội dung của Day 3, trong khi học viên mới ở Day 1."
+  },
+  {
+    "case_id": "D2_HUB_03",
+    "query": "” của buổi này) Làm thế nào để System prompt đảm bảo tính ổn định của Agent?",
+    "pass": true,
+    "detail": "WARN_PREREQUISITE: Day 3 - Học viên đang ở Day 1 nhưng hỏi về System prompt và Agent, nội dung này nằm ở Day 3 (AI Agent, CrewAI). Cần hoàn thành các bài học cơ bản trước."
+  },
+  {
+    "case_id": "D2_HUB_04",
+    "query": "(Currently on the part “Day03: Từ chatbot đến agentic agent react (Mr. [HV])” of this lesson) đưa ra các câu hỏi mục tiêu bài học hôm nay (câu hỏi)",
+    "pass": true,
+    "detail": "WARN_PREREQUISITE: Day 3 - Học viên đang ở Day 1 nhưng hỏi nội dung kiến thức của Day 3 (Agentic agent, React), cần hoàn thành các bài học trước đó."
+  },
+  {
+    "case_id": "D2_HUB_05",
+    "query": "vậy với RAG và để tool trong harness để model dùng tool search internet thì cái nào sẽ tốt hơn",
+    "pass": true,
+    "detail": "WARN_PREREQUISITE: Day 3 - Học viên đang ở Day 1 nhưng hỏi về RAG (Day 7) và Tool Use/AI Agent (Day 3), đây là kiến thức nâng cao cần học sau khi nắm vững nền tảng."
+  }
+]

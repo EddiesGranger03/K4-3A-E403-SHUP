@@ -146,11 +146,9 @@ Sau đó ra quyết định:
 ```json
 // knowledge_index.json (~5KB, bỏ vào system prompt Hub)
 {
-  "prompting_basic":   { "day": 1, "slides": "12-18", "level": "basic",    "prerequisites": [], "summary": "Zero-shot, Few-shot" },
-  "prompting_advanced":{ "day": 2, "slides": "5-9",   "level": "advanced", "prerequisites": ["prompting_basic"], "summary": "Chain-of-Thought, Tree-of-Thought" },
-  "RAG_overview":      { "day": 2, "slides": "20-24", "level": "basic",    "prerequisites": ["prompting_basic"], "summary": "Retrieval-Augmented Generation" },
-  "RAG_code":          { "day": 4, "slides": "8-15",  "level": "advanced", "prerequisites": ["RAG_overview"], "summary": "Implement RAG thực tế" },
-  "ReAct":             { "day": 4, "slides": "12-15", "level": "advanced", "prerequisites": ["RAG_overview", "agent_concept"], "summary": "Reasoning + Acting cho Agent" }
+  "prompting_basic":   { "concept_name": "Prompting Cơ Bản", "day": 1, "slides": [12, 13, 14], "transcript_refs": ["10:00"], "level": "basic",    "prerequisites": [], "keywords": ["zero-shot", "few-shot"], "summary": "Kỹ thuật Zero-shot, Few-shot" },
+  "prompting_advanced":{ "concept_name": "Prompting Nâng Cao", "day": 2, "slides": [5, 6], "transcript_refs": [], "level": "advanced", "prerequisites": ["prompting_basic"], "keywords": ["cot", "tot"], "summary": "Kỹ thuật Chain-of-Thought, Tree-of-Thought" },
+  "RAG_overview":      { "concept_name": "Tổng quan RAG", "day": 2, "slides": [20, 21], "transcript_refs": [], "level": "basic",    "prerequisites": ["prompting_basic"], "keywords": ["rag", "retrieval"], "summary": "Retrieval-Augmented Generation" }
 }
 
 // cohort_schedule.json (mock K4)
@@ -330,3 +328,4 @@ python codebase/pipeline/auto_index.py --slide day5.pdf --day 5 --auto
 | 17/9 (lần 3) | Thêm multi-cohort (mock K4) và student progress (mock 3 profile) vào Hub logic | Hub phải biết học viên đang ở đâu để navigate đúng lộ trình |
 | 17/9 (lần 4) | Mở rộng §1 sang 2 nhóm user (Học viên + Admin), cập nhật §2, §4d, §5, §6 | Admin là user quan trọng của hệ thống |
 | 17/9 (lần 5) | Thêm §4f Auto-Index Pipeline + script `codebase/pipeline/auto_index.py` | Knowledge index phải cập nhật tay 2–3h/buổi nếu không có pipeline → không scale |
+| 18/9 (CP4) | Tái cấu trúc JSON schema (`concept_id` tiếng Anh, mảng `slides`, thêm `transcript_refs`, `keywords`) & update `auto_index.py` (dùng Gemini 3.5 Flash Lite) | Đảm bảo Khóa chính (Foreign Keys) bền vững, hỗ trợ lưu vết Transcript và tối ưu việc Hub Bot Semantic Matching. |

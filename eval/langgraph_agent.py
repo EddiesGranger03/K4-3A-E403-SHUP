@@ -17,12 +17,12 @@ class AgentState(TypedDict):
 class VLearnAgent:
     def __init__(self):
         self.client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-        self.model = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+        self.model = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
     def hub_node(self, state: AgentState) -> AgentState:
         q = state["query"]
         p_day = state["profile_day"]
-        index_summary = "\n".join([f"- {k}: {v['concept']}" for k, v in state['index_data'].items()])
+        index_summary = "\n".join([f"- {k}: {v.get('concept_name', 'Unknown')}" for k, v in state['index_data'].items()])
         prompt = f"""Bạn là Hub Router của VLearn.
 Hồ sơ học viên đang ở Day {p_day}.
 Câu hỏi: "{q}"

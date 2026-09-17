@@ -32,8 +32,8 @@ Luôn dùng giọng điệu thân thiện, động viên. KHÔNG dài dòng.
 
 [TRƯỜNG HỢP ROUTING]
 Tuyệt vời! Khái niệm "{concept}" (Mức độ: {level}) nằm trong **Day {day}**.
-Tôi đã chuẩn bị xong tài liệu liên quan. Bạn hãy vào lớp Day {day} để hỏi chi tiết nhé:
-[👉 Mở trợ lý Day {day}](#deep-link-day-{day}-slide-{slide}-highlight-{slide_line}) (Sử dụng slide_refs để truyền thêm slide và highlightSlideLine)
+Tôi đã chuẩn bị xong tài liệu liên quan. Bạn có thể xem chi tiết tại **Day {day}**, trang Slide số {slide}:
+[👉 Mở tài liệu Day {day} - Slide {slide}](#deep-link-day-{day}-slide-{slide}-highlight-{slide_line}) (Sử dụng tham số từ slide_refs hoặc transcript_refs nếu có)
 
 [TRƯỜNG HỢP CẢNH BÁO PREREQUISITE]
 Khái niệm "{concept}" thuộc Day {day}. Tuy nhiên, để hiểu rõ phần này (mức độ {level}), bạn cần nắm vững: **{thiếu_prereq}**.

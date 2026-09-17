@@ -46,7 +46,7 @@ class LLMJudge:
         if not api_key:
             raise ValueError("Thiếu GEMINI_API_KEY. Vui lòng thêm vào file .env")
         self.client = genai.Client(api_key=api_key)
-        self.model = os.environ.get("GEMINI_MODEL", "gemini-2.0-flash")
+        self.model = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
         
         # Knowledge Index Context
         self.index_text = json.dumps(index_data, ensure_ascii=False, indent=2)
