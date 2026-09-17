@@ -3,25 +3,24 @@
 **Dự án:** VLearn Hub & Spoke AI Tutor  
 **Họ và tên:** Ngô Xuân Hoàng  
 **Mã học viên:** 2A202602597  
-**Vai trò:** Kỹ sư Giao diện & Frontend Lead (Nhóm SHUP — Lớp 3A — Phòng E403)  
-**Thời gian hoàn thành:** 18/09/2026  
+**Vai trò:** Kỹ sư Giao diện & Hỗ trợ Kiểm thử (Frontend UI/UX & Testing Engineer) — Nhóm SHUP (Lớp 3A — Phòng E403)  
+**Thời gian hoàn thành:** 17/09/2026  
 
 ---
 
-### 1. Vai trò & Trách nhiệm trong 47.5 giờ
-Với vai trò Kỹ sư Giao diện, nhiệm vụ của tôi là biến những dòng logic AI khô khan thành trải nghiệm người dùng (UX) mượt mà và trực quan nhất bằng Next.js và Tailwind CSS.
-- **Lập trình UI/UX:** Xây dựng giao diện Split-screen (chia đôi màn hình) cho phép học viên vừa đọc tài liệu vừa chat với Bot.
-- **Tích hợp Real PDF Viewer & Markdown:** Xóa bỏ giao diện giả lập, đưa slide PDF thật 100% vào hệ thống và bổ sung chế độ xem Transcript.
+### 1. Vai trò & Trách nhiệm: Phân định rõ ràng mảng việc phụ trách trong 47.5h
+Tôi đảm nhận vai trò Kỹ sư Giao diện & Hỗ trợ Kiểm thử, phối hợp chặt chẽ cùng đội trưởng Sơn để hoàn thiện trải nghiệm học tập. Trách nhiệm của tôi bao gồm: Phát triển giao diện `index.html`, `style.css`, xây dựng cấu trúc Split-screen hiện đại, lập trình các vi tương tác (hiệu ứng Shimmer Loading, thanh Resizable kéo thả), sản xuất Video Demo Checkpoint 3, và hỗ trợ chạy thử nghiệm đa màn hình cùng các Willing Users tại phòng E403.
 
-### 2. Những quyết định then chốt & Thách thức vượt qua
-- **Đưa PDF thật vào ứng dụng:** Thay vì dùng khối màu xanh (Mock UI), tôi đã sử dụng thẻ `<iframe>` kết hợp query parameters (`#page=X`). Thách thức ở đây là trình duyệt mặc định cho phép cuộn PDF loạn xạ. Dựa trên feedback của user, tôi đã dùng thủ thuật CSS `pointer-events-none` tạo một lớp màng tàng hình khóa thanh cuộn, ép học viên BẮT BUỘC phải dùng 2 nút bấm Next/Prev của hệ thống. Điều này đem lại trải nghiệm học tập tập trung như xem trình chiếu thực sự.
-- **Việt hóa chuẩn chỉ:** Đảm bảo toàn bộ chữ hiển thị trên Sidebar và Chat UI đều chuẩn xác tiếng Việt có dấu, mang lại sự chuyên nghiệp cho bản Prototype.
+### 2. Những quyết định then chốt & Thách thức vượt qua: Cụ thể hóa bằng con số và bằng chứng
+- **Đưa PDF.js vào kiến trúc Split-screen:** Quyết định không sử dụng iframe thông thường dễ bị lỗi đen màn hình, tôi đã tích hợp trực tiếp thư viện `pdf.min.js` của Mozilla vào `app.js`. Việc render Canvas vector độ nét cao giúp học viên vừa đọc tài liệu vừa chat mượt mà, triệt tiêu việc phải mất hàng chục giây chuyển tab tải file 4MB.
+- **Minh bạch hóa độ trễ qua UI (HAX G1 & G2):** Xây dựng huy hiệu trạng thái `apiStatusBadge` và đồng hồ đếm giây `thinkingTimer`. Việc cho học viên thấy AI đang online và đang phân tích giúp họ loại bỏ cảm giác sốt ruột và tăng lòng tin.
 
-### 3. Vấp ngã & Bài học xương máu
-Sự cố đáng nhớ nhất là khi tôi đẩy nhanh tiến độ làm tính năng Transcript Markdown, việc dùng script tự động chèn code đã gây ra lỗi trùng lặp import (`Suspense`, `useSearchParams`). Hậu quả là màn hình báo đỏ chót lỗi TypeScript ngay lúc đang chạy build sản phẩm cuối. Rất may, tôi đã bình tĩnh phối hợp cùng Sơn dò tìm lại từng dòng khai báo, gỡ rối và vượt qua vòng kiểm tra `npm run build` thành công rực rỡ. Bài học rút ra là: Trong dự án tích hợp hệ thống lớn, sự cẩn trọng với Type-checking là sống còn.
+### 3. Vấp ngã & Bài học xương máu: Sự cố giao tiếp giữa UI và lõi AI
+Khi nhóm chuẩn bị quay video demo CP3, tôi đã chứng kiến **Khủng hoảng độ trễ token** do lỗi lịch sử chat đẩy dung lượng prompt lên 1.578 tokens khiến hệ thống nghẽn hơn 20s. Mặc dù anh Sơn trực tiếp viết thuật toán bóc tách HTML rác và nén lịch sử kéo độ trễ xuống 1.6 giây, sự cố này để lại cho tôi bài học xương máu về thiết kế UI: Không bao giờ được gửi toàn bộ cây DOM dư thừa từ giao diện lên API. Giao diện (UI) và Dữ liệu lõi (Payload) phải được phân tách nghiêm ngặt để bảo vệ hiệu năng hệ thống.
 
-### 4. Sự chuyển biến về tư duy sản phẩm AI
-Trước đây, tôi nghĩ làm Frontend cho AI chỉ là dựng một cái khung chat đơn giản. Nhưng thực tế chứng minh, **Giao diện chính là nơi che giấu "độ trễ" và xây dựng lòng tin**. Khi hệ thống chờ phản hồi, những vi tương tác (như shimmer loading) là thứ giữ chân người dùng. Hơn nữa, việc AI trả lời hay chưa đủ, mà UI phải biết tự động "nháy" đến đúng trang Slide được trích dẫn (Deep-linking) mới là thứ tạo nên một trải nghiệm Wow.
+### 4. Sự chuyển biến về tư duy sản phẩm AI: Từ tư duy code truyền thống sang tư duy hệ thống AI xác suất
+Trước đây, tôi nghĩ làm Frontend cho ứng dụng chỉ là vẽ nút bấm và làm màu mè. Nhưng khi làm sản phẩm AI, tôi nhận ra: **Giao diện chính là cầu nối của hệ thống xác suất**. Dù thuật toán AI có thông minh đến đâu, nếu giao diện rối rắm, giật lag hay thiếu trích dẫn trực quan thì người dùng cũng sẽ từ bỏ. Thiết kế UI cho AI đòi hỏi sự tinh tế để cân bằng giữa tính tự động hóa và quyền kiểm soát của người dùng, đặc biệt là phải có căn cứ (highlight đúng slide, hiển thị đúng trang).
 
-### 5. Kế hoạch phát triển tiếp theo
-Tôi sẽ tinh chỉnh Responsive để giao diện Split-screen hiển thị hoàn hảo trên cả kích thước màn hình máy tính bảng (iPad), đồng thời chuẩn bị kịch bản thao tác rành mạch nhất cho phần trình diễn Live Demo của nhóm trước Ban Giám khảo.
+### 5. Kế hoạch phát triển tiếp theo: Roadmap hoàn thiện và ứng dụng vào thực tế
+- Nâng cao kỹ năng lập trình Frontend hiện đại, tối ưu hóa các vi tương tác báo lỗi mượt mà hơn để tích hợp vào bản web-demo Next.js.
+- Tiếp tục hỗ trợ đội trưởng và cả nhóm chuẩn bị thiết bị trình chiếu tốt nhất cho buổi pitch chung kết tại LAB 6.

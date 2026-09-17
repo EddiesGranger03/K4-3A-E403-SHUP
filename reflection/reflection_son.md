@@ -4,24 +4,24 @@
 **Họ và tên:** Nguyễn Khánh Sơn  
 **Mã học viên:** 2A202602388  
 **Vai trò:** Đội trưởng / Product Lead (Nhóm SHUP — Lớp 3A — Phòng E403)  
-**Thời gian hoàn thành:** 18/09/2026  
+**Thời gian hoàn thành:** 17/09/2026  
 
 ---
 
-### 1. Vai trò & Trách nhiệm trong 47.5 giờ
-Trong 47.5 giờ của Hackathon, tôi đảm nhận vai trò Đội trưởng và Product Lead, đồng thời trực tiếp xây dựng kiến trúc API lõi trên nền tảng Next.js. Trách nhiệm của tôi là chèo lái định hướng sản phẩm và đảm bảo luồng dữ liệu Hub & Spoke chạy mượt mà:
-- **Thiết kế Backend API:** Xây dựng endpoint `api/chat-hub` và `api/chat-spoke`, kết nối an toàn với Gemini 3.5 Flash Lite.
-- **Quản trị Tiến độ & Tính năng:** Lên cấu trúc `spec.md`, quyết định cắt bỏ các tính năng dư thừa và tập trung vào luồng Deep-linking (định tuyến thẳng tới trang PDF).
+### 1. Vai trò & Trách nhiệm: Phân định rõ ràng mảng việc phụ trách trong 47.5h
+Trong suốt 47.5 giờ của Hackathon, tôi đảm nhận vị trí Đội trưởng (Product Lead) kiêm kỹ sư Backend lõi. Tôi không giao khoán cho ai mà trực tiếp ngồi code, dựng máy chủ backend proxy Node.js (`server.js`), tích hợp API mô hình lớn NVIDIA NIM, nhúng công nghệ đọc PDF vào giao diện web, xử lý luồng prompt đa tầng, và quản lý toàn bộ Spec (§1, §2, §4) của nhóm để đưa prototype từ ý tưởng thành sản phẩm chạy thật.
 
-### 2. Những quyết định then chốt & Thách thức vượt qua
-- **Từ bỏ Monolithic RAG:** Dựa trên phân tích 13.494 chatlog, tôi quyết định không nhồi toàn bộ giáo trình vào một prompt khổng lồ mà tách thành Hub (định vị) và Spoke (trả lời chuyên sâu). Kết quả giúp tiết kiệm hơn 60% lượng token và tăng độ chính xác của trích dẫn lên tuyệt đối.
-- **Tích hợp Deep-linking Regex:** Xây dựng bộ parse Regex để tự động trích xuất cấu trúc `[text](#deep-link-day-X-slide-Y-highlight-Z)` từ phản hồi của Hub Bot, ép giao diện Frontend phải nhảy ngay tới số trang slide thực tế mà không bắt người học phải tự dò tìm.
+### 2. Những quyết định then chốt & Thách thức vượt qua: Cụ thể hóa bằng con số và bằng chứng
+- **Kiên quyết chọn mô hình Hub & Spoke thay vì Monolithic RAG:** Dựa vào phân tích 13.494 dòng chatlog, tôi nhận thấy nếu nhồi toàn bộ giáo trình 6 ngày vào một con bot, chi phí token sẽ lên tới ~15.000 tokens/lượt và bot chắc chắn bị lẫn lộn giữa kiến thức sơ khai và nâng cao. Quyết định phân quyền Hub & Spoke giúp hệ thống tiết kiệm 62,5% token và đảm bảo 100% câu trả lời có trích dẫn số trang chính xác.
+- **Dũng cảm cắt bỏ ý tưởng viển vông:** Ban đầu nhóm muốn tự động chấm điểm học viên. Nhưng khi soi vào chatlog thật, cột `understanding_level` gần như rỗng (chỉ 20 dòng có dữ liệu). Tôi kiên quyết gạt bỏ tính năng này để tập trung giải quyết nỗi đau có số liệu áp đảo: 28% câu trả lời thiếu nguồn và học viên mất 20–40 phút tìm bài.
 
-### 3. Vấp ngã & Bài học xương máu
-Khủng hoảng thót tim nhất của tôi là **Khủng hoảng độ trễ token** ngay trước thềm Checkpoint. Khi người dùng chat nhiều lượt, lịch sử hội thoại vô tình lưu trữ lẫn lộn các thẻ HTML và metadata dài dòng, đẩy dung lượng prompt lên tới hơn 1.500 tokens, khiến độ trễ (latency) của API kéo dài lên tới hơn 20 giây và làm sập Frontend. Tôi đã phải trực tiếp rà soát server log, viết thuật toán nén lịch sử và bóc tách rác HTML, giúp đưa độ trễ quay về mốc 1.5s - 2s ổn định.
+### 3. Vấp ngã & Bài học xương máu: Khủng hoảng độ trễ token
+Đây là sự cố thót tim nhất trước thềm nộp Checkpoint 3. Khi tôi nhập thử câu chào hỏi *"hê lô bạn biết tôi là ai không"*, hệ thống quay tròn hơn 20 giây rồi sập. 
+Kiểm tra từng dòng log (`task-2138.log`), tôi phát hiện ra **"Khủng hoảng độ trễ token"**: Lịch sử chat đang lưu trữ toàn bộ các đoạn mã HTML dài của các thẻ slide. Qua nhiều lượt, prompt phình to tới **1.578 tokens**, khiến NVIDIA NIM mất tới 23.647ms để phản hồi. Tôi trực tiếp viết thuật toán bóc tách 100% thẻ HTML rác, nén câu trả lời cũ, đưa prompt xuống chỉ còn **64 – 180 tokens**. Thời gian phản hồi giảm ngoạn mục từ 23.6s xuống chỉ còn **1.6s – 3.5s (nhanh hơn gấp 10 lần!)**.
 
-### 4. Sự chuyển biến về tư duy sản phẩm AI
-Hackathon đã phá vỡ hoàn toàn tư duy "code truyền thống" của tôi. Với phần mềm thông thường, 1 + 1 = 2. Nhưng với AI, đó là một cỗ máy xác suất. Tôi nhận ra người làm sản phẩm AI giỏi không phải là phó mặc cho mô hình tự do sáng tạo, mà phải xây dựng các **hàng rào bảo vệ (Guardrails)**. Khi Hub Bot đối mặt với câu hỏi nằm ngoài phạm vi, tôi đã thiết kế kịch bản fallback để nó từ chối khéo léo thay vì cố gắng "ảo giác" (hallucinate) ra một câu trả lời rỗng, đảm bảo tính trách nhiệm cao nhất cho dữ liệu giáo dục.
+### 4. Sự chuyển biến về tư duy sản phẩm AI: Từ tư duy code truyền thống sang tư duy hệ thống AI xác suất
+Hackathon đã tôi luyện cho tôi sự chuyển biến lớn: **Từ "Vibe-coding" sang "System Thinking"**. Trong lập trình truyền thống 1+1=2, nhưng mô hình LLM là một cỗ máy xác suất, luôn có nguy cơ sinh ảo giác. Người làm sản phẩm AI giỏi không phải là người cầu mong AI luôn đúng, mà phải biết xây dựng **hệ thống phòng thủ vững chắc có căn cứ**: từ việc giới hạn ngữ cảnh (Context Sandboxing) để Bot Con chỉ nạp đúng 29 slide của buổi học đó, cài đặt bộ lọc Regex, cho đến cơ chế từ chối các câu lệnh tấn công Prompt Injection (`T00274`). Sự tỉ mỉ và trách nhiệm với dữ liệu mới là yếu tố quyết định.
 
-### 5. Kế hoạch phát triển tiếp theo
-Mục tiêu gần nhất là cùng nhóm trình bày thật bùng nổ tại vòng Live Demo. Xa hơn, tôi muốn tối ưu luồng xử lý Context Window để hệ thống có thể tóm tắt đối chiếu kiến thức chéo giữa nhiều môn học khác nhau, sẵn sàng bàn giao cho đội ngũ phát triển VLearn.
+### 5. Kế hoạch phát triển tiếp theo: Roadmap hoàn thiện và ứng dụng vào thực tế
+- Cùng Thu Uyên, Trần Phát và Xuân Hoàng tập dượt thật nhuần nhuyễn bài thuyết trình Pitch Deck từ bản kịch bản chi tiết đã chuẩn bị, tự tin bảo vệ dự án trước Ban giám khảo tại phòng E403.
+- Đóng gói giải pháp thành một module hoàn chỉnh để bàn giao cho đội ngũ phát triển VLearn, biến kiến trúc phân quyền Hub & Spoke thành một giá trị thực sự cho hệ sinh thái học tập.

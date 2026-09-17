@@ -4,24 +4,24 @@
 **Họ và tên:** Bùi Thị Thu Uyên  
 **Mã học viên:** 2A202602613  
 **Vai trò:** User Research & Data Mining Lead (Nhóm SHUP — Lớp 3A — Phòng E403)  
-**Thời gian hoàn thành:** 18/09/2026  
+**Thời gian hoàn thành:** 17/09/2026  
 
 ---
 
-### 1. Vai trò & Trách nhiệm trong 47.5 giờ
-Tôi đảm nhận vai trò là "Cầu nối giữa máy móc và con người". Công việc của tôi tập trung vào khai phá dữ liệu (Data Mining) và nghiên cứu hành vi người dùng, đảm bảo nhóm không đi chệch hướng khỏi nhu cầu thực tế:
-- **Phân tích Insight:** Đào sâu vào 13.494 dòng chatlog thực tế của khóa học để tìm ra "nỗi đau" lớn nhất của học viên.
-- **Trưởng nhóm Kiểm thử Người dùng (R6 - Validation):** Lên kịch bản và thực hiện phỏng vấn dùng thử với 5 bạn học viên tại phòng E403, ghi nhận feedback và lập Changelog cải tiến.
+### 1. Vai trò & Trách nhiệm: Phân định rõ ràng mảng việc phụ trách trong 47.5h
+Trong dự án này, tôi đảm nhận vai trò Trưởng nhóm Nghiên cứu Người dùng & Khai phá Dữ liệu. Nhiệm vụ cốt lõi của tôi là làm "chiếc mỏ neo thực chứng", đảm bảo mọi nhận định của nhóm đều bắt nguồn từ dữ liệu thật. Tôi dùng Python phân tích 13.494 lượt chatlog trong `tutor_turns.csv`, trực tiếp phỏng vấn 10 bạn học viên Willing Users tại phòng E403, và xây dựng ma trận 4 lớp chỗ khó (Mục 5) trong Spec.
 
-### 2. Những quyết định then chốt & Thách thức vượt qua
-- **Xác định Core Pain-point bằng Con số:** Thông qua data mining, tôi tìm ra bằng chứng đắt giá: 28% câu trả lời của trợ lý AI cũ thiếu nguồn, khiến sinh viên mất trung bình 20-40 phút tự lật mở hàng chục slide để đối chiếu. Quyết định then chốt của tôi là thuyết phục cả nhóm dồn 100% nguồn lực làm tính năng **Deep-linking (Trích dẫn chuyển trang tự động)** thay vì sa đà vào các tính năng màu mè khác.
-- **Phản biện thiết kế của đội kỹ thuật:** Khi mang bản Prototype đi test, người dùng bất mãn vì Slide chỉ là một cục màu xanh giả lập. Tôi đã ép Sơn và Hoàng phải thay bằng Real PDF Iframe và bổ sung chế độ xem Markdown Transcript để người dùng có thể thực sự đọc và sao chép kiến thức làm Lab.
+### 2. Những quyết định then chốt & Thách thức vượt qua: Cụ thể hóa bằng con số và bằng chứng
+- **Đào sâu nỗi đau học viên bằng con số:** Thông qua script lọc cột `has_citation`, tôi tìm ra bằng chứng đắt giá: **3.781 lượt phản hồi (28,0%) bị thiếu nguồn hoàn toàn**. Học viên tha thiết yêu cầu trích dẫn (`T00009`) nhưng AI liên tục đáp *"Rất tiếc..."* (`T00018`, `T00020`). 
+- **Quyết định ép đội kỹ thuật làm Real PDF:** Khi phỏng vấn (Nguyên tắc Mom Test), 10/10 bạn học viên phàn nàn phải mất nửa tiếng để Ctrl+F trong file 80 trang. Tôi quyết định yêu cầu nhóm tập trung làm tính năng định tuyến trích dẫn chính xác và yêu cầu UI phải nhúng tài liệu thật để sinh viên đỡ cực.
 
-### 3. Vấp ngã & Bài học xương máu
-Bài học lớn nhất của tôi là **Bẫy suy diễn hộ người dùng**. Lúc đầu, nhóm mặc định rằng học viên rất thích tính năng AI tự động tóm tắt mọi thứ. Tuy nhiên, khi đưa bản test thực tế, các bạn học viên phản hồi: *"Bot tóm tắt dài mấy tui cũng không tin, tui chỉ cần nó hiện đúng cái dòng chữ đó ở trang slide số mấy để tui tự đối chiếu"*. Tôi nhận ra việc "nhét chữ vào miệng user" là sai lầm chết người của người làm Product. Chúng tôi lập tức điều chỉnh: Bỏ bớt sự lan man của AI, chuyển sang ưu tiên UI khóa cuộn trang (ép dùng nút bấm) để highlight đúng vị trí slide, lấy lại niềm tin tuyệt đối của học viên.
+### 3. Vấp ngã & Bài học xương máu: Bẫy suy diễn hộ người dùng
+Bài học sâu sắc nhất của tôi chính là việc rơi vào **Cái bẫy "suy diễn hộ người dùng"**. Trong ngày đầu tiên, khi thấy học viên hỏi mơ hồ (*"giải thích đi"*), tôi từng nghĩ bot nên tự đoán ý và tóm tắt trả lời luôn cho tiện. Nhưng khi phân tích log, tôi thấy bot cũ đoán sai và làm học viên bực bội (`T00034`). Tôi nhận ra bài học từ nguyên tắc **HAX G10**: Tuyệt đối không được tự suy diễn bừa bãi! Tôi đã yêu cầu nhóm thiết kế lại luồng để Bot Hỗ Trợ kích hoạt câu hỏi gợi mở (`ask_probing_question`), ép người học tự định hình nhu cầu trước khi trả lời.
 
-### 4. Sự chuyển biến về tư duy sản phẩm AI
-Tôi đã thay đổi hoàn toàn cách nhìn về công nghệ. Một mô hình ngôn ngữ lớn (LLM) dù có thông số khủng đến mấy cũng vô nghĩa nếu nó không giải quyết được Job-to-be-done (JTBD) của con người. Trọng tâm của một sản phẩm AI không nằm ở việc con Bot nói hay như thế nào, mà nằm ở tính trách nhiệm, khả năng trích dẫn có căn cứ (Grounding), và tạo ra một luồng tương tác không ma sát (Frictionless) giúp giải phóng sức lao động.
+### 4. Sự chuyển biến về tư duy sản phẩm AI: Từ tư duy code truyền thống sang tư duy hệ thống AI xác suất
+Trước đây, tôi nhìn nhận AI như một chiếc hộp đen thần kỳ. Giờ đây tôi hiểu: **Dữ liệu thô là tấm gương phản chiếu hành vi thật**. Mọi thuật toán AI dù tinh vi đến đâu cũng sẽ thất bại nếu ta không chịu đọc log hiểu user vấp ở đâu.
+Hơn nữa, một sản phẩm AI phải là **AI có trách nhiệm (Responsible AI)**. Thiết kế AI không chỉ là giúp người dùng có câu trả lời, mà còn là bảo vệ tính tự học của họ (từ chối giải hộ quiz) và minh bạch về giới hạn (cảnh báo rõ ràng khi kiến thức nằm ngoài phạm vi).
 
-### 5. Kế hoạch phát triển tiếp theo
-Tôi đã chuẩn bị sẵn sàng bản báo cáo Validation tỉ mỉ nhất để bảo vệ điểm số tuyệt đối ở hạng mục R6. Sắp tới, tôi dự định sẽ khai phá thêm các phân nhóm dữ liệu (Cohort analysis) để cá nhân hóa lộ trình học tập, mở ra tính năng gợi ý tài liệu tùy biến theo từng phong cách tiếp thu của sinh viên.
+### 5. Kế hoạch phát triển tiếp theo: Roadmap hoàn thiện và ứng dụng vào thực tế
+- Tiếp tục đồng hành cùng nhóm hoàn thiện video demo và chuẩn bị báo cáo R6 Validation xuất sắc nhất cho ngày thi LAB 6.
+- Áp dụng phương pháp nghiên cứu định tính kết hợp phân tích log định lượng vào các bài tập nghiên cứu hành vi người dùng trong tương lai tại VinUni.
