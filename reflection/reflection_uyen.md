@@ -4,22 +4,22 @@
 **Họ và tên:** Bùi Thị Thu Uyên  
 **Mã học viên:** 2A202602613  
 **Vai trò:** User Research & Data Mining Lead (Nhóm SHUP — Lớp 3A — Phòng E403)  
-**Thời gian hoàn thành:** 17/09/2026  
+**Thời gian hoàn thành:** 18/09/2026  
 
 ---
 
 ### 1. Vai trò & Trách nhiệm
-Với vai trò phụ trách nghiên cứu người dùng và dữ liệu, công việc chính của tôi là đảm bảo sản phẩm bám sát nhu cầu thực tế của học viên. Tôi đã sử dụng Python để làm sạch và phân tích hơn 13.000 dòng dữ liệu chatlog từ tệp `tutor_turns.csv`, đồng thời tổ chức phỏng vấn và kiểm thử (validation) trực tiếp với 5 bạn sinh viên để đánh giá nguyên mẫu (prototype) của nhóm, từ đó xây dựng ma trận phân loại chỗ khó trong tài liệu Spec (Mục 5).
+Nhiệm vụ chính của tôi là đảm bảo sản phẩm giải quyết đúng vấn đề thực tế của học viên. Công việc của tôi bao gồm phân tích tập dữ liệu lịch sử hội thoại (chatlog), ghi nhận phản hồi từ các bạn sinh viên (Willing Users) trong các buổi kiểm thử, và đánh giá tính khả dụng của bản cập nhật giao diện ngày 18/9.
 
 ### 2. Những quyết định then chốt & Thách thức vượt qua
-- **Định lượng vấn đề của người dùng:** Qua phân tích dữ liệu, tôi tìm ra con số cốt lõi: 28% phản hồi của trợ lý AI cũ không có trích dẫn. Thông qua phỏng vấn thực tế, các bạn học viên phản ánh việc phải tự lật tìm trong file PDF hàng chục trang mất rất nhiều thời gian. Điều này giúp nhóm củng cố quyết định phát triển tính năng tự động hiển thị tài liệu và trích dẫn chính xác số trang slide.
-- **Phát hiện các lỗ hổng bảo mật từ log:** Trong quá trình đọc dữ liệu, tôi tìm thấy các truy vấn cố tình can thiệp hệ thống (prompt injection, ví dụ `T00274`). Từ đó, tôi đề xuất nhóm phải chú trọng việc xây dựng các bộ lọc bảo mật để đảm bảo bot không bị "bẫy" bởi người dùng.
+- **Thay đổi giao diện dựa trên người dùng:** Dựa trên số liệu chatlog cho thấy học viên tốn 20-40 phút tự tìm tài liệu, tôi đã đề xuất nhóm ưu tiên cao nhất cho tính năng Deep-linking. Khi tiến hành kiểm thử bản mẫu, người dùng phản ánh việc chỉ có khối màu giả lập là chưa đủ. Từ đó, tôi thuyết phục nhóm kỹ thuật phải tích hợp hiển thị trực tiếp file PDF thật và bổ sung định dạng văn bản (Transcript View).
+- **Yêu cầu khóa chức năng cuộn trang:** Qua quan sát, việc học viên tự do cuộn chuột trong file PDF 29 trang làm mất tác dụng của Deep-linking. Tôi đã đưa ra quyết định yêu cầu đội giao diện (UI) vô hiệu hóa thao tác cuộn tự do, ép người dùng thao tác qua nút bấm để giữ sự tập trung.
 
 ### 3. Vấp ngã & Bài học xương máu
-Bài học lớn nhất của tôi là nhận ra **bẫy suy diễn hộ người dùng**. Ban đầu, tôi cho rằng học viên cần bot tự động tóm tắt và diễn giải lại toàn bộ khái niệm thật chi tiết. Tuy nhiên, dữ liệu thực tế và kết quả phỏng vấn lại cho thấy người học đôi khi cảm thấy bối rối hoặc mất lòng tin khi bot trả lời dài nhưng không rõ nguồn gốc (như trường hợp `T00034`). Tôi học được cách áp dụng nguyên tắc HAX G10: thay vì để AI tự đoán ý, hệ thống cần được thiết kế để đặt câu hỏi ngược lại nhằm làm rõ nhu cầu thực sự của người dùng.
+Bài học lớn nhất tôi nhận được là nhận ra **Bẫy suy diễn hộ người dùng**. Ban đầu, tôi từng nghĩ học viên rất cần AI tự động diễn giải và tóm tắt kiến thức dài dòng. Tuy nhiên, kết quả kiểm thử thực tế cho thấy họ lại hoài nghi các văn bản do AI sinh ra. Cái họ thực sự cần là tính minh bạch: họ muốn thấy ngay lập tức dòng chữ đó nằm ở trang slide số mấy. Từ đó, nhóm chuyển hướng sang việc làm nổi bật (highlight) thông tin gốc thay vì cố gắng để bot giải thích thay giảng viên.
 
 ### 4. Sự chuyển biến về tư duy sản phẩm AI
-Tôi từng nghĩ AI là một công cụ có thể tự động hóa mọi thứ một cách hoàn hảo. Giờ đây, tôi hiểu rằng giá trị lớn nhất của sản phẩm AI nằm ở khả năng giải quyết đúng "việc cần làm" (Job-to-be-done) của con người một cách minh bạch. Một thiết kế AI tốt (Responsible AI) phải tôn trọng tính tự chủ của người học, cung cấp thông tin có nguồn gốc rõ ràng (Grounding) thay vì chỉ ưu tiên tạo ra những văn bản dài và mượt mà.
+Qua dự án, tôi hiểu rằng một trợ lý học tập AI tốt không phải là một công cụ giải bài tập hộ, mà là một phương tiện giảm thiểu "ma sát" (friction) trong quá trình tự học. Tính căn cứ (Grounding) của dữ liệu quan trọng hơn sự hào nhoáng của câu chữ. Trách nhiệm của người làm sản phẩm là thiết kế luồng tương tác sao cho AI phục vụ đúng mục tiêu giáo dục.
 
 ### 5. Kế hoạch phát triển tiếp theo
-Tôi dự định sẽ áp dụng các phương pháp kết hợp giữa phân tích log định lượng và phỏng vấn định tính mà mình học được trong Hackathon vào các bài tập lớn và dự án nghiên cứu nghiên cứu hành vi tại trường trong các kỳ học tới.
+Tôi sẽ tiếp tục áp dụng phương pháp nghiên cứu định tính và định lượng để đánh giá hiệu quả của hệ thống trong môi trường thực tế. Đồng thời, tôi muốn nghiên cứu sâu hơn về cách cá nhân hóa trải nghiệm học tập dựa trên dữ liệu tương tác của từng sinh viên.

@@ -4,22 +4,22 @@
 **Họ và tên:** Lê Châu Trần Phát  
 **Mã học viên:** 2A2026025245  
 **Vai trò:** AI & Evaluation Lead (Nhóm SHUP — Lớp 3A — Phòng E403)  
-**Thời gian hoàn thành:** 17/09/2026  
+**Thời gian hoàn thành:** 18/09/2026  
 
 ---
 
 ### 1. Vai trò & Trách nhiệm
-Nhiệm vụ của tôi trong dự án tập trung vào kỹ thuật Prompt Engineering và đánh giá độ chính xác của mô hình. Tôi phụ trách viết các chỉ thị hệ thống (System Prompt) cho Bot Hỗ trợ và Bot con, thiết lập giới hạn ngữ cảnh cho từng buổi học, và xây dựng Bộ kiểm thử tiêu chuẩn (Golden Set) gồm 20 tình huống thực tế để đánh giá hiệu năng của hệ thống.
+Trong nhóm, tôi chịu trách nhiệm chính về kiến trúc AI và quy trình đánh giá chất lượng. Cụ thể, tôi phát triển mã script `auto_index.py` để tự động lập chỉ mục kiến thức (Knowledge Index), thiết kế câu lệnh hệ thống (System Prompt) cho các luồng xử lý, và xây dựng Bộ kiểm thử tiêu chuẩn (Golden Set) với 20 tình huống giả định.
 
 ### 2. Những quyết định then chốt & Thách thức vượt qua
-- **Giới hạn phạm vi câu trả lời:** Để hạn chế tình trạng AI trả lời lan man, tôi đã thiết lập quy định nghiêm ngặt trong prompt: Bot con chỉ được trả lời tối đa 3 câu và bắt buộc phải đính kèm định dạng `[Trang X - Slide Day Y]`. Nếu thông tin không có trong tài liệu, bot phải phản hồi là không biết thay vì tự tìm kiếm thông tin bên ngoài.
-- **Xây dựng bộ định tuyến (Semantic Router):** Thay vì gửi tất cả tài liệu vào cùng một prompt, tôi thiết lập một bộ định tuyến tại Bot Hỗ trợ để phân tích ý định của người dùng, sau đó mới gọi dữ liệu tương ứng. Việc này giúp hạn chế tình trạng mô hình bỏ sót thông tin (Lost in the middle) khi ngữ cảnh quá dài.
+- **Tự động hóa luồng trích xuất dữ liệu:** Nhận thấy việc cập nhật chỉ mục kiến thức thủ công không khả thi khi dữ liệu lớn, tôi quyết định sử dụng khả năng xử lý của Gemini 3.5 Flash Lite để tự động quét các tệp văn bản bài giảng, từ đó sinh ra cấu trúc dữ liệu JSON chi tiết đến từng tham chiếu (`transcript_refs`). Điều này giúp hệ thống luôn đồng bộ và phản hồi chính xác vị trí tài liệu.
+- **Tiêu chuẩn hóa dữ liệu đầu ra:** Đặt quy định nghiêm ngặt cho mô hình, yêu cầu mọi câu trả lời đều phải kết thúc bằng định dạng trích dẫn cụ thể (ví dụ: Day X, Slide Y).
 
 ### 3. Vấp ngã & Bài học xương máu
-Quá trình kiểm thử là giai đoạn tôi gặp nhiều khó khăn nhất. Trong **lượt chạy kiểm thử đầu tiên (Run 1)**, hệ thống chỉ vượt qua 17/20 tình huống (đạt 85%). Vấn đề phát sinh ở các truy vấn quá ngắn gọn (ví dụ: *"Prompting là gì?"*), khiến bộ định tuyến phân loại sai ngày học thay vì đặt câu hỏi làm rõ. Thay vì chỉnh sửa file dữ liệu kiểm thử để có kết quả tốt hơn, tôi đã xem xét lại thuật toán, thay đổi trọng số phân loại và siết chặt các từ khóa trong prompt. Kết quả ở lượt kiểm thử thứ 2 đã đạt mức 100%.
+Quá trình đánh giá hiệu năng hệ thống mang lại cho tôi nhiều kinh nghiệm quý giá, đặc biệt là **Lỗi kiểm thử Run 1**. Khi chạy bộ Golden Set lần đầu, hệ thống chỉ đạt mức 17/20 (85%). Nguyên nhân là do Hub Bot xử lý chưa tốt các câu hỏi ngữ nghĩa ngắn gọn, dẫn đến việc chuyển hướng sai ngày học. Thay vì tìm cách thay đổi các câu hỏi kiểm thử cho dễ hơn, tôi đã tập trung phân tích log, tinh chỉnh lại chỉ thị phân loại ngữ cảnh trong System Prompt của Hub. Lượt chạy thứ 2 sau đó đã khắc phục hoàn toàn lỗi định tuyến.
 
 ### 4. Sự chuyển biến về tư duy sản phẩm AI
-Bài học quan trọng nhất tôi rút ra là hiểu rõ tính hai mặt của sai số trong AI, cụ thể là **sự đánh đổi giữa False Positive và False Negative**. Trong lĩnh vực giáo dục, việc cung cấp sai kiến thức (False Positive) để lại hậu quả nghiêm trọng hơn rất nhiều so với việc hệ thống từ chối trả lời (False Negative). Tư duy làm AI của tôi chuyển từ việc cố gắng làm cho mô hình "thông minh nhất có thể" sang việc làm cho nó "đáng tin cậy nhất có thể" thông qua việc đo lường bằng các số liệu cụ thể trên Golden Set.
+Làm việc với AI tạo sinh giúp tôi nhận ra sự quan trọng của việc đo lường định lượng. Tôi hiểu rõ hơn về sự đánh đổi giữa việc hệ thống cung cấp thông tin sai lệch (False Positive) và việc từ chối trả lời (False Negative). Trong môi trường học thuật, sự chính xác là ưu tiên hàng đầu, do đó tôi ưu tiên cấu hình mô hình thà phản hồi "Không có thông tin" còn hơn tự bịa ra một trang slide không tồn tại.
 
 ### 5. Kế hoạch phát triển tiếp theo
-Nếu có thêm thời gian, tôi muốn mở rộng bộ Golden Set từ 20 câu lên 100 câu để kiểm tra các tình huống hiếm gặp (edge-cases) kỹ hơn. Tôi cũng muốn tìm hiểu thêm về kỹ thuật dùng mô hình lớn để chấm điểm tự động (LLM-as-a-judge) nhằm cải thiện quy trình đánh giá.
+Tôi dự định mở rộng tập kiểm thử Golden Set để bao quát thêm nhiều trường hợp khó (edge-cases). Ngoài ra, tôi muốn nghiên cứu phương pháp sử dụng một mô hình ngôn ngữ lớn khác đóng vai trò làm giám khảo độc lập (LLM-as-a-judge) để đánh giá chất lượng câu trả lời một cách khách quan hơn.
