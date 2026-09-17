@@ -118,10 +118,16 @@
       "evidence_turn_id": "T00001",
       "evidence_note": "Học viên hỏi khái quát lộ trình khóa học và các chủ đề chính",
       "expected_behavior": {
-        "should_route_days": [1, 2],
+        "should_route_days": [
+          1,
+          2
+        ],
         "contains_definition": true,
         "probing_question": true,
-        "deep_links": ["/learn/day1#slide-12", "/learn/day2#slide-28"]
+        "deep_links": [
+          "/learn/day1#slide-12",
+          "/learn/day2#slide-28"
+        ]
       }
     },
     {
@@ -133,9 +139,15 @@
       "evidence_turn_id": "T00003",
       "evidence_note": "Học viên hỏi liên kết giữa kiến thức Day 1 và Day 2",
       "expected_behavior": {
-        "should_route_days": [1, 2],
+        "should_route_days": [
+          1,
+          2
+        ],
         "contains_definition": true,
-        "deep_links": ["/learn/day1#slide-12", "/learn/day2#slide-28"]
+        "deep_links": [
+          "/learn/day1#slide-12",
+          "/learn/day2#slide-28"
+        ]
       }
     },
     {
@@ -226,11 +238,15 @@
       "evidence_turn_id": "T00025",
       "evidence_note": "Học viên hỏi bức tranh tổng thể AI ở Day 1",
       "expected_behavior": {
-        "should_route_days": [1],
+        "should_route_days": [
+          1
+        ],
         "target_slide": 4,
         "transcript_ref": "[T04-003]",
         "contains_definition": true,
-        "deep_links": ["/learn/day1#slide-4"]
+        "deep_links": [
+          "/learn/day1#slide-4"
+        ]
       }
     },
     {
@@ -242,10 +258,14 @@
       "evidence_turn_id": "T10288",
       "evidence_note": "K4 học viên hỏi về bài Lab thực hành gọi API bị lỗi",
       "expected_behavior": {
-        "should_route_days": [2],
+        "should_route_days": [
+          2
+        ],
         "target_slide": 28,
         "transcript_ref": "[T03-045]",
-        "deep_links": ["/learn/day2#slide-28"]
+        "deep_links": [
+          "/learn/day2#slide-28"
+        ]
       }
     },
     {
@@ -257,10 +277,14 @@
       "evidence_turn_id": "T00007",
       "evidence_note": "Preset query về so sánh kỹ thuật prompt ở Day 1",
       "expected_behavior": {
-        "should_route_days": [1],
+        "should_route_days": [
+          1
+        ],
         "target_slide": 12,
         "transcript_ref": "[T04-042]",
-        "deep_links": ["/learn/day1#slide-12"]
+        "deep_links": [
+          "/learn/day1#slide-12"
+        ]
       }
     },
     {
@@ -272,10 +296,14 @@
       "evidence_turn_id": "T00009",
       "evidence_note": "Học viên yêu cầu giải thích và trích dẫn slide về điều khiển tham số",
       "expected_behavior": {
-        "should_route_days": [1],
+        "should_route_days": [
+          1
+        ],
         "target_slide": 20,
         "transcript_ref": "[T04-065]",
-        "deep_links": ["/learn/day1#slide-20"]
+        "deep_links": [
+          "/learn/day1#slide-20"
+        ]
       }
     },
     {
@@ -287,10 +315,14 @@
       "evidence_turn_id": "T00002",
       "evidence_note": "Học viên hỏi về mức độ tự động hóa và chi phí sai sót",
       "expected_behavior": {
-        "should_route_days": [2],
+        "should_route_days": [
+          2
+        ],
         "target_slide": 18,
         "transcript_ref": "[T02-015]",
-        "deep_links": ["/learn/day2#slide-18"]
+        "deep_links": [
+          "/learn/day2#slide-18"
+        ]
       }
     },
     {
@@ -302,10 +334,14 @@
       "evidence_turn_id": "T02606",
       "evidence_note": "Khái niệm tư duy sản phẩm AI tại Day 2",
       "expected_behavior": {
-        "should_route_days": [2],
+        "should_route_days": [
+          2
+        ],
         "target_slide": 14,
         "transcript_ref": "[T01-008]-[T01-011]",
-        "deep_links": ["/learn/day2#slide-14"]
+        "deep_links": [
+          "/learn/day2#slide-14"
+        ]
       }
     }
   ]

@@ -107,10 +107,11 @@ graph TD
 ```
 
 ### 4.2. Mức Prototype & Phân định Thật / Giả định (CP2 & CP3)
-- **Mức độ hoàn thiện nhắm tới:** **Working Prototype** (Giao diện web 2 tầng chạy trực tiếp trong thư mục `codebase/`, tích hợp API gọi mô hình AI thật Gemini 1.5/2.5 kết hợp RAG cục bộ offline đảm bảo 100% không tắc nghẽn khi trình diễn).
+### 4.2. Mức Prototype & Phân định Thật / Giả định (CP2 & CP3)
+- **Mức độ hoàn thiện nhắm tới:** **Working Prototype** (Giao diện web 2 tầng chạy trực tiếp trong thư mục `codebase/`, tích hợp API gọi mô hình AI thật **NVIDIA NIM (`meta/llama-3.2-11b-vision-instruct`)** qua Backend Proxy an toàn kết hợp RAG cục bộ offline đảm bảo 100% không tắc nghẽn khi trình diễn).
 - **Phân định rõ ràng giữa phần thật và phần giả định:**
-  - *Phần thật (Real AI & Logic):* Module Router phân loại intent và định vị bài học liên ngày; lời gọi mô hình AI thật có cơ chế ghi vết (Logging prompt đầu vào và JSON thô đầu ra); dữ liệu giáo trình thật 29 trang slide Day 1 & Day 2 (`vlearn-pack/slides/`) và các mã transcript thật (`[Txx-NNN]`); bộ lọc an toàn từ chối prompt injection (`T00274`, `T00236`) và câu hỏi ngoài phạm vi.
-  - *Phần giả định (Mock):* Khung đọc slide dạng text tương tác mô phỏng giao diện học tập VLearn giúp người học bôi đen và hỏi đáp tức thì mà không cần cài đặt thư viện PDF viewer nặng.
+  - *Phần thật (Real AI & Logic):* Module Router phân loại intent và định vị bài học liên ngày; lời gọi mô hình AI thật có cơ chế ghi vết (Logging prompt đầu vào và JSON thô đầu ra); dữ liệu giáo trình thật 29 trang slide Day 1 & Day 2 (`d1-slide-hackathon.pdf`, `d2-slide-hackathon.pdf`) và các mã transcript thật (`[Txx-NNN]`); bộ lọc an toàn từ chối prompt injection (`T00274`, `T00236`), chống giải hộ thi trắc nghiệm quiz và cảnh báo câu hỏi ngoài phạm vi; khung đọc bài giảng tích hợp **Mozilla PDF.js Canvas Engine** tự động hiển thị trực tiếp slide PDF 29 trang ngay trong giao diện split-screen.
+  - *Phần giả định (Mock):* Các buổi học Day 3 đến Day 6 được cấu hình ở mức liên kết điều hướng khung sườn (do tài liệu slide PDF bản hackathon hiện tại chỉ cấp chính thức Day 1 & Day 2).
 
 ### 4.3. Lát cắt MỘT CÂU
 > *"Một học viên đặt câu hỏi trên VLearn · **Bot Hỗ Trợ** định vị khái niệm và tóm tắt ngắn kèm link trỏ thẳng tới các Day/Slide liên quan; khi học viên truy cập vào từng Day, **Bot Con tại chỗ** giải thích chuyên sâu có trích dẫn chính xác với ngữ cảnh cô lập và tiết kiệm token · học viên nắm trọn bản đồ tri thức toàn khóa mà không mất công lật tìm hàng trăm trang slide."*
@@ -121,14 +122,12 @@ graph TD
   - Bot Con tự động trích xuất slide và transcript tương ứng, phản hồi ngắn gọn ≤ 3 câu kèm badge trích dẫn `[Trang N - Slide Day X]`.
 - **Không tự làm (Human in the loop):**
   - Không tự suy diễn khi câu hỏi quá mơ hồ hoặc đa nghĩa (phải kích hoạt `ask_probing_question`).
-  - Không tự bịa đặt tài liệu ngoài 6 ngày học chính thức (phải từ chối minh bạch).
-  - Không giải bài tập hộ hay cung cấp đáp án quiz trắc nghiệm (chỉ gợi ý phương pháp suy luận).
-  - Không tự bịa đặt tài liệu ngoài 6 ngày học chính thức (phải từ chối minh bạch).
+  - Không tự bịa đặt tài liệu ngoài 2 buổi học chính thức (phải từ chối hoặc nêu rõ phạm vi minh bạch).
   - Không giải bài tập hộ hay cung cấp đáp án quiz trắc nghiệm (chỉ gợi ý phương pháp suy luận).
 - **3 Non-goals (Tuyệt đối KHÔNG build):**
   1. KHÔNG bắt buộc học viên phải đi qua Bot Hỗ Trợ nếu họ đã vào sẵn trang học của một Day cụ thể (Bot Con độc lập phục vụ tại chỗ).
   2. KHÔNG can thiệp vào hệ thống chấm điểm hay làm bài kiểm tra tự động.
-  3. KHÔNG mở rộng dữ liệu ra ngoài phạm vi 6 ngày học của khóa AI Thực Chiến.
+  3. KHÔNG mở rộng dữ liệu ra ngoài phạm vi các ngày học của khóa AI Thực Chiến.
 
 ### 4.4. §4b. Áp dụng Nguyên tắc Thiết kế HAX & PAIR
 | Nguyên tắc | Áp cụ thể vào đâu trong sản phẩm |
@@ -233,3 +232,4 @@ Nhóm tự giác khai báo minh bạch 2 giới hạn chưa hoàn thiện trong 
 | 16/09 14:00 | Đổi tên thành Bot Hỗ Trợ & Bot Con theo chuẩn Hub & Spoke | Thống nhất thuật ngữ thân thiện, chuẩn hóa mô hình trợ lý VLearn |
 | 17/09 09:30 | Nạp toàn diện dữ liệu thật từ `vlearn-pack` (13.494 turns, mã `T#####`, 6 transcript `[Txx-NNN]`, 2 slide 29 trang) | Căn cứ theo Data Pack chính thức của Ban tổ chức VinUni Hackathon |
 | 17/09 10:00 | Hoàn thiện Golden Set 20 cases có mã `turn_id` và khóa Quality Bar cho CP4 | Chuẩn bị nghiệm thu CP3 (16:00) và CP4 (21:00) |
+| 17/09 19:30 | Cập nhật công nghệ thực tế (NVIDIA NIM Llama 3.2, PDF.js Canvas), tối ưu hóa prompt đa lượt, tự khai minh bạch phần chưa xong và chốt khóa toàn diện spec.md | Đóng băng Spec chính thức phục vụ nghiệm thu Checkpoint 4 (CP4) |
