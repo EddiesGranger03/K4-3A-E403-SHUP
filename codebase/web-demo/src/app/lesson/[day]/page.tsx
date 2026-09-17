@@ -8,6 +8,12 @@ import ReactMarkdown from "react-markdown";
 type Message = { role: "user" | "bot"; text: string };
 type ContentView = "slide" | "lab" | "transcript";
 
+
+const DAY_METADATA: Record<string, { totalSlides: number; title: string }> = {
+  "1": { totalSlides: 29, title: "Day 1: AI & Product Thinking" },
+  "2": { totalSlides: 29, title: "Day 2: Problem Hunt & Agentic Workflow" },
+};
+
 // ── Sidebar data ─────────────────────────────────────────────
 const SLIDES = [
   { id: 1, title: "Slide - GV Mai Anh", active: true },
@@ -222,7 +228,7 @@ function LessonContent() {
         <button onClick={() => router.push("/")} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <span className="font-semibold text-[15px] text-gray-900">Bài {day} · DAY 0{day}</span>
+        <span className="font-semibold text-[15px] text-gray-900">{DAY_METADATA[day as string]?.title || `Bài ${day} · DAY 0${day}`}</span>
         <div className="flex-1" />
         <div className="flex items-center gap-2 text-[12px] text-gray-500 font-medium">
           <span>0/24 bài</span>
@@ -334,11 +340,16 @@ function LessonContent() {
               <div className="w-full max-w-3xl flex flex-col gap-4">
                 {/* Slide */}
                 <div className="bg-[#8DAA91] rounded-2xl shadow-lg overflow-hidden relative" style={{ aspectRatio: "16/9.5" }}>
-                  <iframe 
-                    src={`/slides/day${day}.pdf#page=${page}&toolbar=0&navpanes=0`} 
-                    className="w-full h-full border-none absolute inset-0 z-10"
-                    title="Slide Viewer"
-                  />
+                  <div className="relative w-full h-full">
+                    <iframe 
+                      key={page}
+                      src={`/slides/day${day}.pdf#page=${page}&view=Fit&scrollbar=0&toolbar=0&navpanes=0`} 
+                      className="w-full h-full border-none absolute inset-0 z-10 pointer-events-none"
+                      title="Slide Viewer"
+                    />
+                    {/* Transparent overlay to block native PDF scroll, forcing toolbar usage */}
+                    <div className="absolute inset-0 z-20 bg-transparent"></div>
+                  </div>
                   <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none select-none -rotate-12 z-0">
                     <span className="text-[20px] font-bold tracking-widest text-black whitespace-nowrap">
                       26A_PHATLCT@VINUNI.EDU.VN
@@ -359,8 +370,8 @@ function LessonContent() {
                   </div>
                   <div className="flex items-center gap-1 text-[13px] font-semibold text-gray-600">
                     <button onClick={() => setPage((p) => Math.max(1, p - 1))} className="px-2 py-0.5 hover:text-gray-900 disabled:opacity-30" disabled={page === 1}>&lt;</button>
-                    <span>{page} / 76</span>
-                    <button onClick={() => setPage((p) => Math.min(76, p + 1))} className="px-2 py-0.5 hover:text-gray-900">&gt;</button>
+                    <span>{page} / {DAY_METADATA[day as string]?.totalSlides || 29}</span>
+                    <button onClick={() => setPage((p) => Math.min(DAY_METADATA[day as string]?.totalSlides || 29, p + 1))} className="px-2 py-0.5 hover:text-gray-900">&gt;</button>
                   </div>
                   <button className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-gray-100 rounded-lg text-[12px] font-semibold text-gray-700">
                     <FileText className="w-3.5 h-3.5" /> Sổ ghi chú
