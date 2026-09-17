@@ -15,6 +15,7 @@ Nhiệm vụ chính của tôi là đảm bảo sản phẩm giải quyết đú
 **Công cụ AI hỗ trợ:** Tôi đã dùng tính năng Advanced Data Analysis của ChatGPT để viết nhanh các đoạn script Python (Pandas) nhằm bóc tách 13.494 dòng chatlog, tự động lọc ra cột `has_citation`, giúp tôi tìm ra con số 28% lỗi trích dẫn chỉ trong chưa đầy 30 phút thay vì phải ngồi đếm tay.
 
 ### 2. Những quyết định then chốt & Thách thức vượt qua
+- **Định lượng phân loại rủi ro bằng NLP:** Thông qua báo cáo Data Mining (`CP3_JUSTIFICATION_REPORT.md`), tôi dùng thuật toán NLP để phân loại tự động 13.494 dòng log. Tôi bóc tách được chính xác **1.151 lượt hỏi ngoài luồng (D4)** và **97 lượt hỏi vượt cấp (D2)**. Căn cứ từ những con số biết nói này, tôi kiên quyết yêu cầu nhóm phải xây dựng kiến trúc Hub & Spoke để điều hướng và chặn lỗi ảo giác, thay vì nhồi tất cả vào một con bot duy nhất.
 - **Thay đổi giao diện dựa trên người dùng:** Dựa trên số liệu chatlog cho thấy học viên tốn 20-40 phút tự tìm tài liệu, tôi đã đề xuất nhóm ưu tiên cao nhất cho tính năng Deep-linking. Khi tiến hành kiểm thử bản mẫu, người dùng phản ánh việc chỉ có khối màu giả lập là chưa đủ. Từ đó, tôi thuyết phục nhóm kỹ thuật phải tích hợp hiển thị trực tiếp file PDF thật và bổ sung định dạng văn bản (Transcript View).
 - **Yêu cầu khóa chức năng cuộn trang:** Qua quan sát, việc học viên tự do cuộn chuột trong file PDF 29 trang làm mất tác dụng của Deep-linking. Tôi đã đưa ra quyết định yêu cầu đội giao diện (UI) vô hiệu hóa thao tác cuộn tự do, ép người dùng thao tác qua nút bấm để giữ sự tập trung.
 
