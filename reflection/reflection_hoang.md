@@ -11,6 +11,9 @@
 ### 1. Vai trò & Trách nhiệm
 Tôi đảm nhận việc phát triển toàn bộ phần giao diện người dùng (Frontend) trên nền tảng Next.js, chuyển đổi các yêu cầu từ bản thiết kế thành sản phẩm hoạt động thực tế. Nhiệm vụ của tôi bao gồm lập trình giao diện trò chuyện, tích hợp khung hiển thị bài giảng, và xử lý các thao tác tương tác đồng bộ giữa Frontend và Backend.
 
+
+**Công cụ AI hỗ trợ:** Khi gặp khó khăn với lỗi trùng lặp component của TypeScript (như `Suspense` và `useSearchParams`), tôi đã copy mã lỗi nhờ Claude 3.5 Sonnet gỡ rối, giúp fix lỗi build chỉ trong vài phút. Tôi cũng dùng Copilot để sinh nhanh cấu trúc CSS Tailwind cho giao diện Split-screen.
+
 ### 2. Những quyết định then chốt & Thách thức vượt qua
 - **Tích hợp tài liệu thực tế vào ứng dụng:** Để mang lại trải nghiệm học tập tốt hơn bản demo cũ, tôi đã quyết định sử dụng thẻ `iframe` để hiển thị trực tiếp tệp PDF bài giảng và thư viện `react-markdown` để hiển thị tệp văn bản (Transcript). Điều này giúp học viên có thể học và tham khảo mã nguồn trực tiếp trên cùng một màn hình mà không cần chuyển đổi ứng dụng.
 - **Xử lý cơ chế đồng bộ giao diện:** Thách thức lớn nhất về kỹ thuật là đảm bảo giao diện tự động cập nhật đúng trang slide và bôi màu (highlight) đoạn văn bản khi nhận được mã định tuyến từ bot. Tôi đã thiết lập các trạng thái React đồng bộ với tham số URL để xử lý mượt mà yêu cầu này.

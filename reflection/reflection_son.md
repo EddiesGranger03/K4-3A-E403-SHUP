@@ -11,6 +11,9 @@
 ### 1. Vai trò & Trách nhiệm
 Trong Hackathon, tôi đảm nhận vai trò quản lý dự án (Product Lead) và phát triển kiến trúc Backend trên nền tảng Next.js. Trách nhiệm cụ thể của tôi là xây dựng cấu trúc API định tuyến (`api/chat-hub` và `api/chat-spoke`), tích hợp mô hình Gemini 3.5 Flash Lite, và đảm bảo sự liên kết mượt mà giữa các thành phần hệ thống theo đặc tả Spec đã thống nhất.
 
+
+**Công cụ AI hỗ trợ:** Trong quá trình code, tôi đã sử dụng GitHub Copilot để tự động hoàn thiện các đoạn mã boilerplate của Next.js và dùng Gemini 3.5 Flash để hỗ trợ viết nhanh các bộ lọc Regex phức tạp dùng trong cơ chế Deep-linking, giúp tiết kiệm ít nhất 4 tiếng mò mẫm tài liệu.
+
 ### 2. Những quyết định then chốt & Thách thức vượt qua
 - **Áp dụng kiến trúc Hub & Spoke:** Thay vì nhồi toàn bộ kiến thức vào một mô hình duy nhất, tôi quyết định phân tách luồng xử lý: Hub Bot làm nhiệm vụ phân tích ý định và định hướng, trong khi Spoke Bot phụ trách trả lời chi tiết theo từng ngày học (Day 1, Day 2). Điều này giúp hệ thống hoạt động chính xác và có tính mở rộng cao hơn.
 - **Xử lý cơ chế Deep-linking:** Tôi đã phát triển thuật toán trích xuất tham số từ phản hồi của mô hình để truyền xuống giao diện, bắt buộc trình duyệt phải mở đúng số trang hoặc đoạn văn bản (transcript) tương ứng với nội dung học viên đang hỏi.

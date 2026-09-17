@@ -11,6 +11,9 @@
 ### 1. Vai trò & Trách nhiệm
 Nhiệm vụ chính của tôi là đảm bảo sản phẩm giải quyết đúng vấn đề thực tế của học viên. Công việc của tôi bao gồm phân tích tập dữ liệu lịch sử hội thoại (chatlog), ghi nhận phản hồi từ các bạn sinh viên (Willing Users) trong các buổi kiểm thử, và đánh giá tính khả dụng của bản cập nhật giao diện ngày 18/9.
 
+
+**Công cụ AI hỗ trợ:** Tôi đã dùng tính năng Advanced Data Analysis của ChatGPT để viết nhanh các đoạn script Python (Pandas) nhằm bóc tách 13.494 dòng chatlog, tự động lọc ra cột `has_citation`, giúp tôi tìm ra con số 28% lỗi trích dẫn chỉ trong chưa đầy 30 phút thay vì phải ngồi đếm tay.
+
 ### 2. Những quyết định then chốt & Thách thức vượt qua
 - **Thay đổi giao diện dựa trên người dùng:** Dựa trên số liệu chatlog cho thấy học viên tốn 20-40 phút tự tìm tài liệu, tôi đã đề xuất nhóm ưu tiên cao nhất cho tính năng Deep-linking. Khi tiến hành kiểm thử bản mẫu, người dùng phản ánh việc chỉ có khối màu giả lập là chưa đủ. Từ đó, tôi thuyết phục nhóm kỹ thuật phải tích hợp hiển thị trực tiếp file PDF thật và bổ sung định dạng văn bản (Transcript View).
 - **Yêu cầu khóa chức năng cuộn trang:** Qua quan sát, việc học viên tự do cuộn chuột trong file PDF 29 trang làm mất tác dụng của Deep-linking. Tôi đã đưa ra quyết định yêu cầu đội giao diện (UI) vô hiệu hóa thao tác cuộn tự do, ép người dùng thao tác qua nút bấm để giữ sự tập trung.

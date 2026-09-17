@@ -11,6 +11,9 @@
 ### 1. Vai trò & Trách nhiệm
 Trong nhóm, tôi chịu trách nhiệm chính về kiến trúc AI và quy trình đánh giá chất lượng. Cụ thể, tôi phát triển mã script `auto_index.py` để tự động lập chỉ mục kiến thức (Knowledge Index), thiết kế câu lệnh hệ thống (System Prompt) cho các luồng xử lý, và xây dựng Bộ kiểm thử tiêu chuẩn (Golden Set) với 20 tình huống giả định.
 
+
+**Công cụ AI hỗ trợ:** Tôi sử dụng Gemini Advanced để hỗ trợ lên ý tưởng cho 20 ca kiểm thử (Golden Set), đảm bảo bao phủ đủ 4 lớp chỗ khó. Ngoài ra, Gemini cũng giúp tôi tối ưu hóa vòng lặp Python trong script `auto_index.py` để xử lý mượt mà khối lượng văn bản khổng lồ từ PDF.
+
 ### 2. Những quyết định then chốt & Thách thức vượt qua
 - **Tự động hóa luồng trích xuất dữ liệu:** Nhận thấy việc cập nhật chỉ mục kiến thức thủ công không khả thi khi dữ liệu lớn, tôi quyết định sử dụng khả năng xử lý của Gemini 3.5 Flash Lite để tự động quét các tệp văn bản bài giảng, từ đó sinh ra cấu trúc dữ liệu JSON chi tiết đến từng tham chiếu (`transcript_refs`). Điều này giúp hệ thống luôn đồng bộ và phản hồi chính xác vị trí tài liệu.
 - **Tiêu chuẩn hóa dữ liệu đầu ra:** Đặt quy định nghiêm ngặt cho mô hình, yêu cầu mọi câu trả lời đều phải kết thúc bằng định dạng trích dẫn cụ thể (ví dụ: Day X, Slide Y).
