@@ -1,0 +1,94 @@
+{
+  "course_name": "AI Thực Chiến - Batch 04 (VinUni 2026)",
+  "total_days": 2,
+  "days": {
+    "day_1": {
+      "day_id": 1,
+      "title": "Day 1: AI & LLM Foundation - Cách LLM hoạt động",
+      "slides_total": 29,
+      "slide_file": "d1-slide-hackathon.pdf",
+      "transcript_file": "transcript-04-clean.md",
+      "key_concepts": [
+        "LLM & Large Language Models",
+        "Transformer & Next-token Prediction",
+        "Lịch sử AI 70 năm & Alan Turing Test",
+        "Zero-shot vs Few-shot Prompting",
+        "Tham số Temperature & Tính tất định"
+      ],
+      "slides_content": [
+        {
+          "page": 7,
+          "title": "Bức tranh AI & Ba nhóm AI chính",
+          "content": "Phân biệt Discriminative AI (phân loại/dự đoán), Generative AI (sinh nội dung) và Agentic AI (tự lập kế hoạch/hành động). LLM là engine cốt lõi cho Generative và Agentic AI.",
+          "transcript_ref": "[T04-003]"
+        },
+        {
+          "page": 12,
+          "title": "Zero-shot và Few-shot Prompting",
+          "content": "Zero-shot là ra lệnh trực tiếp không kèm ví dụ mẫu; Few-shot cung cấp các cặp ví dụ (Input - Output) mẫu để định hình định dạng câu trả lời và giảm thiểu định dạng sai.",
+          "transcript_ref": "[T04-042]"
+        },
+        {
+          "page": 18,
+          "title": "Lịch sử AI: Turing Test và Hai mùa đông AI",
+          "content": "Alan Turing đưa ra phép thử Turing Test năm 1950. AI đã trải qua hai mùa đông (thập niên 70 và 80-90) do thiếu dữ liệu và giới hạn phần cứng trước khi bùng nổ nhờ Big Data và Transformer.",
+          "transcript_ref": "[T04-018]-[T04-023]"
+        },
+        {
+          "page": 20,
+          "title": "Tham số điều khiển Temperature",
+          "content": "Temperature = 0 mang lại câu trả lời tất định, bám sát dữ liệu (phù hợp trích xuất, code); Temperature cao tạo sự sáng tạo và đa dạng trong văn phong.",
+          "transcript_ref": "[T04-065]"
+        }
+      ]
+    },
+    "day_2": {
+      "day_id": 2,
+      "title": "Day 2: Xác định bài toán kinh doanh cho AI & Mức tự động hóa",
+      "slides_total": 29,
+      "slide_file": "d2-slide-hackathon.pdf",
+      "transcript_file": "transcript-01-clean.md, transcript-02-clean.md, transcript-03-clean.md",
+      "key_concepts": [
+        "Xác định bài toán từ yêu cầu mơ hồ",
+        "Product Manager vs Project Manager trong AI",
+        "Mức độ tự động hoá (Augment, Conditional, Automate)",
+        "Chi phí sai sót (Cost of Error)",
+        "Kỹ thuật Prompt Chaining & Chain of Thought",
+        "Xử lý lỗi API RateLimit 429 & Exponential Backoff"
+      ],
+      "slides_content": [
+        {
+          "page": 5,
+          "title": "Xác định bài toán từ yêu cầu mơ hồ",
+          "content": "70% thành công của ứng dụng AI đến từ con người và vận hành chứ không phải công nghệ. Bước đầu tiên là chuyển từ mục tiêu mơ hồ thành bài toán cụ thể có thể đo lường được.",
+          "transcript_ref": "[T01-003]"
+        },
+        {
+          "page": 14,
+          "title": "Phân biệt Product Manager và Project Manager trong AI",
+          "content": "Project Manager tập trung vào tiến độ, phân chia nhân lực và ngân sách cho bài toán đã rõ. Product Manager tập trung vào nghiên cứu người dùng, xác định nỗi đau và định hình tính năng đáng làm.",
+          "transcript_ref": "[T01-008]-[T01-011]"
+        },
+        {
+          "page": 18,
+          "title": "Mức độ tự động hoá dựa trên Cost of Error",
+          "content": "Nếu chi phí sai sót cao (kiến thức sai, mất điểm): chọn Augment hoặc Conditional (người giám sát hoặc bot từ chối khi nghi ngờ). Chỉ chọn Automate khi sai sót rẻ và người dùng tự sửa được.",
+          "transcript_ref": "[T02-015]"
+        },
+        {
+          "page": 25,
+          "title": "Viết Problem Statement chuẩn mực",
+          "content": "Problem Statement chuẩn phải chỉ rõ: Ai gặp vấn đề, bối cảnh xảy ra, nỗi đau cụ thể và hậu quả có thể đo lường được (không nhắc tên giải pháp AI trong problem).",
+          "transcript_ref": "[T01-017]"
+        },
+        {
+          "page": 28,
+          "title": "Kỹ thuật Prompt Chaining & Xử lý lỗi RateLimit 429",
+          "content": "Chia tác vụ phức tạp thành các bước nối tiếp (Chaining) để dễ kiểm soát chất lượng. Khi gặp lỗi RateLimit 429 do quota quá tải, áp dụng cơ chế Exponential Backoff hoặc time.sleep(1).",
+          "transcript_ref": "[T03-045]"
+        }
+      ]
+    }
+  }
+}
+

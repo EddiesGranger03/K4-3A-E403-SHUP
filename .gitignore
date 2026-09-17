@@ -1,11 +1,16 @@
 # Security: DO NOT commit course data pack
 data/
+vlearn-pack/
+codebase/slides/
 *.csv
 *.jsonl
+*.pdf
 
-# Environment variables & API keys
+# Environment variables & API keys (Strictly Ignored)
 .env
+*.env
 .env.*
+codebase/.env
 !.env.example
 
 # Node / Python / OS temp
