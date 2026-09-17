@@ -10,13 +10,13 @@
 
 | Tệp / Thư mục | Định dạng | Chức năng chi tiết |
 |---|:---:|---|
-| [`server.js`](file:///c:/Users/LOQ/OneDrive/Desktop/VIN_UNI/LAB/K4-3A-E403-SHUP/codebase/server.js) | Node.js Server | Backend Proxy Server (thuần Node.js, không cần npm package nặng nề). Đọc `NVIDIA_API_KEY` từ `.env`, chuyển tiếp truy vấn AI an toàn tới NVIDIA NIM API và phục vụ static files trên cổng 3000. |
-| [`.env`](file:///c:/Users/LOQ/OneDrive/Desktop/VIN_UNI/LAB/K4-3A-E403-SHUP/codebase/.env) *(Gitignored)* | ENV | Chứa `NVIDIA_API_KEY` và `MODEL_NAME`. Được chặn tuyệt đối bởi `.gitignore`, không bao giờ bị lộ lên git hay client. |
-| [`.env.example`](file:///c:/Users/LOQ/OneDrive/Desktop/VIN_UNI/LAB/K4-3A-E403-SHUP/.env.example) | Template | Bản mẫu cấu hình biến môi trường an toàn để chia sẻ mã nguồn. |
-| [`index.html`](file:///c:/Users/LOQ/OneDrive/Desktop/VIN_UNI/LAB/K4-3A-E403-SHUP/codebase/index.html) | HTML5 | Giao diện web 2 tầng (Tầng 1: Bot Hỗ Trợ điều hướng toàn khóa; Tầng 2: Bot Con chuyên sâu với split-screen đọc slide 29 trang). **Đã loại bỏ hoàn toàn ô nhập API Key trên giao diện.** |
-| [`style.css`](file:///c:/Users/LOQ/OneDrive/Desktop/VIN_UNI/LAB/K4-3A-E403-SHUP/codebase/style.css) | CSS3 | Hệ thống thiết kế chuẩn UI/UX dark mode, hiệu ứng glassmorphism, glowing cyan và neon violet theo nguyên tắc HAX/PAIR. |
-| [`app.js`](file:///c:/Users/LOQ/OneDrive/Desktop/VIN_UNI/LAB/K4-3A-E403-SHUP/codebase/app.js) | ES6 JavaScript | Động cơ điều phối đa tác tử, gọi AI thật qua backend proxy `/api/chat`, cơ chế ghi vết (Prompt & Raw Response Logging) và xử lý grounding trích dẫn. |
-| [`workflow.png`](file:///c:/Users/LOQ/OneDrive/Desktop/VIN_UNI/LAB/K4-3A-E403-SHUP/codebase/workflow.png) | Image PNG | Sơ đồ luồng hoạt động chi tiết (Flowchart) của kiến trúc Hub & Spoke phục vụ nghiệm thu mốc CP2. |
+| [`server.js`](server.js) | Node.js Server | Backend Proxy Server (thuần Node.js, không cần npm package nặng nề). Đọc `NVIDIA_API_KEY` từ `.env`, chuyển tiếp truy vấn AI an toàn tới NVIDIA NIM API và phục vụ static files trên cổng 3000. |
+| [`.env`](.env) *(Gitignored)* | ENV | Chứa `NVIDIA_API_KEY` và `MODEL_NAME`. Được chặn tuyệt đối bởi `.gitignore`, không bao giờ bị lộ lên git hay client. |
+| [`.env.example`](../.env.example) | Template | Bản mẫu cấu hình biến môi trường an toàn để chia sẻ mã nguồn. |
+| [`index.html`](index.html) | HTML5 | Giao diện web 2 tầng (Tầng 1: Bot Hỗ Trợ điều hướng toàn khóa; Tầng 2: Bot Con chuyên sâu với split-screen đọc slide 29 trang). **Đã loại bỏ hoàn toàn ô nhập API Key trên giao diện.** |
+| [`style.css`](style.css) | CSS3 | Hệ thống thiết kế chuẩn UI/UX dark mode, hiệu ứng glassmorphism, glowing cyan và neon violet theo nguyên tắc HAX/PAIR. |
+| [`app.js`](app.js) | ES6 JavaScript | Động cơ điều phối đa tác tử, gọi AI thật qua backend proxy `/api/chat`, cơ chế ghi vết (Prompt & Raw Response Logging) và xử lý grounding trích dẫn. |
+| [`workflow.png`](workflow.png) | Image PNG | Sơ đồ luồng hoạt động chi tiết (Flowchart) của kiến trúc Hub & Spoke phục vụ nghiệm thu mốc CP2. |
 
 ---
 

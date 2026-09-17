@@ -1,7 +1,7 @@
 # Báo cáo Kết Quả Kiểm Thử Thực Thi Lượt Đầu (Run 1 Evaluation Results)
 
 > **Mốc hoàn thành:** Nghiệm thu Checkpoint 3 (CP3 · Hạn 16:00 · 17/9)  
-> **Tệp dữ liệu kiểm thử chuẩn:** [`eval/golden_set.json`](file:///c:/Users/LOQ/OneDrive/Desktop/VIN_UNI/LAB/K4-3A-E403-SHUP/eval/golden_set.json) (20 test cases theo taxonomy 4 lớp chỗ khó)  
+> **Tệp dữ liệu kiểm thử chuẩn:** [`golden_set.json`](golden_set.json) (20 test cases theo taxonomy 4 lớp chỗ khó)  
 > **Mô hình kiến trúc kiểm nghiệm:** VLearn Hub & Spoke Tutor (Bot Hỗ Trợ Định Vị Toàn Khóa + Bot Con Chuyên Sâu Từng Day)  
 > **Nguyên tắc đánh giá:** Trung thực khách quan, báo cáo rõ các ca thất bại ở lượt chạy đầu và phân tích sâu sắc nguyên nhân kỹ thuật.
 

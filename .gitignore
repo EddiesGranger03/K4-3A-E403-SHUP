@@ -5,6 +5,7 @@ codebase/slides/
 *.csv
 *.jsonl
 *.pdf
+!demo-slides.pdf
 
 # Environment variables & API keys (Strictly Ignored)
 .env
