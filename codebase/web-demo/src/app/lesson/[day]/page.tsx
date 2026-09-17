@@ -137,7 +137,6 @@ Moi van de ghi thanh 1 Problem Card:
 ];
 
 // ── Component ────────────────────────────────────────────────
-import { useSearchParams } from "next/navigation";
 
 function LessonContent() {
   const { day } = useParams<{ day: string }>();
