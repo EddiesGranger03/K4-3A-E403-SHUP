@@ -8,34 +8,20 @@
 
 ---
 
-### 1. Vai trò và Trách nhiệm của tôi trong Dự án
-Tôi đảm nhận vai trò Đội trưởng và Quản lý Sản phẩm (Product Lead), đồng thời trực tiếp thiết kế kiến trúc Backend API trên nền tảng Next.js. Trách nhiệm của tôi là đảm bảo hệ thống chuyển mình từ những bản mock thô sơ sang một Prototype hoàn chỉnh, chạy thật 100% với AI:
-- **Thiết kế Kiến trúc Hub & Spoke API:** Xây dựng `api/chat-hub` và `api/chat-spoke` trong Next.js, tạo luồng định tuyến thông tin khép kín và an toàn.
-- **Quản lý Vòng đời Sản phẩm:** Định hướng ưu tiên tính năng (Deep-linking) và quyết định cắt bỏ những tính năng rườm rà không giải quyết đúng "nỗi đau" cốt lõi.
-- **Giải quyết Khủng hoảng Kỹ thuật:** Trực tiếp fix các lỗi nghiêm trọng về Out-of-Context của Hub Bot khi xử lý truy vấn ngoài luồng.
+### 1. Vai trò & Trách nhiệm trong 47.5 giờ
+Trong 47.5 giờ của Hackathon, tôi đảm nhận vai trò Đội trưởng và Product Lead, đồng thời trực tiếp xây dựng kiến trúc API lõi trên nền tảng Next.js. Trách nhiệm của tôi là chèo lái định hướng sản phẩm và đảm bảo luồng dữ liệu Hub & Spoke chạy mượt mà:
+- **Thiết kế Backend API:** Xây dựng endpoint `api/chat-hub` và `api/chat-spoke`, kết nối an toàn với Gemini 3.5 Flash Lite.
+- **Quản trị Tiến độ & Tính năng:** Lên cấu trúc `spec.md`, quyết định cắt bỏ các tính năng dư thừa và tập trung vào luồng Deep-linking (định tuyến thẳng tới trang PDF).
 
----
+### 2. Những quyết định then chốt & Thách thức vượt qua
+- **Từ bỏ Monolithic RAG:** Dựa trên phân tích 13.494 chatlog, tôi quyết định không nhồi toàn bộ giáo trình vào một prompt khổng lồ mà tách thành Hub (định vị) và Spoke (trả lời chuyên sâu). Kết quả giúp tiết kiệm hơn 60% lượng token và tăng độ chính xác của trích dẫn lên tuyệt đối.
+- **Tích hợp Deep-linking Regex:** Xây dựng bộ parse Regex để tự động trích xuất cấu trúc `[text](#deep-link-day-X-slide-Y-highlight-Z)` từ phản hồi của Hub Bot, ép giao diện Frontend phải nhảy ngay tới số trang slide thực tế mà không bắt người học phải tự dò tìm.
 
-### 2. Những "Trận Đánh Kỹ Thuật" tôi đã trực tiếp đối mặt
-1. **Lựa chọn Gemini 3.5 Flash Lite thay vì các model nặng nề:**
-   Để đảm bảo hệ thống phản hồi mượt mà dưới áp lực thời gian thực, tôi quyết định cấu hình toàn bộ hệ thống sử dụng `gemini-3.5-flash-lite`. Mô hình này không chỉ siêu nhẹ, ổn định (tránh lỗi 503/404) mà còn có cửa sổ ngữ cảnh cực lớn, cho phép chúng tôi nhúng toàn bộ kiến thức một ngày học mà không sợ crash.
-2. **Xây dựng cơ chế Deep-linking:**
-   Khi Bot Hỗ trợ điều hướng, tôi viết bộ parser bằng Regex để bắt các thẻ markdown `[text](#deep-link-day-X-slide-Y-highlight-Z)` và chuyển đổi thành trạng thái (state) trên frontend, ép trình duyệt nhảy chính xác đến trang PDF hoặc dòng Transcript tương ứng.
-3. **Luồng Fallback Guardrail cho Hub Bot:**
-   Trong lúc test, tôi phát hiện khi người dùng hỏi các khái niệm ngoài Index (như hỏi RAG ở Day 1), Hub Bot bị "ảo giác" và trả về chuỗi rỗng gây sập UI. Tôi đã trực tiếp tinh chỉnh prompt (`hub_bot_prompt.txt`) và thêm kịch bản [OUT OF SCOPE] để bot từ chối khéo léo thay vì cố gắng gọi Tool sai lệch.
+### 3. Vấp ngã & Bài học xương máu
+Khủng hoảng thót tim nhất của tôi là **Khủng hoảng độ trễ token** ngay trước thềm Checkpoint. Khi người dùng chat nhiều lượt, lịch sử hội thoại vô tình lưu trữ lẫn lộn các thẻ HTML và metadata dài dòng, đẩy dung lượng prompt lên tới hơn 1.500 tokens, khiến độ trễ (latency) của API kéo dài lên tới hơn 20 giây và làm sập Frontend. Tôi đã phải trực tiếp rà soát server log, viết thuật toán nén lịch sử và bóc tách rác HTML, giúp đưa độ trễ quay về mốc 1.5s - 2s ổn định.
 
----
+### 4. Sự chuyển biến về tư duy sản phẩm AI
+Hackathon đã phá vỡ hoàn toàn tư duy "code truyền thống" của tôi. Với phần mềm thông thường, 1 + 1 = 2. Nhưng với AI, đó là một cỗ máy xác suất. Tôi nhận ra người làm sản phẩm AI giỏi không phải là phó mặc cho mô hình tự do sáng tạo, mà phải xây dựng các **hàng rào bảo vệ (Guardrails)**. Khi Hub Bot đối mặt với câu hỏi nằm ngoài phạm vi, tôi đã thiết kế kịch bản fallback để nó từ chối khéo léo thay vì cố gắng "ảo giác" (hallucinate) ra một câu trả lời rỗng, đảm bảo tính trách nhiệm cao nhất cho dữ liệu giáo dục.
 
-### 3. Những Quyết định Sản phẩm Sống còn
-- **Kiên quyết đập bỏ giao diện Mock:** Sau vòng kiểm thử với user (do Uyên phụ trách), tôi nhận ra việc hiển thị một khối màu xanh giả lập Slide là không thể chấp nhận được. Tôi yêu cầu Hoàng (Frontend Lead) phải nhúng ngay iframe PDF thật và làm thêm màn hình Transcript Markdown để học viên có tài liệu học thực tế.
-- **Tư duy False Positive vs False Negative:** Thà hệ thống từ chối trả lời (False Negative) còn hơn là đưa ra trang slide sai lệch (False Positive) làm hỏng kiến thức của học viên. Cơ chế Spoke Bot được thiết kế để tuân thủ tuyệt đối triết lý này.
-
----
-
-### 4. Sự Chuyển biến Sâu sắc về Tư duy
-Hackathon đã dạy tôi rằng: Một hệ thống AI giỏi không phải là gọi những model đắt tiền nhất, mà là **hệ thống biết kết nối luồng dữ liệu (Data Flow) và luồng trải nghiệm (UX Flow)**. Giao tiếp giữa Hub Bot và giao diện người dùng thông qua Deep-linking chính là vũ khí mạnh nhất của chúng tôi, giúp người dùng tiết kiệm hàng chục phút tìm kiếm bài giảng.
-
----
-
-### 5. Kế hoạch Tiếp theo
-Cùng Uyên, Phát và Hoàng diễn tập Pitch Deck. Dự án VLearn Hub & Spoke đã vượt xa một bài tập tĩnh, nó đã trở thành một nền tảng điều hướng tri thức thực thụ!
+### 5. Kế hoạch phát triển tiếp theo
+Mục tiêu gần nhất là cùng nhóm trình bày thật bùng nổ tại vòng Live Demo. Xa hơn, tôi muốn tối ưu luồng xử lý Context Window để hệ thống có thể tóm tắt đối chiếu kiến thức chéo giữa nhiều môn học khác nhau, sẵn sàng bàn giao cho đội ngũ phát triển VLearn.

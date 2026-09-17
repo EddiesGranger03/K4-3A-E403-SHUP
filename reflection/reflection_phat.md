@@ -8,32 +8,21 @@
 
 ---
 
-### 1. Vai trò và Trách nhiệm của tôi trong Dự án
-Tôi chịu trách nhiệm chính về **Kiến trúc AI, Thiết kế Prompt và Đánh giá Tự động hóa**. Đây là "bộ não" quyết định trực tiếp khả năng hiểu câu hỏi và định tuyến thông minh của hệ thống.
-- **Thiết kế Prompt Engineering:** Chuẩn hóa `hub_bot_prompt.txt` để Bot Hỗ Trợ trả lời rõ ràng số trang/Slide trước khi cấp Deep-link.
-- **Kỹ sư Tự động hóa Dữ liệu (Auto-Index Pipeline):** Viết script Python tự động parse hàng chục ngàn từ từ Transcript và Slide PDF thành Knowledge Index (Vector mô phỏng).
-- **Vận hành Kiểm thử & RAG Logic:** Tối ưu hóa việc tìm kiếm ngữ nghĩa (Semantic matching) trong Index JSON.
+### 1. Vai trò & Trách nhiệm trong 47.5 giờ
+Tôi là người chịu trách nhiệm về "Bộ não" của dự án: Kiến trúc luồng suy luận của AI, Kỹ thuật Prompt Engineering và Đo lường Đánh giá.
+- **Kỹ sư Tự động hóa Dữ liệu (Auto-Index Pipeline):** Viết script Python tự động trích xuất nội dung từ Transcript và Slide PDF thành Knowledge Index cho Hub Bot.
+- **Xây dựng Bộ Kiểm thử Mẫu (Golden Set):** Thiết kế 20 ca kiểm thử thực tế phân bổ đủ 4 mức độ (từ cơ bản đến đánh đố nghiệp vụ) dựa trên dữ liệu chatlog do BTC cung cấp.
 
----
+### 2. Những quyết định then chốt & Thách thức vượt qua
+- **Gỡ bỏ giới hạn Context Window:** Khi xây dựng `auto_index.py`, ban đầu tôi hard-code giới hạn đọc 6000 ký tự vì sợ mô hình quá tải. Nhưng khi nghiên cứu cấu trúc của Gemini 3.5 Flash Lite, tôi mạnh dạn gỡ bỏ hoàn toàn giới hạn này. Kết quả, mô hình dễ dàng "nuốt trọn" hàng chục ngàn từ của toàn khóa học, tạo ra bản index chính xác đến từng dòng trích dẫn (transcript_refs) mà không bị sập.
+- **Ép buộc Grounding tuyệt đối:** Yêu cầu Bot Con tuân thủ kỷ luật: giải thích ≤ 3 câu và bắt buộc có mã trích dẫn `[Trang X - Slide Day Y]`.
 
-### 2. Hành trình Thiết kế Thuật toán & Thách thức Kỹ thuật
-1. **Giải phóng "Nút thắt cổ chai" Context Window:**
-   Khi viết script `auto_index.py`, ban đầu tôi lo sợ mô hình sẽ sập nếu đọc transcript quá dài nên đã hardcode cắt bớt 6000 ký tự (`[:6000]`). Tuy nhiên, sau khi nghiên cứu sức mạnh của mô hình `gemini-3.5-flash-lite`, tôi nhận ra context window của nó dư sức chứa khối lượng khổng lồ. Tôi đã mạnh dạn xóa bỏ giới hạn độ dài, cho phép pipeline nuốt trọn toàn bộ transcript! Kết quả là file `knowledge_index.json` giờ đây có đầy đủ các trích dẫn (transcript_refs) chính xác đến từng mili-giây.
-2. **Kỷ luật Output cho Hub Bot:**
-   Lúc đầu, Hub Bot trả về thẻ markdown Deep-link nhưng lại giấu đi số trang cụ thể, khiến user bấm vào giống như "click mù". Tôi đã điều chỉnh lại System Prompt, ép Bot phải thốt ra câu: *"Chi tiết tại Day X, trang Slide số Y..."* để tạo sự minh bạch tối đa.
+### 3. Vấp ngã & Bài học xương máu
+Bài học đắt giá nhất của tôi đến từ **Lỗi kiểm thử Run 1**. Trong lần chạy đo lường đầu tiên trên Golden Set, hệ thống chỉ đạt 17/20 ca (85%). Ba ca thất bại tập trung ở các truy vấn mơ hồ (Ví dụ: user hỏi cộc lốc *"Prompting là gì?"*). Thuật toán Semantic Router của tôi bị thiên kiến (bias) tự động đẩy về Day 1 thay vì kích hoạt luồng đặt câu hỏi ngược (Probing Question). 
+Tôi đã không sửa dữ liệu test để gian lận, mà quay lại tinh chỉnh trọng số ưu tiên của Index, siết chặt Prompt. Kết quả ở lượt **Run 2**, hệ thống đã giải quyết hoàn hảo 20/20 ca (100%), đem lại sự thỏa mãn tuyệt đối về mặt kỹ thuật.
 
----
+### 4. Sự chuyển biến về tư duy sản phẩm AI
+Hành trình này dạy tôi rằng AI không thể đánh giá bằng cảm tính kiểu *"thấy nó nói hay là được"*. Nó phải được đo lường bằng các chỉ số định lượng. Tôi thấu hiểu sự đắt giá của việc đánh đổi giữa **False Positive (Sinh ảo giác)** và **False Negative (Từ chối khéo)**. Trong môi trường sư phạm, để học viên hiểu sai kiến thức (False Positive) là một tội ác. Việc cấu hình AI có trách nhiệm và có căn cứ trích dẫn rõ ràng quan trọng hơn sự hào nhoáng của bề nổi.
 
-### 3. Trải nghiệm Thực nghiệm: Bài học đắt giá
-Khoảnh khắc tự hào nhất của tôi là fix thành công lỗi **Empty Output (Crash)** của Hub Bot. Trong các ca kiểm thử, khi user hỏi những câu nằm ngoài Knowledge Index (VD: "Tìm bài học về RAG" khi hệ thống chỉ mới có index Day 1 chưa dạy RAG), Bot bị luống cuống, gọi Tool sai và trả về JSON rỗng `""`, làm sập API.
-Tôi đã lập tức cấu trúc lại JSON logic trong `route.ts` và Prompt, tạo ra kịch bản **[OUT OF SCOPE]**, ép mô hình trả về thông báo lỗi thân thiện thay vì im lặng chết chóc. Từ một lỗi sập web chí mạng, hệ thống đã vững vàng xử lý mọi câu hỏi đánh đố!
-
----
-
-### 4. Sự Trưởng thành về Tư duy AI
-- **Automation is King:** Không thể duy trì một hệ thống AI bằng sức người. Việc tôi viết script `auto_index.py` đã chứng minh rằng: Tri thức phải được pipeline hóa! Chỉ cần 1 file PDF và Markdown mới thả vào, hệ thống tự động sinh ra index để Bot đọc. Đó mới là tư duy làm sản phẩm AI Scale-able.
-
----
-
-### 5. Định hướng Tiếp theo
-Sẵn sàng trình diễn sức mạnh của Auto-Index Pipeline cho Ban giám khảo xem việc "cập nhật tri thức cho Bot trong 5 giây" là như thế nào!
+### 5. Kế hoạch phát triển tiếp theo
+Tôi sẽ tiếp tục mở rộng quy mô Golden Set từ 20 ca lên 100 ca để bao phủ toàn bộ edge-case, đồng thời nghiên cứu tích hợp phương pháp đánh giá LLM-as-a-Judge tự động để chấm điểm chất lượng sư phạm của các câu trả lời do Spoke Bot sinh ra.
