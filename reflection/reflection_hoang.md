@@ -1,4 +1,4 @@
-# BÀI VIẾT THU HOẠCH CÁ NHÂN (PERSONAL REFLECTION)
+# BÀI VIẾT THU HOẠCH CÁ NHÂN
 ## Khóa học: AI Thực Chiến — Batch 04 (VinUni 2026)
 **Dự án:** VLearn Hub & Spoke AI Tutor  
 **Họ và tên:** Ngô Xuân Hoàng  
@@ -8,19 +8,18 @@
 
 ---
 
-### 1. Vai trò & Trách nhiệm: Phân định rõ ràng mảng việc phụ trách trong 47.5h
-Tôi đảm nhận vai trò Kỹ sư Giao diện & Hỗ trợ Kiểm thử, phối hợp chặt chẽ cùng đội trưởng Sơn để hoàn thiện trải nghiệm học tập. Trách nhiệm của tôi bao gồm: Phát triển giao diện `index.html`, `style.css`, xây dựng cấu trúc Split-screen hiện đại, lập trình các vi tương tác (hiệu ứng Shimmer Loading, thanh Resizable kéo thả), sản xuất Video Demo Checkpoint 3, và hỗ trợ chạy thử nghiệm đa màn hình cùng các Willing Users tại phòng E403.
+### 1. Vai trò & Trách nhiệm
+Trong dự án này, tôi chịu trách nhiệm phát triển giao diện người dùng (Frontend) và hỗ trợ kiểm thử trải nghiệm. Công việc của tôi bao gồm cấu trúc file HTML/CSS, lập trình giao diện chia đôi màn hình (Split-screen) để kết hợp khu vực hiển thị bài giảng và khung chat, xây dựng các trạng thái loading, và hỗ trợ tiến hành khảo sát giao diện với người dùng tại phòng thi.
 
-### 2. Những quyết định then chốt & Thách thức vượt qua: Cụ thể hóa bằng con số và bằng chứng
-- **Đưa PDF.js vào kiến trúc Split-screen:** Quyết định không sử dụng iframe thông thường dễ bị lỗi đen màn hình, tôi đã tích hợp trực tiếp thư viện `pdf.min.js` của Mozilla vào `app.js`. Việc render Canvas vector độ nét cao giúp học viên vừa đọc tài liệu vừa chat mượt mà, triệt tiêu việc phải mất hàng chục giây chuyển tab tải file 4MB.
-- **Minh bạch hóa độ trễ qua UI (HAX G1 & G2):** Xây dựng huy hiệu trạng thái `apiStatusBadge` và đồng hồ đếm giây `thinkingTimer`. Việc cho học viên thấy AI đang online và đang phân tích giúp họ loại bỏ cảm giác sốt ruột và tăng lòng tin.
+### 2. Những quyết định then chốt & Thách thức vượt qua
+- **Tích hợp trình xem tài liệu trực tiếp:** Để tránh việc học viên phải tải file PDF nặng hoặc chuyển tab liên tục, tôi đã sử dụng thư viện `pdf.min.js` của Mozilla để hiển thị tài liệu trực tiếp trên trình duyệt. Việc cấu hình Canvas để hiển thị rõ nét tài liệu trong không gian bị giới hạn của màn hình chia đôi là một thách thức khá lớn nhưng đã giải quyết được vấn đề gián đoạn luồng học tập của người dùng.
+- **Minh bạch hóa thời gian xử lý:** Do các mô hình AI cần thời gian để phản hồi, tôi đã thêm các yếu tố UI như đồng hồ đếm giây hoặc nhãn trạng thái hệ thống. Quyết định này giúp người dùng biết hệ thống vẫn đang hoạt động bình thường, giảm thiểu cảm giác chờ đợi và ấn nhầm.
 
-### 3. Vấp ngã & Bài học xương máu: Sự cố giao tiếp giữa UI và lõi AI
-Khi nhóm chuẩn bị quay video demo CP3, tôi đã chứng kiến **Khủng hoảng độ trễ token** do lỗi lịch sử chat đẩy dung lượng prompt lên 1.578 tokens khiến hệ thống nghẽn hơn 20s. Mặc dù anh Sơn trực tiếp viết thuật toán bóc tách HTML rác và nén lịch sử kéo độ trễ xuống 1.6 giây, sự cố này để lại cho tôi bài học xương máu về thiết kế UI: Không bao giờ được gửi toàn bộ cây DOM dư thừa từ giao diện lên API. Giao diện (UI) và Dữ liệu lõi (Payload) phải được phân tách nghiêm ngặt để bảo vệ hiệu năng hệ thống.
+### 3. Vấp ngã & Bài học xương máu
+Sự cố đáng nhớ nhất của tôi liên quan đến việc tối ưu dữ liệu truyền tải giữa Frontend và Backend. Trong lúc hoàn thiện giao diện, chúng tôi phát hiện hệ thống xử lý rất chậm. Nguyên nhân là do tôi đã để giao diện gửi nguyên cả các đoạn mã HTML dư thừa lên API trong phần lịch sử hội thoại. Từ vấp ngã này, tôi học được nguyên tắc cốt lõi trong thiết kế ứng dụng AI: Cần phải phân tách nghiêm ngặt giữa dữ liệu phục vụ hiển thị (UI) và dữ liệu lõi cần xử lý (Payload) để tránh gây nghẽn hệ thống.
 
-### 4. Sự chuyển biến về tư duy sản phẩm AI: Từ tư duy code truyền thống sang tư duy hệ thống AI xác suất
-Trước đây, tôi nghĩ làm Frontend cho ứng dụng chỉ là vẽ nút bấm và làm màu mè. Nhưng khi làm sản phẩm AI, tôi nhận ra: **Giao diện chính là cầu nối của hệ thống xác suất**. Dù thuật toán AI có thông minh đến đâu, nếu giao diện rối rắm, giật lag hay thiếu trích dẫn trực quan thì người dùng cũng sẽ từ bỏ. Thiết kế UI cho AI đòi hỏi sự tinh tế để cân bằng giữa tính tự động hóa và quyền kiểm soát của người dùng, đặc biệt là phải có căn cứ (highlight đúng slide, hiển thị đúng trang).
+### 4. Sự chuyển biến về tư duy sản phẩm AI
+Trước khi tham gia Hackathon, tôi thường nghĩ vai trò của giao diện chỉ là làm cho ứng dụng trông đẹp mắt. Tuy nhiên, khi làm việc với AI, tôi nhận ra UI/UX chính là công cụ điều hướng tâm lý người dùng. Một ứng dụng AI có thể mất vài giây để suy luận, và việc của Frontend là thiết kế các vi tương tác (micro-interactions) để che lấp đi khoảng thời gian đó, đồng thời làm nổi bật các phần trích dẫn để tăng tính minh bạch cho câu trả lời.
 
-### 5. Kế hoạch phát triển tiếp theo: Roadmap hoàn thiện và ứng dụng vào thực tế
-- Nâng cao kỹ năng lập trình Frontend hiện đại, tối ưu hóa các vi tương tác báo lỗi mượt mà hơn để tích hợp vào bản web-demo Next.js.
-- Tiếp tục hỗ trợ đội trưởng và cả nhóm chuẩn bị thiết bị trình chiếu tốt nhất cho buổi pitch chung kết tại LAB 6.
+### 5. Kế hoạch phát triển tiếp theo
+Sau Hackathon, tôi dự định sẽ dành thời gian học thêm về các framework Frontend hiện đại để xây dựng giao diện hiệu quả hơn. Đồng thời, tôi sẽ cùng nhóm chuẩn bị các phương án xử lý rủi ro (như quay sẵn video demo) để đảm bảo bài thuyết trình không bị ảnh hưởng nếu gặp sự cố mạng lưới.

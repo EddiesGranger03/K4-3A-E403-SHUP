@@ -1,4 +1,4 @@
-# BÀI VIẾT THU HOẠCH CÁ NHÂN (PERSONAL REFLECTION)
+# BÀI VIẾT THU HOẠCH CÁ NHÂN
 ## Khóa học: AI Thực Chiến — Batch 04 (VinUni 2026)
 **Dự án:** VLearn Hub & Spoke AI Tutor  
 **Họ và tên:** Lê Châu Trần Phát  
@@ -8,23 +8,18 @@
 
 ---
 
-### 1. Vai trò & Trách nhiệm: Phân định rõ ràng mảng việc phụ trách trong 47.5h
-Trong nhóm, tôi chịu trách nhiệm chính về Kiến trúc Trí tuệ Nhân tạo & Đo lường Đánh giá. Trách nhiệm của tôi là: Thiết kế Prompt Engineering đa tầng cho Bot Hỗ Trợ và Bot Con, tạo cơ chế cô lập ngữ cảnh (Context Sandboxing) để cắt giảm token, xây dựng Bộ Kiểm thử Mẫu (Golden Set 20 cases) phân bổ đều 4 lớp chỗ khó, và vận hành kiểm thử thực nghiệm (Traceability).
+### 1. Vai trò & Trách nhiệm
+Nhiệm vụ của tôi trong dự án tập trung vào kỹ thuật Prompt Engineering và đánh giá độ chính xác của mô hình. Tôi phụ trách viết các chỉ thị hệ thống (System Prompt) cho Bot Hỗ trợ và Bot con, thiết lập giới hạn ngữ cảnh cho từng buổi học, và xây dựng Bộ kiểm thử tiêu chuẩn (Golden Set) gồm 20 tình huống thực tế để đánh giá hiệu năng của hệ thống.
 
-### 2. Những quyết định then chốt & Thách thức vượt qua: Cụ thể hóa bằng con số và bằng chứng
-- **Thiết kế Semantic Router:** Thách thức lớn nhất là làm sao bot không nhầm lẫn giữa Day 1 và Day 2 (Lost in the Middle). Tôi đã thiết kế cơ chế định tuyến (Router) tại Hub Bot phân loại intent trước, sau đó mới gọi Spoke Bot. Kết quả vừa triệt tiêu nhầm lẫn, vừa cắt giảm được 62,5% dung lượng context.
-- **Kỷ luật độ dài và bắt buộc mã trích dẫn:** Đưa vào prompt Bot Con chỉ thị ngặt nghèo: giải thích bản chất ngắn gọn, bắt buộc kết thúc bằng `[Trang X - Slide Day Y]`. Nếu không có thông tin trên slide, bot bắt buộc từ chối.
+### 2. Những quyết định then chốt & Thách thức vượt qua
+- **Giới hạn phạm vi câu trả lời:** Để hạn chế tình trạng AI trả lời lan man, tôi đã thiết lập quy định nghiêm ngặt trong prompt: Bot con chỉ được trả lời tối đa 3 câu và bắt buộc phải đính kèm định dạng `[Trang X - Slide Day Y]`. Nếu thông tin không có trong tài liệu, bot phải phản hồi là không biết thay vì tự tìm kiếm thông tin bên ngoài.
+- **Xây dựng bộ định tuyến (Semantic Router):** Thay vì gửi tất cả tài liệu vào cùng một prompt, tôi thiết lập một bộ định tuyến tại Bot Hỗ trợ để phân tích ý định của người dùng, sau đó mới gọi dữ liệu tương ứng. Việc này giúp hạn chế tình trạng mô hình bỏ sót thông tin (Lost in the middle) khi ngữ cảnh quá dài.
 
-### 3. Vấp ngã & Bài học xương máu: Lỗi kiểm thử Run 1
-Khoảnh khắc thót tim nhất là **Lỗi kiểm thử Run 1** trên Golden Set. Hệ thống chỉ đạt 17/20 ca (85%), rớt 3 ca kiểm thử:
-- Ca `TC_L2_03` (Hỏi cụt lủn *"Prompting là gì?"*): Router bị thiên kiến (bias) nhảy vào Day 1 thay vì kích hoạt câu hỏi làm rõ.
-- Ca `TC_L4_06`: Câu hỏi *"Phân biệt PM trong kỷ nguyên AI"* bị chuyển nhầm sang Day 1 (vì có chữ "AI"), trong khi nằm ở Day 2 Slide 14.
-Tôi không sửa dữ liệu test để gian lận, mà kiên nhẫn tinh chỉnh bảng ánh xạ trọng số ngữ nghĩa (tăng từ khóa `Cost of Error` lên mức 2.0 cho Day 2) và siết chặt Regex. Kết quả Lượt 2 đạt tuyệt đối 20/20 (100%).
+### 3. Vấp ngã & Bài học xương máu
+Quá trình kiểm thử là giai đoạn tôi gặp nhiều khó khăn nhất. Trong **lượt chạy kiểm thử đầu tiên (Run 1)**, hệ thống chỉ vượt qua 17/20 tình huống (đạt 85%). Vấn đề phát sinh ở các truy vấn quá ngắn gọn (ví dụ: *"Prompting là gì?"*), khiến bộ định tuyến phân loại sai ngày học thay vì đặt câu hỏi làm rõ. Thay vì chỉnh sửa file dữ liệu kiểm thử để có kết quả tốt hơn, tôi đã xem xét lại thuật toán, thay đổi trọng số phân loại và siết chặt các từ khóa trong prompt. Kết quả ở lượt kiểm thử thứ 2 đã đạt mức 100%.
 
-### 4. Sự chuyển biến về tư duy sản phẩm AI: Từ tư duy code truyền thống sang tư duy hệ thống AI xác suất
-Bài học lớn nhất của tôi là **Sự đánh đổi False Positive vs False Negative**. Trong ứng dụng giáo dục, chi phí sai sót (Cost of Error) của việc đưa ra thông tin sai lệch là cực đắt. Tôi chủ động thiết kế hệ thống thà chấp nhận False Negative (từ chối lịch sự và nói không có dữ liệu) còn hơn để xảy ra False Positive (tự tin bịa ra trang slide). 
-Đồng thời, tư duy của tôi chuyển dịch hoàn toàn sang hướng **định lượng có căn cứ**: AI đáng tin cậy phải có Golden Set đo lường được, tỷ lệ Grounding và Defense bằng con số thực chứng, không phải "thấy nói mượt là được".
+### 4. Sự chuyển biến về tư duy sản phẩm AI
+Bài học quan trọng nhất tôi rút ra là hiểu rõ tính hai mặt của sai số trong AI, cụ thể là **sự đánh đổi giữa False Positive và False Negative**. Trong lĩnh vực giáo dục, việc cung cấp sai kiến thức (False Positive) để lại hậu quả nghiêm trọng hơn rất nhiều so với việc hệ thống từ chối trả lời (False Negative). Tư duy làm AI của tôi chuyển từ việc cố gắng làm cho mô hình "thông minh nhất có thể" sang việc làm cho nó "đáng tin cậy nhất có thể" thông qua việc đo lường bằng các số liệu cụ thể trên Golden Set.
 
-### 5. Kế hoạch phát triển tiếp theo: Roadmap hoàn thiện và ứng dụng vào thực tế
-- Tích hợp các bộ đánh giá tự động (LLM-as-a-Judge) để tự động chấm điểm độ sâu sư phạm của câu trả lời.
-- Mở rộng tập kiểm thử Golden Set từ 20 ca lên 100 ca để bao phủ toàn bộ các edge-case, ứng dụng làm chuẩn kiểm thử cho VLearn.
+### 5. Kế hoạch phát triển tiếp theo
+Nếu có thêm thời gian, tôi muốn mở rộng bộ Golden Set từ 20 câu lên 100 câu để kiểm tra các tình huống hiếm gặp (edge-cases) kỹ hơn. Tôi cũng muốn tìm hiểu thêm về kỹ thuật dùng mô hình lớn để chấm điểm tự động (LLM-as-a-judge) nhằm cải thiện quy trình đánh giá.
