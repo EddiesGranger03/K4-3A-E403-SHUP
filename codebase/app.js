@@ -292,46 +292,69 @@ async function loadSlidesKnowledge() {
 
 // Scope Detector for Hub & Spoke Isolation
 function detectQueryScope(query) {
-  const lower = query.toLowerCase();
+  const lower = query.toLowerCase().trim();
 
-  // Day 1 signals (Grounded in Day 1 Slide Deck: 29 pages)
+  // 1. High Priority: Out-of-scope signals (Concepts NOT in official Day 1 or Day 2 slide decks)
+  const outOfScopePatterns = [
+    { pattern: /\brag\b/i, name: 'RAG (Retrieval-Augmented Generation)' },
+    { pattern: /retrieval[\s-]augmented/i, name: 'Retrieval-Augmented Generation' },
+    { pattern: /vector\s*(?:db|database|kho|cơ sở dữ liệu)/i, name: 'Vector Database' },
+    { pattern: /\bembedding(?:s)?\b/i, name: 'Embeddings' },
+    { pattern: /cosine\s*similarity/i, name: 'Cosine Similarity' },
+    { pattern: /\bchunking\b/i, name: 'Chunking' },
+    { pattern: /\breact\b(?:\s+framework|\s+agent|\s+pattern)?/i, name: 'ReAct (Reasoning + Acting)' },
+    { pattern: /reasoning\s*\+\s*acting/i, name: 'Reasoning + Acting' },
+    { pattern: /\bagentic\b/i, name: 'Agentic AI' },
+    { pattern: /tool\s*calling/i, name: 'Tool Calling' },
+    { pattern: /function\s*calling/i, name: 'Function Calling' },
+    { pattern: /\bfine[- ]?tuning\b/i, name: 'Fine-tuning' },
+    { pattern: /\blangchain\b/i, name: 'LangChain' },
+    { pattern: /\bllamaindex\b/i, name: 'LlamaIndex' },
+    { pattern: /\bchromadb\b/i, name: 'ChromaDB' },
+    { pattern: /\bpinecone\b/i, name: 'Pinecone' },
+    { pattern: /\bqdrant\b/i, name: 'Qdrant' },
+    { pattern: /\bmilvus\b/i, name: 'Milvus' },
+    { pattern: /\bday\s*(?:0?[3-9]|[1-9]\d+)\b/i, name: 'Day 3+' },
+    { pattern: /\bbuổi\s*(?:0?[3-9]|[1-9]\d+)\b/i, name: 'Buổi 3+' }
+  ];
+  for (const item of outOfScopePatterns) {
+    if (item.pattern.test(lower)) {
+      return { day: 'out_of_scope', topic: item.name };
+    }
+  }
+
+  // 2. Day 1 signals (Grounded in Day 1 Slide Deck: 29 pages)
   const d1Keywords = [
     'temperature', 'nhiệt độ', 'top_p', 'top-p', 'núm vặn', 'token', 'dự đoán token', 
     'next-token', 'context', 'lost in the middle', 'bàn làm việc', 'attention', 'transformer', 
-    'rlhf', 'reward model', 'sft', 'pre-training', 'chain of thought', 'cot', 'giấy nháp', 
+    'tự chú ý', 'rlhf', 'reward model', 'sft', 'pre-training', 'chain of thought', 'cot', 'giấy nháp', 
     'giải phẫu agent', 'vòng lặp agent', '5 bộ phận', 'bộ não suy luận', 'chọn model theo tầng', 
-    'frontier', '4 lớp của prompt', 'system instruction', 'lời dặn đầu ca', 'discriminative', 
-    'generative ai', 'ba nhóm ai', 'nền tảng genai', 'day 1', 'day 01', 'buổi 1'
+    'frontier', '4 lớp của prompt', 'bốn lớp', 'lớp của prompt', 'system instruction', 'lời dặn đầu ca', 
+    'discriminative', 'generative ai', 'ba nhóm ai', 'nền tảng genai', 'turing', 'hax', 'day 1', 'day 01', 'buổi 1'
   ];
   for (const kw of d1Keywords) {
     if (lower.includes(kw)) return { day: 1, topic: kw };
   }
 
-  // Day 2 signals (Grounded in Day 2 Slide Deck: 29 pages)
+  // 3. Day 2 signals (Grounded in Day 2 Slide Deck: 29 pages)
   const d2Keywords = [
     'double diamond', 'don norman', 'tìm đúng vấn đề', 'tìm đúng giải pháp', '4 lenses', 
     'lăng kính', 'anti-pattern', 'anti patterns', 'sai lầm', 'solution-first', 'pair', 
     'reframe', 'how might we', 'can ai solve', 'problem card', 'quick problem card', 
     'định lượng', 'baseline', 'target', 'measurement', 'khi nào ai không tốt', 
-    'lỗi quá tốn kém', 'cost of error', 'chi phí sai sót', 'automate', 'augment', 
-    'tự động hóa', 'tự động hoá', 'rule', 'workflow', 'agent', '3 cấp độ', '3 mức giải pháp', 
+    'không nên dùng ai', 'lỗi quá tốn kém', 'cost of error', 'chi phí sai sót', 'automate', 'augment', 
+    'tự động hóa', 'tự động hoá', 'rule', 'workflow', 'quy trình', '3 cấp độ', '3 mức giải pháp', 
     'prompt chaining', 'routing', 'parallelization', 'workflow patterns', 'reward function', 
     'hàm thưởng', 'false positive', 'false negative', 'fp', 'fn', 'precision', 'recall', 
-    'problem statement', '9 trường', 'go', 'not yet', 'no-go', 'day 2', 'day 02', 'buổi 2'
+    'problem statement', '9 trường', 'khung quyết định', 'go', 'not yet', 'no-go', 'day 2', 'day 02', 'buổi 2'
   ];
   for (const kw of d2Keywords) {
     if (lower.includes(kw)) return { day: 2, topic: kw };
   }
 
-  // Out-of-scope signals (Topics not included in Day 1 or Day 2 uploaded slide files)
-  const outOfScopeKeywords = [
-    'rag', 'vector db', 'vector database', 'retrieval-augmented', 'embedding', 
-    'cosine similarity', 'chunking', 'react framework', 'react agent', 'agentic', 
-    'tool calling', 'function calling', 'reasoning + acting', 'thought - action',
-    'fine-tuning', 'day 3', 'day 4', 'day 5', 'day 6', 'day 03', 'day 04'
-  ];
-  for (const kw of outOfScopeKeywords) {
-    if (lower.includes(kw)) return { day: 'out_of_scope', topic: kw };
+  // Exact word match for agent in Day 2
+  if (/\bagent\b/i.test(lower)) {
+    return { day: 2, topic: 'agent' };
   }
 
   return { day: null, topic: null };
@@ -531,6 +554,26 @@ function linkifySlideCitations(escapedText, defaultDay = 2) {
     return `<a href="javascript:void(0)" class="inline-slide-link" onclick="handleSlideCitationClick(${defaultDay}, ${page})" title="Bấm để mở ngay Slide Trang ${page}">[📄 Trang ${page}]</a>`;
   });
   return result;
+}
+
+// Chuyển đổi phản hồi của AI thành HTML có format đẹp (in đậm, xuống dòng, liên kết slide)
+function formatAiResponse(text, defaultDay = 1) {
+  if (!text) return '';
+  let escaped = escapeHtml(text);
+  // Markdown bold **text**
+  escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Markdown italic *text*
+  escaped = escaped.replace(/(^|[^\*])\*([^\*]+)\*([^\*]|$)/g, '$1<em>$2</em>$3');
+  // Inline code `code`
+  escaped = escaped.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Linkify citations
+  let linked = linkifySlideCitations(escaped, defaultDay);
+  // Split into paragraphs
+  const paragraphs = linked.split(/\n\n+/).map(p => p.trim()).filter(Boolean);
+  if (paragraphs.length > 1) {
+    return paragraphs.map(p => `<p style="margin-bottom: 0.5rem;">${p.replace(/\n/g, '<br/>')}</p>`).join('');
+  }
+  return `<p>${linked.replace(/\n/g, '<br/>')}</p>`;
 }
 
 // Prominent, Clickable Slide Direct Link Banner for Bot Con & Hub
@@ -1214,10 +1257,8 @@ async function submitHubQuery() {
     return;
   }
 
-  // 2. Chức năng & Khả năng của Bot Hỗ Trợ (Greeting & Capabilities)
-  if (lower.includes('bạn làm được gì') || lower.includes('bạn là ai') || lower.includes('giúp được gì') || 
-      lower.includes('chức năng') || lower.includes('làm gì') || lower.includes('hướng dẫn') || 
-      lower === 'hi' || lower === 'hello' || lower.includes('xin chào') || lower.includes('giới thiệu')) {
+  // 2. Hướng dẫn sử dụng hệ thống (Chỉ hiển thị khi người dùng chủ động hỏi cách dùng)
+  if (lower.includes('hướng dẫn sử dụng') || lower.includes('bạn làm được những gì') || lower.includes('chức năng của hệ thống')) {
     typingIndicator.remove();
     const capabilityMsg = `
       <p>Chào bạn! Mình là <strong>Bot Hỗ Trợ (Central Course Navigator)</strong> — "hoa tiêu" dẫn đường học tập cho 2 buổi học trọng tâm hiện có: <strong>Day 01 (Nền tảng GenAI)</strong> và <strong>Day 02 (Xác định bài toán & Kỹ thuật Prompt)</strong>. Dưới đây là những việc mình có thể hỗ trợ bạn:</p>
@@ -1249,31 +1290,65 @@ async function submitHubQuery() {
     contextHint = `\n[NGỮ CẢNH HỘI THOẠI TRƯỚC ĐÓ]: Cuộc trò chuyện đang thảo luận về bài học Day ${lastHubContext.day} (Trang slide ${lastHubContext.page}, Chủ đề: "${lastHubContext.topic || ''}"). Nếu người dùng hỏi câu tiếp theo (như 'nói rõ hơn', 'giải thích thêm', 'cho ví dụ', 'tại sao', 'ở slide nào', 'slide mấy', 'là gì'...), bạn hãy căn cứ vào câu hỏi & câu trả lời trước đó trong lịch sử kết hợp với ngữ cảnh này để tiếp tục giải đáp, định vị chính xác bài học Day 1 hoặc Day 2 kèm trích dẫn số trang rõ ràng dạng [Trang X - Slide Day Y].`;
   }
 
-  const hubSystemPrompt = `Bạn là Bot Hỗ Trợ (Course Navigator) của VLearn AI Tutor.
-KHO DỮ LIỆU BÀI GIẢNG HIỆN CÓ 2 BUỔI HỌC CHÍNH THỨC:
-- Day 1: Nền tảng GenAI & Kỹ thuật Prompt Engineering cơ bản (29 trang slide d1-slide-hackathon.pdf): Zero-shot, Few-shot Prompting, Tham số Temperature & Top_p, Token & Attention, Cơ chế dự đoán token, Turing Test, HAX Guidelines.
-- Day 2: Xác định bài toán kinh doanh cho AI & Mức tự động hóa (29 trang slide d2-slide-hackathon.pdf): Chi phí sai sót (Cost of Error), Double Diamond, Automate vs Augment, Ba mức giải pháp Rule/Workflow/Agent, Workflow Patterns, Khung Go/Not Yet/No-Go.
+  let scopeHint = '';
+  const initialScope = detectQueryScope(query);
+  if (initialScope.day === 'out_of_scope') {
+    scopeHint = `\n[CHỈ THỊ BẮT BUỘC VỀ PHẠM VI]: Câu hỏi này về chủ đề "${initialScope.topic || query}" NẰM NGOÀI PHẠM VI 2 BUỔI HỌC CHÍNH THỨC (Day 1 & Day 2). BẮT BUỘC: Câu đầu tiên trong câu trả lời của bạn PHẢI nêu rõ ràng rằng: "Lưu ý: Chủ đề này nằm ngoài phạm vi 2 buổi học chính thức (Day 1 & Day 2) của khóa học." Sau đó bạn mới giải thích súc tích, dễ hiểu bản chất khái niệm và gợi ý liên hệ với kiến thức nền tảng trong bài giảng (ví dụ liên hệ RAG với Context Window ở Day 1; liên hệ ReAct với vòng lặp Agent & Workflow Patterns ở Day 2).`;
+  }
 
-QUY TẮC:
-1. DUY TRÌ TRÍ NHỚ HỘI THOẠI: Nếu người dùng hỏi câu tiếp theo (như 'nói rõ hơn', 'giải thích thêm', 'cho ví dụ', 'tại sao', 'ở slide nào', 'slide mấy', 'là gì'...), bạn hãy căn cứ vào câu hỏi & câu trả lời trước đó trong lịch sử để tiếp tục giải đáp, định vị chính xác bài học Day 1 hoặc Day 2.
-2. Bạn chỉ định vị và hướng dẫn người dùng vào 2 buổi học Day 1 hoặc Day 2.
-3. Nếu người dùng hỏi khái niệm ngoài 2 bài học này (như RAG, Agentic, ReAct, Day 3, Day 4, v.v.), hãy thông báo rõ ràng là dữ liệu bài giảng hiện tại chỉ có Day 01 và Day 02, và gợi ý người dùng tìm hiểu 2 bài học này.
-4. Trả lời súc tích tối đa 3-4 câu bằng tiếng Việt và luôn trích dẫn số trang chính xác theo mẫu [Trang X - Slide Day Y].${contextHint}`;
+  const hubSystemPrompt = `Bạn là Bot Hỗ Trợ (Central Course Navigator) thông minh, sư phạm và có trí nhớ hội thoại sâu sắc của VLearn AI Tutor.
+KHO DỮ LIỆU BÀI HỌC CHÍNH THỨC CỦA KHÓA HỌC HIỆN CÓ 2 BUỔI:
+- Day 1: Nền tảng GenAI & Kỹ thuật Prompt Engineering cơ bản (29 trang slide d1-slide-hackathon.pdf): 4 lớp cấu trúc Prompt (System, User, Context, Output), Zero-shot, Few-shot Prompting, Chain-of-Thought (CoT), Tham số Temperature & Top_p, Token & Attention, Context Window ("bàn làm việc"), Hiện tượng Lost in the Middle, 5 bộ phận của AI Agent (Goal, Reasoning, Tools, Memory, Action), Turing Test, HAX Guidelines.
+- Day 2: Xác định bài toán kinh doanh cho AI & Mức tự động hóa (29 trang slide d2-slide-hackathon.pdf): Mô hình Double Diamond (Don Norman 2005: Diamond 1 Tìm đúng vấn đề, Diamond 2 Tìm đúng giải pháp), Chi phí sai sót (Cost of Error), Automate vs Augment (Google PAIR), Ba mức giải pháp Rule / Workflow / Agent, Workflow Patterns (Prompt Chaining, Routing, Parallelization), Reward Function & Đánh đổi FP/FN, Khung ra quyết định Go / Not Yet / No-Go, 9 trường của Problem Statement.
 
-  const historyForAPI = hubChatHistory.slice(-10).map(m => ({
-    role: m.role,
-    content: m.content
-  }));
+QUY TẮC PHÂN LUỒNG TRI THỨC VÀ GIAO TIẾP THÔNG MINH (BẮT BUỘC):
+1. GIAO TIẾP TỰ NHIÊN & TRÍ NHỚ HỘI THOẠI:
+   - Duy trì mạch hội thoại liền mạch qua các lượt trao đổi trong lịch sử.
+   - Khi người học chào hỏi, trò chuyện thân mật hoặc hỏi câu cá nhân (ví dụ: 'hê lô bạn biết tôi là ai không', 'chào bạn', 'bạn là ai'): Hãy trả lời thông minh, thân thiện, ân cần và tự nhiên như một trợ lý AI đồng hành (ví dụ: bạn là trợ lý AI học tập, không lưu trữ thông tin nhận dạng cá nhân để bảo vệ quyền riêng tư, nhưng luôn sẵn sàng đồng hành cùng học viên khám phá bài học).
+   - Khi người học hỏi câu tiếp nối ('giải thích thêm', 'cho ví dụ', 'tại sao', 'so sánh'...), hãy dựa vào ngữ cảnh thảo luận trước đó để giải thích thông minh, dễ hiểu, mang tính giáo dục cao.
+
+2. NẾU CÂU HỎI THUỘC PHẠM VI BÀI HỌC (Day 1 hoặc Day 2):
+   - Giải thích cốt lõi bản chất vấn đề ngắn gọn, súc tích (3-4 câu).
+   - Định vị chính xác buổi học và số trang slide, bắt buộc trích dẫn theo định dạng chuẩn: [Trang X - Slide Day Y].
+
+3. NẾU CÂU HỎI NẰM NGOÀI PHẠM VI BÀI HỌC (như RAG, ReAct, Vector DB, Agentic AI nâng cao, LangChain, Fine-tuning, RLHF, Day 3, Day 4, v.v.):
+   - [QUY TẮC ĐẦU TIÊN BẮT BUỘC]: Bạn PHẢI nêu rõ ràng và khẳng định ngay ở câu đầu tiên rằng kiến thức/chủ đề này NẰM NGOÀI PHẠM VI 2 BUỔI HỌC CHÍNH THỨC (Day 1 & Day 2) của khóa học hiện tại.
+   - [HỖ TRỢ GIẢI THÍCH & GỢI Ý MỞ RỘNG]: Sau khi đã nêu rõ phạm vi, bạn hỗ trợ người học tìm hiểu thêm bằng cách giải thích ngắn gọn, súc tích bản chất của khái niệm đó (nguyên lý hoạt động, vai trò thực tế), đồng thời gợi ý hướng tìm hiểu mới hoặc liên hệ, kết nối với kiến thức nền tảng trong bài giảng (ví dụ: liên hệ RAG với Context Window & In-context Learning ở Day 1; liên hệ ReAct với vòng lặp 5 bộ phận Agent ở Day 1 và Workflow Patterns ở Day 2).
+
+4. ĐỊNH DẠNG:
+   - Trả lời bằng tiếng Việt chuẩn mực, thông minh, ân cần, mang tính sư phạm cao, độ dài khoảng 3-5 câu.${contextHint}${scopeHint}`;
+
+  // Chuẩn hóa lịch sử hội thoại thành dạng text gọn nhẹ để giảm token, tăng tốc phản hồi AI
+  const historyForAPI = hubChatHistory.slice(-8).map(m => {
+    const cleanContent = String(m.content).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    return {
+      role: m.role,
+      content: m.role === 'assistant' ? cleanContent.slice(0, 220) : cleanContent.slice(0, 300)
+    };
+  });
 
   const liveResult = await callLiveAI(hubSystemPrompt, query, historyForAPI);
   typingIndicator.remove();
 
   if (liveResult && liveResult.text) {
+    const scope = detectQueryScope(query);
+    const isOutOfScope = (scope.day === 'out_of_scope') || 
+      liveResult.text.toLowerCase().includes('ngoài phạm vi') || 
+      liveResult.text.toLowerCase().includes('ngoài 2 buổi');
+
+    // Bulletproof Guardrail: Đảm bảo phản hồi ngoài phạm vi LUÔN có thông báo rõ ràng đầu câu
+    if (isOutOfScope) {
+      const lowerText = liveResult.text.toLowerCase();
+      if (!lowerText.includes('ngoài phạm vi') && !lowerText.includes('ngoài 2 buổi') && !lowerText.includes('chưa có trong')) {
+        liveResult.text = `⚠️ Lưu ý phạm vi: Chủ đề này nằm ngoài phạm vi 2 buổi học chính thức (Day 1 & Day 2) của khóa học.\n\n${liveResult.text}`;
+      }
+    }
+
     // Lưu vào trí nhớ hội thoại của Bot Hỗ Trợ
     hubChatHistory.push({ role: 'user', content: query });
     hubChatHistory.push({ role: 'assistant', content: liveResult.text });
-    if (hubChatHistory.length > 16) {
-      hubChatHistory.splice(0, hubChatHistory.length - 16);
+    if (hubChatHistory.length > 24) {
+      hubChatHistory.splice(0, hubChatHistory.length - 24);
     }
     saveSessionState(); // #6
 
@@ -1292,57 +1367,91 @@ QUY TẮC:
       }
     }
 
-    // 2. Xác định Day gợi ý dựa trên tri thức hiện tại hoặc ngữ cảnh trước
-    let suggestedDay = citedDay;
-    if (!suggestedDay) {
-      const scope = detectQueryScope(query);
-      if (scope.day === 1 || scope.day === 2) suggestedDay = scope.day;
-    }
-    if (!suggestedDay && lastHubContext.day) {
-      suggestedDay = lastHubContext.day;
-    }
-    if (!suggestedDay) {
-      // Look back into recent history to infer suggestedDay
-      for (let i = hubChatHistory.length - 1; i >= 0; i--) {
-        const hScope = detectQueryScope(hubChatHistory[i].content);
-        if (hScope.day === 1 || hScope.day === 2) {
-          suggestedDay = hScope.day;
-          break;
+    let bottomCardHtml = '';
+    if (isOutOfScope) {
+      if (citedPage && (citedDay === 1 || citedDay === 2)) {
+        bottomCardHtml = renderSlideLinkCard(citedDay, citedPage, liveResult.engineName);
+      }
+      bottomCardHtml += `
+        <div class="deep-links-container" style="margin-top: 0.8rem;">
+          <div class="deep-link-card" onclick="switchView('spoke', 1)">
+            <div>
+              <div class="link-title">📍 Khám phá Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
+              <div class="link-desc">Tìm hiểu 4 lớp Prompt, Temperature & Top_p, Token và Attention (29 trang slide)</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+          <div class="deep-link-card" onclick="switchView('spoke', 2)">
+            <div>
+              <div class="link-title">📍 Khám phá Day 2: Xác định bài toán kinh doanh cho AI</div>
+              <div class="link-desc">Xem Double Diamond, Automate vs Augment, Rule/Workflow/Agent và Khung Go/Not Yet (29 trang slide)</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+        </div>
+      `;
+    } else {
+      const isGreeting = lower.includes('bạn biết tôi') || lower.includes('tôi là ai') || 
+        lower === 'hi' || lower === 'hello' || lower === 'hê lô' || lower === 'helo' ||
+        lower.startsWith('hê lô') || lower.startsWith('hello') || lower.startsWith('chào') || 
+        lower.includes('bạn tên gì') || lower.includes('bạn có khỏe') || lower.includes('khỏe không') ||
+        lower.includes('cảm ơn') || lower.includes('thank');
+
+      if (isGreeting && !citedPage) {
+        // Đối với câu hỏi chào hỏi xã giao tự nhiên, không gán ghép thẻ slide tùy tiện
+        bottomCardHtml = '';
+      } else {
+        // 2. Xác định Day gợi ý dựa trên tri thức hiện tại hoặc ngữ cảnh trước
+        let suggestedDay = citedDay;
+        if (!suggestedDay) {
+          if (scope.day === 1 || scope.day === 2) suggestedDay = scope.day;
         }
+        if (!suggestedDay && lastHubContext.day) {
+          suggestedDay = lastHubContext.day;
+        }
+        if (!suggestedDay) {
+          for (let i = hubChatHistory.length - 1; i >= 0; i--) {
+            const hScope = detectQueryScope(hubChatHistory[i].content);
+            if (hScope.day === 1 || hScope.day === 2) {
+              suggestedDay = hScope.day;
+              break;
+            }
+          }
+        }
+        if (!suggestedDay) suggestedDay = 1;
+
+        // 3. Xác định Page gợi ý dựa trên trí nhớ ngữ cảnh
+        let matchedPage = citedPage;
+        if (!matchedPage && !isFollowUp) {
+          matchedPage = findBestMatchingSlidePage(suggestedDay, query);
+        }
+        if (!matchedPage && isFollowUp && lastHubContext.day === suggestedDay && lastHubContext.page) {
+          matchedPage = lastHubContext.page;
+        }
+        if (!matchedPage) {
+          matchedPage = findBestMatchingSlidePage(suggestedDay, query);
+        }
+        if (!matchedPage && lastHubContext.page) {
+          matchedPage = lastHubContext.page;
+        }
+        if (!matchedPage) {
+          matchedPage = suggestedDay === 1 ? 28 : 3;
+        }
+
+        // Ghi nhớ ngữ cảnh Hub gần nhất cho các lượt hội thoại tiếp theo
+        lastHubContext = {
+          day: suggestedDay,
+          page: matchedPage,
+          topic: query
+        };
+
+        bottomCardHtml = renderSlideLinkCard(suggestedDay, matchedPage, liveResult.engineName);
       }
     }
-    if (!suggestedDay) suggestedDay = 2;
 
-    // 3. Xác định Page gợi ý dựa trên trí nhớ ngữ cảnh
-    let matchedPage = citedPage;
-    if (!matchedPage && !isFollowUp) {
-      matchedPage = findBestMatchingSlidePage(suggestedDay, query);
-    }
-    if (!matchedPage && isFollowUp && lastHubContext.day === suggestedDay && lastHubContext.page) {
-      matchedPage = lastHubContext.page;
-    }
-    if (!matchedPage) {
-      matchedPage = findBestMatchingSlidePage(suggestedDay, query);
-    }
-    if (!matchedPage && lastHubContext.page) {
-      matchedPage = lastHubContext.page;
-    }
-    if (!matchedPage) {
-      matchedPage = suggestedDay === 1 ? 28 : 3;
-    }
-
-    // Ghi nhớ ngữ cảnh Hub gần nhất cho các lượt hội thoại tiếp theo
-    lastHubContext = {
-      day: suggestedDay,
-      page: matchedPage,
-      topic: query
-    };
-
-    const linkifiedText = linkifySlideCitations(escapeHtml(liveResult.text), suggestedDay);
-    const slideCardHtml = renderSlideLinkCard(suggestedDay, matchedPage, liveResult.engineName);
     const liveContent = `
-      <p>${linkifiedText}</p>
-      ${slideCardHtml}
+      ${formatAiResponse(liveResult.text, citedDay || 1)}
+      ${bottomCardHtml}
     `;
     appendBotMessage(hubChatViewport, 'Bot Hỗ Trợ', liveResult.engineName, liveContent);
     return;
@@ -1516,64 +1625,109 @@ function checkCuratedTopics(query, lower, typingIndicator) {
     return true;
   }
 
-  // Case: Topics outside Day 1 & Day 2 (e.g. RAG, ReAct, Agent, Day 3, Day 4...)
-  if (lower.includes('rag') || lower.includes('vector db') || lower.includes('react') || lower.includes('agentic') || lower.includes('day 3') || lower.includes('day 4') || lower.includes('fine-tuning') || lower.includes('day 03') || lower.includes('day 04')) {
-    typingIndicator.remove();
-    const content = `
-      <p>⚠️ <strong>Thông báo phạm vi dữ liệu:</strong> Kho bài giảng hiện tại của hệ thống chỉ có dữ liệu bài giảng chính thức của <strong>Day 01</strong> (Nền tảng GenAI - 29 trang slide) và <strong>Day 02</strong> (Xác định bài toán kinh doanh cho AI & Kỹ thuật Prompt - 29 trang slide).</p>
-      <p>Chủ đề bạn vừa hỏi chưa có trong bộ slide được tải lên hệ thống. Mời bạn chọn một trong 2 buổi học bên dưới để bắt đầu học nhé:</p>
-      <div class="deep-links-container">
+  return false;
+}
+
+function processHubResponse(query) {
+  const scope = detectQueryScope(query);
+  const lower = query.toLowerCase();
+
+  let bodyHtml = '';
+  let assistantSummary = '';
+
+  const isGreeting = lower.includes('bạn biết tôi') || lower.includes('tôi là ai') || 
+    lower === 'hi' || lower === 'hello' || lower === 'hê lô' || lower === 'helo' ||
+    lower.startsWith('hê lô') || lower.startsWith('hello') || lower.startsWith('chào') || 
+    lower.includes('bạn tên gì') || lower.includes('bạn có khỏe') || lower.includes('khỏe không') ||
+    lower.includes('cảm ơn') || lower.includes('thank');
+
+  if (isGreeting) {
+    bodyHtml = `
+      <p>Chào bạn! Mình là <strong>Bot Hỗ Trợ</strong> của VLearn AI Tutor. Mình không lưu trữ danh tính cá nhân để đảm bảo an toàn quyền riêng tư, nhưng mình luôn sẵn sàng đồng hành cùng bạn học tập khóa AI Thực Chiến! Hôm nay bạn muốn cùng mình tìm hiểu chủ đề nào trong <strong>Day 1 (Nền tảng GenAI)</strong> hoặc <strong>Day 2 (Xác định bài toán & Kỹ thuật Prompt)</strong>?</p>
+      <div class="deep-links-container" style="margin-top: 0.8rem;">
         <div class="deep-link-card" onclick="switchView('spoke', 1)">
           <div>
-            <div class="link-title">📍 Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
+            <div class="link-title">📍 Vào học Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
+            <div class="link-desc">Tìm hiểu Zero-shot, Few-shot, Temperature và cơ chế dự đoán token (29 trang slide)</div>
+          </div>
+          <span class="link-arrow">→</span>
+        </div>
+        <div class="deep-link-card" onclick="switchView('spoke', 2)">
+          <div>
+            <div class="link-title">📍 Vào học Day 2: Xác định bài toán kinh doanh cho AI</div>
+            <div class="link-desc">Trao đổi với Bot Con Day 2 để tìm hiểu Cost of Error và Prompt Chaining (29 trang slide)</div>
+          </div>
+          <span class="link-arrow">→</span>
+        </div>
+      </div>
+    `;
+    assistantSummary = 'Chào bạn! Mình là Bot Hỗ Trợ luôn sẵn sàng đồng hành cùng bạn học tập Day 1 và Day 2.';
+  } else if (scope.day === 'out_of_scope') {
+    if (lower.includes('rag') || lower.includes('retrieval')) {
+      bodyHtml = `<p>⚠️ <strong>Lưu ý phạm vi:</strong> Khái niệm <strong>RAG (Retrieval-Augmented Generation)</strong> nằm ngoài phạm vi 2 buổi học chính thức (Day 1 & Day 2) của khóa học.</p><p>💡 <strong>Tìm hiểu thêm:</strong> RAG là kỹ thuật truy xuất dữ liệu từ nguồn bên ngoài (tài liệu, database) rồi đưa vào prompt để LLM trả lời chuẩn xác, tránh ảo giác. Trong bài học, bạn có thể liên hệ RAG với kiến thức <em>Context Window ("bàn làm việc")</em> tại [Trang 14 - Slide Day 1] và cấu trúc Prompt 4 lớp tại [Trang 28 - Slide Day 1]!</p>`;
+      assistantSummary = 'RAG nằm ngoài phạm vi 2 buổi học Day 1 & Day 2; là kỹ thuật truy xuất tài liệu ngoài đưa vào context của LLM.';
+    } else if (lower.includes('react') || lower.includes('agentic')) {
+      bodyHtml = `<p>⚠️ <strong>Lưu ý phạm vi:</strong> Mô hình <strong>ReAct / Agentic AI</strong> nằm ngoài phạm vi 2 buổi học chính thức (Day 1 & Day 2) của khóa học.</p><p>💡 <strong>Tìm hiểu thêm:</strong> ReAct (Reasoning + Acting) kết hợp suy luận từng bước (Thought) với gọi công cụ bên ngoài (Action) và quan sát (Observation). Trong bài học, bạn có thể liên hệ với <em>Vòng lặp 5 bộ phận của AI Agent</em> tại [Trang 24 - Slide Day 1] và <em>Ba mức giải pháp Rule/Workflow/Agent</em> tại [Trang 18 - Slide Day 2]!</p>`;
+      assistantSummary = 'ReAct/Agentic AI nằm ngoài phạm vi Day 1 & Day 2; là cơ chế suy luận kết hợp hành động gọi tool lặp lại.';
+    } else if (lower.includes('vector') || lower.includes('embedding')) {
+      bodyHtml = `<p>⚠️ <strong>Lưu ý phạm vi:</strong> Công nghệ <strong>Vector Database & Embeddings</strong> nằm ngoài phạm vi 2 buổi học chính thức (Day 1 & Day 2) của khóa học.</p><p>💡 <strong>Tìm hiểu thêm:</strong> Vector DB lưu trữ văn bản dưới dạng vector số để tìm kiếm ngữ nghĩa (semantic search) theo độ tương đồng Cosine, hỗ trợ LLM tra cứu ngữ cảnh nhanh chóng.</p>`;
+      assistantSummary = 'Vector DB nằm ngoài phạm vi Day 1 & Day 2; lưu trữ embeddings để tìm kiếm ngữ nghĩa.';
+    } else if (lower.includes('fine-tuning') || lower.includes('finetuning')) {
+      bodyHtml = `<p>⚠️ <strong>Lưu ý phạm vi:</strong> Kỹ thuật <strong>Fine-tuning</strong> nằm ngoài phạm vi 2 buổi học chính thức (Day 1 & Day 2) của khóa học.</p><p>💡 <strong>Tìm hiểu thêm:</strong> Fine-tuning là huấn luyện lại mô hình trên tập dữ liệu chuyên biệt để thay đổi trọng số. Khóa học khuyến nghị thành thạo Prompt Engineering và Workflow trước khi triển khai Fine-tuning!</p>`;
+      assistantSummary = 'Fine-tuning nằm ngoài phạm vi Day 1 & Day 2; là huấn luyện cập nhật trọng số mô hình.';
+    } else {
+      bodyHtml = `<p>⚠️ <strong>Lưu ý phạm vi:</strong> Chủ đề bạn vừa hỏi (<em>${escapeHtml(scope.topic || 'khái niệm mở rộng')}</em>) nằm ngoài phạm vi 2 buổi học chính thức (Day 1 & Day 2) của khóa học.</p><p>💡 Mời bạn chọn một trong 2 buổi học bên dưới để nắm vững nền tảng kiến thức cốt lõi trước khi tìm hiểu thêm:</p>`;
+      assistantSummary = 'Chủ đề này nằm ngoài phạm vi 2 buổi học chính thức Day 1 & Day 2.';
+    }
+
+    bodyHtml += `
+      <div class="deep-links-container" style="margin-top: 0.8rem;">
+        <div class="deep-link-card" onclick="switchView('spoke', 1)">
+          <div>
+            <div class="link-title">📍 Khám phá Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
             <div class="link-desc">Tìm hiểu 4 lớp Prompt, Temperature & Top_p, Token và Attention (29 trang slide)</div>
           </div>
           <span class="link-arrow">→</span>
         </div>
         <div class="deep-link-card" onclick="switchView('spoke', 2)">
           <div>
-            <div class="link-title">📍 Day 2: Xác định bài toán kinh doanh cho AI</div>
+            <div class="link-title">📍 Khám phá Day 2: Xác định bài toán kinh doanh cho AI</div>
             <div class="link-desc">Xem Double Diamond, Automate vs Augment, Rule/Workflow/Agent và Khung Go/Not Yet (29 trang slide)</div>
           </div>
           <span class="link-arrow">→</span>
         </div>
       </div>
     `;
-    hubChatHistory.push({ role: 'user', content: query });
-    hubChatHistory.push({ role: 'assistant', content: 'Kho bài giảng hiện tại của hệ thống chỉ có dữ liệu bài giảng chính thức của Day 01 và Day 02.' });
-    appendBotMessage(hubChatViewport, 'Bot Hỗ Trợ', 'Course Navigator', content);
-    return true;
+  } else {
+    bodyHtml = `
+      <p>Mình đã ghi nhận câu hỏi của bạn. Hệ thống hiện có 2 buổi học chính thức, mời bạn chọn một trong 2 bài học bên dưới để vào học trực tiếp cùng Bot Con:</p>
+      <div class="deep-links-container">
+        <div class="deep-link-card" onclick="switchView('spoke', 1)">
+          <div>
+            <div class="link-title">📍 Vào học Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
+            <div class="link-desc">Tìm hiểu Zero-shot, Few-shot, Temperature và cơ chế dự đoán token (29 trang slide)</div>
+          </div>
+          <span class="link-arrow">→</span>
+        </div>
+        <div class="deep-link-card" onclick="switchView('spoke', 2)">
+          <div>
+            <div class="link-title">📍 Vào học Day 2: Xác định bài toán kinh doanh cho AI</div>
+            <div class="link-desc">Trao đổi với Bot Con Day 2 để tìm hiểu Cost of Error và Prompt Chaining (29 trang slide)</div>
+          </div>
+          <span class="link-arrow">→</span>
+        </div>
+      </div>
+    `;
+    assistantSummary = 'Hệ thống hiện có 2 buổi học chính thức: Day 1 và Day 2.';
   }
 
-  return false;
-}
-
-function processHubResponse(query) {
-  const defaultContent = `
-    <p>Mình đã ghi nhận câu hỏi của bạn. Hệ thống hiện có 2 buổi học chính thức, mời bạn chọn một trong 2 bài học bên dưới để vào học trực tiếp cùng Bot Con:</p>
-    <div class="deep-links-container">
-      <div class="deep-link-card" onclick="switchView('spoke', 1)">
-        <div>
-          <div class="link-title">📍 Vào học Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
-          <div class="link-desc">Tìm hiểu Zero-shot, Few-shot, Temperature và cơ chế dự đoán token (29 trang slide)</div>
-        </div>
-        <span class="link-arrow">→</span>
-      </div>
-      <div class="deep-link-card" onclick="switchView('spoke', 2)">
-        <div>
-          <div class="link-title">📍 Vào học Day 2: Xác định bài toán kinh doanh cho AI</div>
-          <div class="link-desc">Trao đổi với Bot Con Day 2 để tìm hiểu Cost of Error và Prompt Chaining (29 trang slide)</div>
-        </div>
-        <span class="link-arrow">→</span>
-      </div>
-    </div>
-  `;
   hubChatHistory.push({ role: 'user', content: query });
-  hubChatHistory.push({ role: 'assistant', content: 'Hệ thống hiện có 2 buổi học chính thức: Day 1 và Day 2.' });
-  if (hubChatHistory.length > 16) {
-    hubChatHistory.splice(0, hubChatHistory.length - 16);
+  hubChatHistory.push({ role: 'assistant', content: assistantSummary });
+  if (hubChatHistory.length > 24) {
+    hubChatHistory.splice(0, hubChatHistory.length - 24);
   }
-  appendBotMessage(hubChatViewport, 'Bot Hỗ Trợ', 'Course Navigator', defaultContent);
+  saveSessionState();
+  appendBotMessage(hubChatViewport, 'Bot Hỗ Trợ', 'Course Navigator', bodyHtml);
 }
 
 // Clear Chat History & Reset Memory (Hub & Spoke)
@@ -1630,7 +1784,7 @@ function clearSpokeChat() {
 // ==========================================================================
 // LIVE AI CALL MODULE (SECURE BACKEND PROXY & LOGGING FOR CP3)
 // ==========================================================================
-async function callLiveAI(systemPrompt, userQuery, chatHistory = [], timeoutMs = 10000) {
+async function callLiveAI(systemPrompt, userQuery, chatHistory = [], timeoutMs = 20000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
@@ -1843,36 +1997,43 @@ TÀI LIỆU SLIDE CÔ LẬP DUY NHẤT BẠN ĐƯỢC PHÉP TRUY CẬP: File sli
 """
 ${slideTextGrounding}
 """
-QUY TẮC BẢO MẬT & PHẠM VI (HUB & SPOKE):
-1. BẠN TUYỆT ĐỐI CHỈ ĐƯỢC PHÉP TRẢ LỜI KIẾN THỨC THUỘC BÀI HỌC DAY ${currentDay}.
-2. DUY TRÌ TRÍ NHỚ HỘI THOẠI: Nếu người dùng hỏi câu tiếp theo (ví dụ: 'nói dễ hiểu hơn', 'cho ví dụ', 'tại sao', 'giải thích thêm'...), hãy dựa vào câu hỏi & câu trả lời trước đó trong lịch sử và nội dung slide trên để giải thích dễ hiểu, tự nhiên, gần gũi. Tuyệt đối không tự ý nhảy sang nội dung slide khác.
-3. Giải thích súc tích tối đa 3-4 câu bằng tiếng Việt, bám sát nội dung slide để học viên hiểu rõ bản chất.
-4. Bắt buộc kết thúc câu trả lời bằng mã trích dẫn: [Trang ${targetPage} - Slide Day ${currentDay}].
-5. Tuyệt đối không cung cấp đáp án trắc nghiệm A/B/C/D.`;
+QUY TẮC BẢO MẬT & PHẠM VI (HUB & SPOKE - TUYỆT ĐỐI TUÂN THỦ):
+1. GIỚI HẠN BÀI HỌC CỐT LÕI: Bạn CHỈ ĐƯỢC GIẢI THÍCH CHI TIẾT KIẾN THỨC CÓ TRONG BÀI GIẢNG SLIDE DAY ${currentDay}. TUYỆT ĐỐI KHÔNG ĐƯỢC ĐƯA RA NGOÀI PHẠM VI BÀI HỌC.
+2. TỪ CHỐI KIẾN THỨC NGOÀI SLIDE: Nếu học viên hỏi về các khái niệm nằm ngoài bài giảng Day ${currentDay} (như RAG, ReAct, Vector DB, Fine-tuning, hoặc bài học của Day khác), bạn PHẢI từ chối lịch sự, nêu rõ chủ đề này không nằm trong bài giảng Day ${currentDay}, và hướng dẫn học viên quay lại Bot Hỗ Trợ trung tâm để được tìm hiểu mở rộng.
+3. PHƯƠNG PHÁP SƯ PHẠM & TRỰC QUAN: Đối với các kiến thức thuộc bài học, bạn hãy giải thích chi tiết, sư phạm, trực quan và dễ hiểu, có ví dụ minh họa thực tế để học viên thực sự nắm chắc bản chất bài học.
+4. DUY TRÌ TRÍ NHỚ HỘI THOẠI: Kết nối tự nhiên với các lượt trao đổi trước đó trong lịch sử để giải đáp sâu sắc các câu hỏi làm rõ, ví dụ thêm, hoặc so sánh của học viên.
+5. Bắt buộc kết thúc câu trả lời bằng mã trích dẫn: [Trang ${targetPage} - Slide Day ${currentDay}].
+6. Bảo vệ liêm chính học thuật: Tuyệt đối không cung cấp đáp án trắc nghiệm A/B/C/D.`;
 
-  // Prepare recent history turns for context continuity
-  const historyForAPI = (spokeChatHistory[currentDay] || []).slice(-8).map(m => ({
-    role: m.role,
-    content: m.content
-  }));
+  // Prepare recent history turns for context continuity (clean HTML & truncate to keep tokens small)
+  const historyForAPI = (spokeChatHistory[currentDay] || []).slice(-8).map(m => {
+    const cleanContent = String(m.content).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    return {
+      role: m.role,
+      content: m.role === 'assistant' ? cleanContent.slice(0, 220) : cleanContent.slice(0, 300)
+    };
+  });
 
   // Ưu tiên gọi AI Thật qua Backend Server bảo mật
   const liveResult = await callLiveAI(systemContext, query, historyForAPI);
   if (liveResult && liveResult.text) {
     typingIndicator.remove();
 
+    if (!liveResult.text.includes('[Trang')) {
+      liveResult.text += ` [Trang ${targetPage} - Slide Day ${currentDay}]`;
+    }
+
     // Lưu vào bộ nhớ hội thoại
     spokeChatHistory[currentDay].push({ role: 'user', content: query });
     spokeChatHistory[currentDay].push({ role: 'assistant', content: liveResult.text });
-    if (spokeChatHistory[currentDay].length > 12) {
-      spokeChatHistory[currentDay] = spokeChatHistory[currentDay].slice(-12);
+    if (spokeChatHistory[currentDay].length > 20) {
+      spokeChatHistory[currentDay] = spokeChatHistory[currentDay].slice(-20);
     }
     saveSessionState(); // #6
 
     const linkCardHtml = renderSlideLinkCard(currentDay, targetPage, liveResult.engineName);
-    const linkifiedText = linkifySlideCitations(escapeHtml(liveResult.text), currentDay);
     const formattedHtml = `
-      <p>${linkifiedText}</p>
+      ${formatAiResponse(liveResult.text, currentDay)}
       ${linkCardHtml}
     `;
     appendBotMessage(spokeChatViewport, `Bot Con Day ${currentDay}`, liveResult.engineName, formattedHtml);

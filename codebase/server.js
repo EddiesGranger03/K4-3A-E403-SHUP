@@ -106,13 +106,13 @@ const server = http.createServer(async (req, res) => {
         const messages = [
           {
             role: 'system',
-            content: `${systemPrompt || 'Bạn là AI Tutor VLearn.'}\n\n[HƯỚNG DẪN HỘI THOẠI]: Duy trì tính liên tục và trí nhớ ngữ cảnh của cuộc trò chuyện. Nếu người dùng hỏi câu tiếp theo (ví dụ: 'nói dễ hiểu hơn', 'cho ví dụ', 'tại sao', 'giải thích thêm'...), bạn hãy căn cứ vào câu hỏi và câu trả lời trước đó kết hợp với nội dung slide được cung cấp để giải đáp tiếp, tuyệt đối không nhảy sang chủ đề khác. Trả lời bằng tiếng Việt, súc tích tối đa 3-4 câu.`
+            content: systemPrompt || 'Bạn là AI Tutor VLearn hỗ trợ học tập thông minh, sư phạm và chuẩn mực.'
           }
         ];
 
         // Append recent conversation history turns
         if (Array.isArray(chatHistory)) {
-          const recentTurns = chatHistory.slice(-8);
+          const recentTurns = chatHistory.slice(-10);
           for (const msg of recentTurns) {
             if (msg && msg.role && msg.content) {
               const role = msg.role === 'assistant' ? 'assistant' : 'user';
@@ -136,7 +136,7 @@ const server = http.createServer(async (req, res) => {
         const nvidiaPayload = {
           model: MODEL_NAME,
           messages: messages,
-          max_tokens: 650,
+          max_tokens: 350,
           temperature: 0.2
         };
 
