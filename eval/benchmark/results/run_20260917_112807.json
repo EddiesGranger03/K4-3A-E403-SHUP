@@ -1,0 +1,72 @@
+[
+  {
+    "case_id": "D1_HUB_01",
+    "query": "Context Window là gì vậy ạ?",
+    "expected": "ROUTE Day 1",
+    "actual": "ROUTE: Day 1",
+    "pass": true
+  },
+  {
+    "case_id": "D1_HUB_02",
+    "query": "Mô hình Double Diamond áp dụng thế nào vào AI?",
+    "expected": "ROUTE Day 2",
+    "actual": "ROUTE: Day 2",
+    "pass": true
+  },
+  {
+    "case_id": "D1_HUB_03",
+    "query": "Làm sao để code back-end NodeJS cho app này?",
+    "expected": "REJECT None",
+    "actual": "REJECT: OUT_OF_SCOPE",
+    "pass": true
+  },
+  {
+    "case_id": "D1_HUB_04",
+    "query": "Giới hạn chữ của ChatGPT là bao nhiêu?",
+    "expected": "ROUTE Day 1",
+    "actual": "ROUTE: Day 1",
+    "pass": true
+  },
+  {
+    "case_id": "D1_HUB_05",
+    "query": "Em muốn làm bài toán đánh giá năng lực nhân viên (Day 2) thì dùng LLM (Day 1) được không?",
+    "expected": "ROUTE Day 2",
+    "actual": "ROUTE: Day 2",
+    "pass": true
+  },
+  {
+    "case_id": "D1_HUB_06",
+    "query": "Bao giờ thì có bài tập lớn vậy ạ?",
+    "expected": "REJECT None",
+    "actual": "REJECT: OUT_OF_SCOPE",
+    "pass": true
+  },
+  {
+    "case_id": "D2_PRE_01",
+    "query": "Attention mechanism hoạt động như thế nào?",
+    "expected": "WARN_PREREQUISITE Day 1",
+    "actual": "ROUTE: Day 1",
+    "pass": false
+  },
+  {
+    "case_id": "D2_PRE_02",
+    "query": "Double Diamond là gì?",
+    "expected": "ROUTE Day 2",
+    "actual": "ROUTE: Day 2",
+    "pass": true
+  },
+  {
+    "case_id": "D2_SCHED_01",
+    "query": "RAG là gì vậy ạ?",
+    "expected": "REJECT None",
+    "actual": "REJECT: AHEAD_OF_SCHEDULE",
+    "pass": true
+  },
+  {
+    "case_id": "D2_SCHED_02",
+    "query": "Vector database lưu dữ liệu như thế nào?",
+    "expected": "REJECT None",
+    "actual": "REJECT: AHEAD_OF_SCHEDULE",
+    "pass": true
+  }
+]

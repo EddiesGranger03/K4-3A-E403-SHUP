@@ -1,0 +1,47 @@
+{
+  "profile_day1_only_no_llm": {
+    "student_id": "S1000",
+    "cohort": "K4",
+    "completed_days": [],
+    "current_day_focus": "Day1",
+    "known_concepts": []
+  },
+  "profile_day1_only": {
+    "student_id": "S1001",
+    "cohort": "K4",
+    "completed_days": ["Day1"],
+    "current_day_focus": "Day1",
+    "known_concepts": [
+      "Các tầng của AI (AI Hierarchy)",
+      "Mô hình ngôn ngữ lớn (LLM)",
+      "Token trong LLM",
+      "Context Window (Bàn làm việc của AI)"
+    ]
+  },
+  "profile_on_track": {
+    "student_id": "S1002",
+    "cohort": "K4",
+    "completed_days": ["Day1", "Day2"],
+    "current_day_focus": "Day3",
+    "known_concepts": [
+      "Các tầng của AI (AI Hierarchy)",
+      "Mô hình ngôn ngữ lớn (LLM)",
+      "Cơ chế sinh văn bản của LLM",
+      "Token trong LLM",
+      "Context Window (Bàn làm việc của AI)",
+      "Cơ chế Attention",
+      "Mô hình Double Diamond",
+      "4 Lenses xác định bài toán AI",
+      "Khung Quick Problem Card"
+    ]
+  },
+  "profile_advanced": {
+    "student_id": "S1003",
+    "cohort": "K4",
+    "completed_days": ["Day1", "Day2", "Day3", "Day4", "Day5", "Day6"],
+    "current_day_focus": "Day6",
+    "known_concepts": [
+      "ALL_CONCEPTS"
+    ]
+  }
+}

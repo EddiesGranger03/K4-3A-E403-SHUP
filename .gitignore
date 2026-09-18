@@ -6,16 +6,21 @@ vlearn-pack/
 *.pdf
 !demo-slides.pdf
 !codebase/slides/*.pdf
+!codebase/web-demo/public/slides/*.pdf
 
 # Environment variables & API keys (Strictly Ignored)
 .env
 *.env
 .env.*
 codebase/.env
+codebase/web-demo/.env*.local
 !.env.example
+!codebase/web-demo/.env.example
 
-# Node / Python / OS temp
+# Node / Next.js / Python / OS temp
 node_modules/
+.next/
+out/
 __pycache__/
 *.pyc
 .DS_Store

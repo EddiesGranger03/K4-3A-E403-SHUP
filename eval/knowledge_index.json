@@ -1,0 +1,713 @@
+{
+  "ai_hierarchy": {
+    "concept_id": "ai_hierarchy",
+    "concept_name": "Hệ thống các tầng AI (AI, ML, Deep Learning, GenAI, LLM)",
+    "slide_refs": [
+      {
+        "page": 3,
+        "quote": "AI — chiếc ô lớn nhất: mọi hệ thống có yếu tố “thông minhˮ. MACHINE LEARNING — Machine learning — học từ dữ liệu thay vì viết luật tay. DEEP LEARNING — Deep learning — mạng nơ-ron nhiều tầng tự học đặc trưng. GENERATIVE AI — Generative AI — sinh nội dung mới: văn bản, ảnh, code. LLM — LLM — model nền chuyên ngôn ngữ, tim của làn sóng hiện nay.",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Phân cấp các khái niệm trong trí tuệ nhân tạo từ phạm vi rộng nhất (AI) đến hẹp và nền tảng nhất hiện nay (LLM).",
+    "prerequisites": [],
+    "keywords": [
+      "artificial intelligence",
+      "machine learning",
+      "deep learning",
+      "generative ai",
+      "llm"
+    ],
+    "day": 1
+  },
+  "three_main_ai_groups": {
+    "concept_name": "Ba nhóm AI chính",
+    "slides": [
+      4
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Phân loại AI thành ba nhóm chính gồm AI phân loại, AI tạo sinh và AI hành động với các phương thức hoạt động khác nhau.",
+    "prerequisites": [
+      "ai_hierarchy"
+    ],
+    "keywords": [
+      "ai phân loại",
+      "ai tạo sinh",
+      "ai hành động"
+    ],
+    "day": 1
+  },
+  "ai_history": {
+    "concept_id": "ai_history",
+    "concept_name": "Lịch sử phát triển AI qua 70 năm",
+    "slide_refs": [
+      {
+        "page": 5,
+        "quote": "Lịch sử AI 70 năm: Khai sinh, lời hứa đầu tiên; 2 lần mùa đông, cách tiếp cận chạm trần; Từ model đơn lẻ sang system có khả năng hành động như agent",
+        "line_number": 1
+      },
+      {
+        "page": 6,
+        "quote": "1980: Hệ chuyên gia (expert system)",
+        "line_number": 1
+      },
+      {
+        "page": 7,
+        "quote": "2009: Fei-Fei Li và ImageNet — cuộc cách mạng của dữ liệu",
+        "line_number": 1
+      },
+      {
+        "page": 8,
+        "quote": "2017: Transformer",
+        "line_number": 1
+      },
+      {
+        "page": 9,
+        "quote": "2022: ChatGPT",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Tổng quan các mốc lịch sử quan trọng định hình sự phát triển của ngành AI từ hệ chuyên gia, dữ liệu ImageNet, kiến trúc Transformer đến sự bùng nổ ChatGPT.",
+    "prerequisites": [],
+    "keywords": [
+      "expert system",
+      "imagenet",
+      "transformer",
+      "chatgpt",
+      "lich su ai"
+    ],
+    "day": 1
+  },
+  "llm_concept": {
+    "concept_name": "Mô hình ngôn ngữ lớn (LLM)",
+    "slides": [
+      10
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "LLM là bộ não ngôn ngữ nền tảng dùng chung cho nhiều tác vụ khác nhau dựa trên việc dự đoán mảnh chữ tiếp theo.",
+    "prerequisites": [
+      "ai_hierarchy"
+    ],
+    "keywords": [
+      "llm",
+      "large language model",
+      "dự đoán chữ"
+    ],
+    "day": 1
+  },
+  "llm_text_generation": {
+    "concept_name": "Cơ chế sinh văn bản của LLM",
+    "slides": [
+      11,
+      12
+    ],
+    "transcript_refs": [],
+    "level": "intermediate",
+    "summary": "Mô hình chấm điểm xác suất cho toàn bộ từ vựng, chọn từ theo xác suất rồi lặp lại quy trình nối vào ngữ cảnh để sinh văn bản.",
+    "prerequisites": [
+      "llm_concept"
+    ],
+    "keywords": [
+      "sinh văn bản",
+      "xác suất",
+      "ngữ cảnh"
+    ],
+    "day": 1
+  },
+  "llm_tokens": {
+    "concept_name": "Token trong LLM",
+    "slides": [
+      13
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Token là các mảnh chữ nhỏ mà mô hình dùng để đọc và xử lý văn bản thay vì đọc nguyên từ.",
+    "prerequisites": [
+      "llm_concept"
+    ],
+    "keywords": [
+      "token",
+      "mảnh chữ",
+      "xử lý văn bản"
+    ],
+    "day": 1
+  },
+  "context_window": {
+    "concept_id": "context_window",
+    "concept_name": "Context Window và giới hạn bộ nhớ ngữ cảnh",
+    "slide_refs": [
+      {
+        "page": 14,
+        "quote": "Context: bàn làm việc có hạn của model",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Context là lượng thông tin đầu vào tối đa model có thể xử lý trong một lần, với hiện tượng quên phần giữa ở các prompt quá dài.",
+    "prerequisites": [
+      "token_concept"
+    ],
+    "keywords": [
+      "context",
+      "context window",
+      "lost in the middle"
+    ],
+    "day": 1
+  },
+  "attention_mechanism": {
+    "concept_id": "attention_mechanism",
+    "concept_name": "Cơ chế Attention trong Transformer",
+    "slide_refs": [
+      {
+        "page": 15,
+        "quote": "Attention: mỗi từ được “nhìn sang” những từ quan trọng khác",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Cơ chế Attention cho phép mỗi token chủ động liên kết và chấm điểm mức độ liên quan với các token khác trong toàn bộ câu.",
+    "prerequisites": [
+      "llm_definition"
+    ],
+    "keywords": [
+      "attention",
+      "transformer",
+      "ngữ cảnh"
+    ],
+    "day": 1
+  },
+  "parameters_moe": {
+    "concept_name": "Tham số và Kiến trúc MoE",
+    "slides": [
+      17
+    ],
+    "transcript_refs": [],
+    "level": "intermediate",
+    "summary": "Tham số là các khớp nối thần kinh của mô hình, trong khi kiến trúc MoE giúp tối ưu hóa hiệu năng và chi phí xử lý.",
+    "prerequisites": [
+      "llm_concept"
+    ],
+    "keywords": [
+      "tham số",
+      "moe",
+      "mixture of experts",
+      "hiệu năng"
+    ],
+    "day": 1
+  },
+  "llm_training_process": {
+    "concept_name": "Quy trình huấn luyện LLM",
+    "slides": [
+      18,
+      19
+    ],
+    "transcript_refs": [],
+    "level": "intermediate",
+    "summary": "Các bước huấn luyện từ Pre-training, SFT, RLHF đến luyện suy luận để chuyển một cỗ máy đoán chữ thành trợ lý an toàn và hữu ích.",
+    "prerequisites": [
+      "llm_concept"
+    ],
+    "keywords": [
+      "pre-training",
+      "sft",
+      "rlhf",
+      "huấn luyện llm"
+    ],
+    "day": 1
+  },
+  "double_diamond_model": {
+    "concept_name": "Mô hình Double Diamond",
+    "slides": [
+      3,
+      4
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Mô hình tư duy thiết kế gồm 4 giai đoạn Discover, Define, Develop và Deliver để tìm đúng vấn đề trước khi tìm đúng giải pháp.",
+    "prerequisites": [],
+    "keywords": [
+      "double diamond",
+      "tư duy thiết kế",
+      "discover",
+      "define"
+    ],
+    "day": 2
+  },
+  "4_lenses_ai_problem": {
+    "concept_name": "4 Lenses xác định bài toán AI",
+    "slides": [
+      6
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Bốn góc nhìn (Tác vụ lặp lại, Tiêu tốn thời gian, Lợi thế của AI, Điểm đau người dùng) giúp quan sát và tìm kiếm bài toán thực tế.",
+    "prerequisites": [
+      "double_diamond_model"
+    ],
+    "keywords": [
+      "4 lenses",
+      "xác định bài toán",
+      "tác vụ lặp lại",
+      "điểm đau"
+    ],
+    "day": 2
+  },
+  "ai_anti_patterns": {
+    "concept_name": "Anti-patterns trong bài toán AI",
+    "slides": [
+      7
+    ],
+    "transcript_refs": [],
+    "level": "intermediate",
+    "summary": "Các sai lầm phổ biến như ưu tiên giải pháp trước, mơ hồ hiện trạng, bỏ qua đánh giá hoặc mập mờ ranh giới tự chủ của AI.",
+    "prerequisites": [
+      "4_lenses_ai_problem"
+    ],
+    "keywords": [
+      "anti-patterns",
+      "sai lầm",
+      "giải pháp"
+    ],
+    "day": 2
+  },
+  "quick_problem_card": {
+    "concept_name": "Khung Quick Problem Card",
+    "slides": [
+      9
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Khung chuẩn gồm 6 thành phần (Bài toán, Đối tượng, Quy trình, Nút thắt, Chỉ số, Hướng giải pháp) để định hình vấn đề rõ ràng.",
+    "prerequisites": [
+      "double_diamond_model"
+    ],
+    "keywords": [
+      "quick problem card",
+      "định hình vấn đề",
+      "nút thắt"
+    ],
+    "day": 2
+  },
+  "problem_quantification": {
+    "concept_name": "Định lượng hóa bài toán (Baseline & Target)",
+    "slides": [
+      11,
+      12
+    ],
+    "transcript_refs": [],
+    "level": "intermediate",
+    "summary": "Phương pháp xác định hiện trạng (Baseline), mục tiêu (Target) và chỉ số đo lường (Output/Input metrics) để chứng minh giá trị thực tế.",
+    "prerequisites": [
+      "quick_problem_card"
+    ],
+    "keywords": [
+      "định lượng hóa",
+      "baseline",
+      "target",
+      "chỉ số đo lường"
+    ],
+    "day": 2
+  },
+  "google_pair_framework": {
+    "concept_name": "Khung Google PAIR xác định ứng dụng AI",
+    "slides": [
+      8,
+      13,
+      14
+    ],
+    "transcript_refs": [],
+    "level": "advanced",
+    "summary": "Bộ 3 bước cốt lõi của Google PAIR để đánh giá giao điểm nhu cầu-thế mạnh AI, chọn Automate/Augment và thiết lập reward function.",
+    "prerequisites": [
+      "problem_quantification"
+    ],
+    "keywords": [
+      "google pair",
+      "automate",
+      "augment",
+      "reward function"
+    ],
+    "day": 2
+  },
+  "ai_categories": {
+    "concept_id": "ai_categories",
+    "concept_name": "Ba nhóm AI chính: Phân loại, Sinh nội dung và Hành động",
+    "slide_refs": [
+      {
+        "page": 4,
+        "quote": "Ba nhóm AI chính: phân loại · sinh nội dung · hành động",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Phân chia AI thành 3 nhóm gồm Discriminative AI, Generative AI và Agentic AI với các mục đích sử dụng khác nhau.",
+    "prerequisites": [
+      "ai_hierarchy_and_scope"
+    ],
+    "keywords": [
+      "discriminative ai",
+      "generative ai",
+      "agentic ai"
+    ],
+    "day": 1
+  },
+  "llm_definition": {
+    "concept_id": "llm_definition",
+    "concept_name": "Khái niệm và cơ chế vận hành của LLM",
+    "slide_refs": [
+      {
+        "page": 10,
+        "quote": "LLM là gì? — một bộ não nền, không phải một chatbot",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "LLM (Large Language Model) là mô hình ngôn ngữ lớn đóng vai trò là bộ não nền tảng dự đoán mảnh chữ tiếp theo, không phải chỉ là chatbot.",
+    "prerequisites": [
+      "ai_hierarchy_and_scope"
+    ],
+    "keywords": [
+      "llm",
+      "large language model",
+      "decoder-only",
+      "transformer"
+    ],
+    "day": 1
+  },
+  "next_token_prediction": {
+    "concept_id": "next_token_prediction",
+    "concept_name": "Cơ chế sinh văn bản qua dự đoán token tiếp theo",
+    "slides": [
+      11,
+      12,
+      13
+    ],
+    "transcript_refs": [],
+    "level": "intermediate",
+    "summary": "LLM hoạt động bằng cách cắt văn bản thành các token, chấm điểm xác suất phân bố và lặp lại liên tục quá trình đoán từ tiếp theo để tạo ra câu.",
+    "prerequisites": [
+      "llm_definition"
+    ],
+    "keywords": [
+      "token",
+      "next-token prediction",
+      "probability distribution"
+    ],
+    "day": 1
+  },
+  "llm_training_pipeline": {
+    "concept_id": "llm_training_pipeline",
+    "concept_name": "Quy trình huấn luyện LLM từ Pre-training đến RLHF",
+    "slide_refs": [
+      {
+        "page": 18,
+        "quote": "LLM được tạo ra như thế nào? — đọc nhiều, được chỉ, được uốn nắn, luyện đề",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Các giai đoạn tạo ra LLM gồm Pre-training (đọc dữ liệu lớn), SFT (dạy cách trả lời), RLHF/DPO (uốn nắn an toàn) và luyện suy luận.",
+    "prerequisites": [
+      "llm_definition"
+    ],
+    "keywords": [
+      "pre-training",
+      "sft",
+      "rlhf",
+      "dpo",
+      "reasoning training"
+    ],
+    "day": 1
+  },
+  "token_concept": {
+    "concept_id": "token_concept",
+    "concept_name": "Token và cách LLM đọc văn bản",
+    "slide_refs": [
+      {
+        "page": 13,
+        "quote": "Token: model không đọc \"từ\", model đọc mảnh chữ",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Model không đọc từ nguyên vẹn mà cắt nhỏ thành các token, ảnh hưởng đến chi phí và khả năng xử lý ngôn ngữ khác nhau.",
+    "prerequisites": [
+      "llm_definition"
+    ],
+    "keywords": [
+      "token",
+      "tokenizer",
+      "chi phí token"
+    ],
+    "day": 1
+  },
+  "model_parameters": {
+    "concept_id": "model_parameters",
+    "concept_name": "Tham số mô hình (Model Parameters) và kiến trúc Dense vs. MoE",
+    "slide_refs": [
+      {
+        "page": 17,
+        "quote": "Sau khi luyện xong, những gì model \"thấy\" nằm trong các con số cố định bên trong gọi là tham số — hãy hình dung như khớp nối thần kinh: luyện càng kỹ, các khớp nối càng được siết đúng.",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "intermediate",
+    "summary": "Tham số là các trọng số cốt lõi được học trong quá trình huấn luyện, với các kiến trúc tiên tiến như Mixture of Experts (MoE) giúp tối ưu hiệu năng và chi phí.",
+    "prerequisites": [
+      "llm_definition"
+    ],
+    "keywords": [
+      "parameters",
+      "tham so",
+      "moe",
+      "mixture of experts",
+      "dense model"
+    ],
+    "day": 1
+  },
+  "rlhf_concept": {
+    "concept_id": "rlhf_concept",
+    "concept_name": "Cơ chế tăng cường học tập từ phản hồi con người (RLHF)",
+    "slide_refs": [
+      {
+        "page": 19,
+        "quote": "RLHF: ba bước uốn cỗ máy đoán token thành trợ lý biết nghe lời. ① Model viết nhiều câu trả lời ② Người chấm xếp hạng ③ Huấn luyện theo điểm — lặp lại hàng nghìn lần → model dần “biết nghe lời\"",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "advanced",
+    "summary": "Quy trình RLHF sử dụng đánh giá của con người thông qua mô hình phần thưởng (reward model) để uốn nắn mô hình trở nên hữu ích, an toàn và trung thực.",
+    "prerequisites": [
+      "llm_training_pipeline"
+    ],
+    "keywords": [
+      "rlhf",
+      "reward model",
+      "human feedback",
+      "helpful harmless honest"
+    ],
+    "day": 1
+  },
+  "ai_hierarchy_and_scope": {
+    "concept_id": "ai_hierarchy_and_scope",
+    "concept_name": "Bức tranh tổng quan và các tầng của AI",
+    "slide_refs": [
+      {
+        "page": 3,
+        "quote": "AI, ML, Deep Learning, GenAI, LLM — nằm ở đâu trong cùng một hệ? từ rộng đến hẹp",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Phân biệt mối quan hệ từ rộng đến hẹp giữa AI, Machine Learning, Deep Learning, Generative AI và LLM.",
+    "prerequisites": [],
+    "keywords": [
+      "ai",
+      "machine learning",
+      "deep learning",
+      "generative ai",
+      "llm"
+    ],
+    "day": 1
+  },
+  "ai_history_evolution": {
+    "concept_id": "ai_history_evolution",
+    "concept_name": "Lịch sử phát triển của AI qua 70 năm",
+    "slide_refs": [
+      {
+        "page": 5,
+        "quote": "Lịch sử AI 70 năm",
+        "line_number": 1
+      }
+    ],
+    "transcript_refs": [],
+    "level": "basic",
+    "summary": "Tổng quan các mốc lịch sử từ hệ chuyên gia, cuộc cách mạng dữ liệu ImageNet, kiến trúc Transformer đến ChatGPT.",
+    "prerequisites": [],
+    "keywords": [
+      "lịch sử ai",
+      "expert system",
+      "imagenet",
+      "transformer",
+      "chatgpt"
+    ],
+    "day": 1
+  },
+  "product_thinking_vs_project_management": {
+    "concept_id": "product_thinking_vs_project_management",
+    "concept_name": "Tư duy sản phẩm (Product Thinking) vs Quản lý dự án (Project Management)",
+    "slide_refs": [],
+    "transcript_refs": [
+      {
+        "quote": "Product manager sẽ rộng hơn, là người đi trước nhiều hơn, nhìn ra cơ hội sau đấy khoanh vùng lại. Còn product owner thì khi bài toán đã khá cụ thể... project manager thường thấy ở các công ty outsourcing nhiều. Đấy là những người mà chức trách là làm thế nào để đảm bảo một dự án hoàn thành đúng tiến độ",
+        "timestamp": "04:10",
+        "line_number": 10
+      }
+    ],
+    "level": "basic",
+    "summary": "Phân biệt sự khác nhau giữa Project Manager (quản lý tiến độ/ngân sách dựa trên đề bài có sẵn) và Product Manager (chủ động tìm kiếm bài toán, thấu hiểu người dùng và định hình sản phẩm).",
+    "prerequisites": [],
+    "keywords": [
+      "product manager",
+      "project manager",
+      "product owner",
+      "user-centered",
+      "product thinking"
+    ],
+    "day": 1
+  },
+  "ai_product_development": {
+    "concept_id": "ai_product_development",
+    "concept_name": "Đặc thù phát triển sản phẩm AI",
+    "slide_refs": [],
+    "transcript_refs": [
+      {
+        "quote": "Trong quá trình làm sản phẩm AI, bạn phải vừa có năng lực xây dựng sản phẩm... trong quá trình phát triển sản phẩm đấy bạn lại còn phải xài AI... và bản thân cái quy trình bên trong nó cũng đang thay đổi",
+        "timestamp": "08:15",
+        "line_number": 18
+      }
+    ],
+    "level": "intermediate",
+    "summary": "Phát triển sản phẩm AI phức tạp hơn sản phẩm truyền thống vì đầu ra của AI mang tính xác suất, kỳ vọng người dùng thay đổi nhanh và chi phí chuyển đổi sản phẩm cực kỳ thấp.",
+    "prerequisites": [
+      "product_thinking_vs_project_management"
+    ],
+    "keywords": [
+      "ai product",
+      "xác suất",
+      "kỳ vọng người dùng",
+      "chi phí chuyển đổi"
+    ],
+    "day": 1
+  },
+  "dogfooding_strategy": {
+    "concept_id": "dogfooding_strategy",
+    "concept_name": "Chiến lược Dogfooding (Tự dùng sản phẩm của mình)",
+    "slide_refs": [],
+    "transcript_refs": [
+      {
+        "quote": "Dogfooding là một cách thức xây dựng sản phẩm mà bạn là user và bạn dùng chính sản phẩm của bạn — bạn làm ra xong bạn ăn chính nó. Đấy là chiến lược của rất nhiều sản phẩm thành công trên thế giới",
+        "timestamp": "17:30",
+        "line_number": 42
+      }
+    ],
+    "level": "basic",
+    "summary": "Chiến lược tự xây dựng sản phẩm và dùng chính sản phẩm đó để thấu hiểu nỗi đau, đóng vai trò là tester đầu tiên và tối ưu hóa liên tục.",
+    "prerequisites": [],
+    "keywords": [
+      "dogfooding",
+      "tự dùng sản phẩm",
+      "tester đầu tiên"
+    ],
+    "day": 1
+  },
+  "double_diamond_framework": {
+    "concept_id": "double_diamond_framework",
+    "concept_name": "Mô hình Double Diamond (Kim cương đôi)",
+    "slide_refs": [],
+    "transcript_refs": [
+      {
+        "quote": "Viên thứ nhất giúp chúng ta tìm ra đúng vấn đề, viên thứ hai giúp chúng ta tìm ra đúng giải pháp cho vấn đề đấy. Mỗi bước chúng ta đều có hai quy trình: mở rộng, sau đấy thu hẹp",
+        "timestamp": "21:00",
+        "line_number": 49
+      }
+    ],
+    "level": "intermediate",
+    "summary": "Mô hình gồm 2 pha (Khám phá vấn đề và Khám phá giải pháp), mỗi pha trải qua 2 bước phân kỳ (mở rộng) và hội tụ (thu hẹp) để đảm bảo giải đúng bài toán.",
+    "prerequisites": [],
+    "keywords": [
+      "double diamond",
+      "phân kỳ",
+      "hội tụ",
+      "khám phá vấn đề",
+      "khám phá giải pháp"
+    ],
+    "day": 1
+  },
+  "first_principle_thinking": {
+    "concept_id": "first_principle_thinking",
+    "concept_name": "Tư duy từ nguyên bản (First Principle Thinking)",
+    "slide_refs": [],
+    "transcript_refs": [
+      {
+        "quote": "First principle thinking là tư duy từ nguyên bản: không đi sao chép cách làm của người khác, mà cố gắng bóc tách vấn đề về những nguyên lý nguyên bản nhất — không thể nào chia nhỏ hơn được nữa",
+        "timestamp": "25:40",
+        "line_number": 62
+      }
+    ],
+    "level": "advanced",
+    "summary": "Phương pháp tư duy bóc tách mọi vấn đề về các sự thật cơ bản nhất (first principles) thay vì dựa vào suy luận bằng cách so sánh tương tự hay lối mòn cũ.",
+    "prerequisites": [],
+    "keywords": [
+      "first principle thinking",
+      "tư duy nguyên bản",
+      "elon musk",
+      "chia nhỏ vấn đề"
+    ],
+    "day": 1
+  },
+  "impact_effort_matrix": {
+    "concept_id": "impact_effort_matrix",
+    "concept_name": "Ma trận tác động – nỗ lực (Impact-Effort Matrix)",
+    "slide_refs": [],
+    "transcript_refs": [
+      {
+        "quote": "Có cái ma trận tác động và nỗ lực rất hay: bạn đưa tất cả những vấn đề bạn tìm thấy lên, và đơn giản là với mỗi vấn đề, bạn xác định cái tác động... và bạn mất bao nhiêu công để làm việc đấy",
+        "timestamp": "34:00",
+        "line_number": 74
+      }
+    ],
+    "level": "basic",
+    "summary": "Công cụ đánh giá và ưu tiên hóa các ý tưởng/vấn đề dựa trên hai trục: mức độ tác động (Impact) và công sức thực hiện (Effort).",
+    "prerequisites": [
+      "double_diamond_framework"
+    ],
+    "keywords": [
+      "impact-effort matrix",
+      "ma trận tác động nỗ lực",
+      "ưu tiên hóa",
+      "quick win"
+    ],
+    "day": 1
+  },
+  "human_centered_design": {
+    "concept_id": "human_centered_design",
+    "concept_name": "Thiết kế lấy con người làm trung tâm (Human-Centered Design - HCD)",
+    "slide_refs": [],
+    "transcript_refs": [
+      {
+        "quote": "Đây là vòng lặp HCD — viết tắt của Human-Centered Design — quy trình thiết kế lấy con người làm trung tâm... Quy trình này có các bước: đồng cảm, định nghĩa, ý tưởng, mẫu thử, thử nghiệm",
+        "timestamp": "37:20",
+        "line_number": 81
+      }
+    ],
+    "level": "intermediate",
+    "summary": "Vòng lặp phát triển sản phẩm tập trung vào việc thấu hiểu người dùng thông qua các bước đồng cảm, định nghĩa, lên ý tưởng, làm prototype và kiểm thử lặp đi lặp lại.",
+    "prerequisites": [
+      "double_diamond_framework"
+    ],
+    "keywords": [
+      "human-centered design",
+      "hcd",
+      "đồng cảm",
+      "prototype",
+      "kiểm thử"
+    ],
+    "day": 1
+  }
+}

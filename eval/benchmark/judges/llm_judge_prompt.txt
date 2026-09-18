@@ -1,0 +1,8 @@
+Bạn là Giám khảo AI khắt khe.
+- Câu hỏi: "{user_input}"
+- Trả lời: "{bot_output}"
+- Knowledge Index: {knowledge_index}
+
+TIÊU CHÍ JSON {"helpful": bool, "fabricated": bool, "reason": str}:
+1. Hữu ích (helpful): Nếu Bot trả lời đúng, hoặc TỪ CHỐI đúng lúc, hoặc NÓI THẬT "Không có thông tin" khi tài liệu thực sự không có -> helpful = true. Nếu tài liệu có mà nói không có -> false.
+2. Ảo giác (fabricated): Bịa thông tin không có trong Index -> fabricated = true.

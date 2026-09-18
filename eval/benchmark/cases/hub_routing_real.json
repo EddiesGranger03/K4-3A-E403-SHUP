@@ -1,0 +1,117 @@
+[
+  {
+    "case_id": "D1_HUB_01",
+    "dimension": "D1",
+    "description": "Học viên bị lạc lối, cần điều hướng",
+    "input": {
+      "user_query": "tìm kiếm các link tài liệu trong slide",
+      "student_profile": "profile_on_track",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "ROUTE"
+  },
+  {
+    "case_id": "D1_HUB_02",
+    "dimension": "D1",
+    "description": "Học viên bị lạc lối, cần điều hướng",
+    "input": {
+      "user_query": "Mã SHA-256 của ZIP ảnh được cấp nằm ở đâu",
+      "student_profile": "profile_on_track",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "ROUTE"
+  },
+  {
+    "case_id": "D1_HUB_03",
+    "dimension": "D1",
+    "description": "Học viên bị lạc lối, cần điều hướng",
+    "input": {
+      "user_query": "3 thuộc tính này tìm ở đâu? - Quy tắc áp dụng: CHƯA ĐIỀN - Quyết định: CHƯA ĐIỀN - Nếu vẫn thiếu bằng chứng, bạn sẽ làm gì? CHƯA ĐIỀN",
+      "student_profile": "profile_on_track",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "ROUTE"
+  },
+  {
+    "case_id": "D1_HUB_04",
+    "dimension": "D1",
+    "description": "Học viên bị lạc lối, cần điều hướng",
+    "input": {
+      "user_query": "_Prompt-Engineering-Tool-Calling” của buổi này) nộp mini lab 4 ở đâu",
+      "student_profile": "profile_on_track",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "ROUTE"
+  },
+  {
+    "case_id": "D1_HUB_05",
+    "dimension": "D1",
+    "description": "Học viên bị lạc lối, cần điều hướng",
+    "input": {
+      "user_query": "” của buổi này) gửi cho tôi lại cái link trên",
+      "student_profile": "profile_on_track",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "ROUTE"
+  },
+  {
+    "case_id": "D2_HUB_01",
+    "dimension": "D2",
+    "description": "Học viên hỏi vượt cấp (Hỏi Agent/RAG khi mới học Day 1)",
+    "input": {
+      "user_query": "Khi LLM provider timeout trong production, agent của bạn sẽ tự phục hồi hay làm sập cả workflow?",
+      "student_profile": "profile_day1_only_no_llm",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "WARN_PREREQUISITE",
+    "expected_warning": "PREREQUISITE_MISSING"
+  },
+  {
+    "case_id": "D2_HUB_02",
+    "dimension": "D2",
+    "description": "Học viên hỏi vượt cấp (Hỏi Agent/RAG khi mới học Day 1)",
+    "input": {
+      "user_query": "agent là gì",
+      "student_profile": "profile_day1_only_no_llm",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "WARN_PREREQUISITE",
+    "expected_warning": "PREREQUISITE_MISSING"
+  },
+  {
+    "case_id": "D2_HUB_03",
+    "dimension": "D2",
+    "description": "Học viên hỏi vượt cấp (Hỏi Agent/RAG khi mới học Day 1)",
+    "input": {
+      "user_query": "” của buổi này) Làm thế nào để System prompt đảm bảo tính ổn định của Agent?",
+      "student_profile": "profile_day1_only_no_llm",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "WARN_PREREQUISITE",
+    "expected_warning": "PREREQUISITE_MISSING"
+  },
+  {
+    "case_id": "D2_HUB_04",
+    "dimension": "D2",
+    "description": "Học viên hỏi vượt cấp (Hỏi Agent/RAG khi mới học Day 1)",
+    "input": {
+      "user_query": "(Currently on the part “Day03: Từ chatbot đến agentic agent react (Mr. [HV])” of this lesson) đưa ra các câu hỏi mục tiêu bài học hôm nay (câu hỏi)",
+      "student_profile": "profile_day1_only_no_llm",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "WARN_PREREQUISITE",
+    "expected_warning": "PREREQUISITE_MISSING"
+  },
+  {
+    "case_id": "D2_HUB_05",
+    "dimension": "D2",
+    "description": "Học viên hỏi vượt cấp (Hỏi Agent/RAG khi mới học Day 1)",
+    "input": {
+      "user_query": "vậy với RAG và để tool trong harness để model dùng tool search internet thì cái nào sẽ tốt hơn",
+      "student_profile": "profile_day1_only_no_llm",
+      "cohort_schedule": "K4"
+    },
+    "expected_action": "WARN_PREREQUISITE",
+    "expected_warning": "PREREQUISITE_MISSING"
+  }
+]

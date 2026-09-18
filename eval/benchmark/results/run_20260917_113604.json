@@ -1,0 +1,92 @@
+[
+  {
+    "case_id": "D1_HUB_01",
+    "query": "(Trang 1, đoạn được chọn: \"LLM là gì?\") LLM là gì?",
+    "pass": true,
+    "detail": "ROUTE: Day 1"
+  },
+  {
+    "case_id": "D1_HUB_02",
+    "query": "(Đang học phần “Slide - GV [HV]” của buổi này) giải thích giúp tôi mô hình double diamond",
+    "pass": true,
+    "detail": "ROUTE: Day 2"
+  },
+  {
+    "case_id": "D1_HUB_03",
+    "query": "(Currently on the part “day02-object-detection-annotation” of this lesson) are you CHatGPT?",
+    "pass": true,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D1_HUB_04",
+    "query": "nghĩa là gì  Đoạn đang hỏi: “AI & LLM Foundation”",
+    "pass": true,
+    "detail": "ROUTE: Day 1"
+  },
+  {
+    "case_id": "D1_HUB_05",
+    "query": "(Trang 16, đoạn được chọn: \"Diamond 1 là gì\") Diamond 1 là gì",
+    "pass": true,
+    "detail": "ROUTE: Day 2"
+  },
+  {
+    "case_id": "D1_HUB_06",
+    "query": "khác biệt giữa hai cái trên, khác biệt về kiến trúc như nào (Code Python)",
+    "pass": true,
+    "detail": "REJECT: OUT_OF_SCOPE"
+  },
+  {
+    "case_id": "D3_CITE_01",
+    "query": "Tại sao lại gọi là LLM?",
+    "pass": true,
+    "detail": "CITE: True | FABRICATED: False (Thông tin về LLM (Mô hình ngôn ngữ lớn) và cơ chế đoán từ tiếp theo có căn cứ chính xác trong knowledge index (các khái niệm 'mô_hình_ngôn_ngữ_lớn_(llm)' và 'cơ_chế_sinh_văn_bản_của_llm'). Slide 10 cũng nằm trong phạm vi của khái niệm LLM theo knowledge index.)"
+  },
+  {
+    "case_id": "D3_CITE_02",
+    "query": "Giảng viên có nói về ứng dụng cứu hộ đợt bão không?",
+    "pass": false,
+    "detail": "CITE: True | FABRICATED: True (Output có chứa trích dẫn nguồn '[Day 1 - Slide 1]', nhưng trong Knowledge Index cung cấp không có thông tin nào liên quan đến 'Slide 1' (các slide được đề cập bắt đầu từ Slide 3).)"
+  },
+  {
+    "case_id": "D4_REJ_01",
+    "query": "4 Lenses xác định bài toán AI là gì?",
+    "pass": true,
+    "detail": "REJECTED_SUCCESSFULLY"
+  },
+  {
+    "case_id": "D4_REJ_02",
+    "query": "Làm thế nào để viết ứng dụng Flutter?",
+    "pass": true,
+    "detail": "REJECTED_SUCCESSFULLY"
+  },
+  {
+    "case_id": "D5_HAL_01",
+    "query": "Các thông số kỹ thuật chi tiết của GPT-4 là gì?",
+    "pass": true,
+    "detail": "NOT_REJECTED | FABRICATED: False"
+  },
+  {
+    "case_id": "D2_PRE_01",
+    "query": "Attention mechanism hoạt động như thế nào?",
+    "pass": true,
+    "detail": "WARN_PREREQUISITE: MISSING_PREREQ_Mô hình ngôn ngữ lớn (LLM)"
+  },
+  {
+    "case_id": "D2_PRE_02",
+    "query": "Double Diamond là gì?",
+    "pass": true,
+    "detail": "ROUTE: Day 2"
+  },
+  {
+    "case_id": "D2_SCHED_01",
+    "query": "RAG là gì vậy ạ?",
+    "pass": true,
+    "detail": "REJECT: AHEAD_OF_SCHEDULE"
+  },
+  {
+    "case_id": "D2_SCHED_02",
+    "query": "Vector database lưu dữ liệu như thế nào?",
+    "pass": true,
+    "detail": "REJECT: AHEAD_OF_SCHEDULE"
+  }
+]
