@@ -56,7 +56,21 @@ export async function POST(req: Request) {
         { temperature: 0.2, max_tokens: 600 }
       );
 
-      return NextResponse.json({ reply: text, engine });
+      let cleanText = text.trim();
+      // Đảm bảo luôn có trích dẫn slide kết nối bài học nếu chưa có
+      if (!cleanText.includes(`[Day ${targetDay}`) && !cleanText.toLowerCase().includes("nằm ngoài chủ đề")) {
+        const qLower = query.toLowerCase();
+        const matched = Object.entries(indexData).find(([_, v]: [string, any]) => {
+          if (v.day !== targetDay) return false;
+          const name = (v.concept_name || "").toLowerCase();
+          const kw: string[] = (v.keywords || []).map((k: string) => k.toLowerCase());
+          return name.includes(qLower) || qLower.includes(name) || kw.some((k) => qLower.includes(k));
+        });
+        const slideNo = matched ? (matched[1].slides?.[0] || 1) : (targetDay === 1 && (qLower.includes("năm") || qLower.includes("lịch sử") || qLower.includes("chatgpt") || qLower.includes("openai")) ? 9 : 1);
+        cleanText += ` [Day ${targetDay} - Slide ${slideNo}]`;
+      }
+
+      return NextResponse.json({ reply: cleanText, engine });
     } catch (apiError: any) {
       console.warn("[Spoke AI API Error, using Local Grounding Fallback]:", apiError.message);
 

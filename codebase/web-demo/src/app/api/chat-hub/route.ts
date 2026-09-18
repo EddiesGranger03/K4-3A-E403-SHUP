@@ -116,7 +116,14 @@ ${
     : `- Khái niệm thuộc Day ${topDay} (chưa mở). Hãy nhắc nhở học viên tập trung học Day 1 và Day 2 trước.`
 }
 - TUYỆT ĐỐI KHÔNG sao chép các ký tự ngoặc nhọn như {concept}, {slide}, {day}, {slide_line}.`
-    : `Không tìm thấy trong giáo trình, lịch sự thông báo ngoài phạm vi khóa học.`
+    : `Khái niệm này chưa có bài giảng riêng biệt trong Knowledge Index 6 buổi học.
+HƯỚNG DẪN TRẢ LỜI THÔNG MINH (PEDAGOGICAL BRIDGE):
+1. KHÔNG từ chối khô khan! Hãy giải thích súc tích bản chất khái niệm (1-2 câu ngắn gọn, chuẩn xác để học viên hiểu ngay cốt lõi).
+2. Định hướng (Bắc cầu): Chỉ ra khái niệm này liên quan mật thiết nhất tới buổi học nào trong khóa học:
+   - Nền tảng mô hình, lịch sử, token, kiến trúc LLM -> Day 1 (AI & LLM Foundation).
+   - Xác định bài toán, tự động hóa, ROI, Google PAIR -> Day 2 (Product Thinking & Automation).
+   - Tác nhân AI, truy xuất dữ liệu nâng cao -> Day 3 (AI Agent & RAG).
+3. Gợi ý học viên bắt đầu từ bài học nền tảng tương ứng.`
 }
 `.trim();
 
@@ -127,7 +134,7 @@ ${
           { role: "system", content: contextPrompt },
           { role: "user", content: query },
         ],
-        { temperature: 0.1, max_tokens: 500 }
+        { temperature: 0.3, max_tokens: 500 }
       );
 
       let cleanText = text;
@@ -179,8 +186,8 @@ ${
       }
 
       return NextResponse.json({
-        reply: `Rất tiếc, khái niệm bạn vừa hỏi hiện chưa có trong nội dung bài giảng 6 buổi của khóa học AI Thực Chiến.\n\n` +
-          `Bạn có thể kiểm tra lại từ khóa hoặc hỏi về các chủ đề như *LLM Foundation (Day 1)*, *Xác định bài toán AI & Automation (Day 2)* nhé!`
+        reply: `Khái niệm bạn vừa hỏi liên quan đến lĩnh vực Trí tuệ nhân tạo nhưng chưa nằm trong danh mục bài giảng trực tiếp của khóa học.\n\n` +
+          `Để xây dựng tư duy và kiến thức nền tảng vững vàng, bạn có thể bắt đầu với **Nền tảng AI & LLM** tại [👉 Mở Day 1](#deep-link-day-1) hoặc **Xác định bài toán AI** tại [👉 Mở Day 2](#deep-link-day-2) nhé!`
       });
     }
   } catch (fatalError: any) {
