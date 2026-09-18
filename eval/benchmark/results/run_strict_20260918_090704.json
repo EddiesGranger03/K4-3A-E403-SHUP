@@ -1,0 +1,122 @@
+[
+  {
+    "case_id": "D4_BOT_01",
+    "query": "Dựa trên ví dụ về agent hỗ trợ khách hàng, tại sao việc hiểu rõ cấu trúc đường ống dữ liệu lại quan trọng khi xảy ra lỗi ở bảng feature?",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_02",
+    "query": "Decoder-only Transformer architecture giải thích lại",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_03",
+    "query": "(Currently on the part “Day 04_ C401_ Mini lab_System Prompt Engineering & Tool Calling Engine” of this lesson) lấy link nộp bài lab",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_04",
+    "query": "_Prompt-Engineering-Tool-Calling” của buổi này) k hiểu phần code ấy",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D4_BOT_05",
+    "query": "code lab này nên tích hợp gemini API làm LLM không",
+    "pass": false,
+    "detail": "REJECT_STATUS: False"
+  },
+  {
+    "case_id": "D35_BOT_01",
+    "query": "bạn có thể so sánh slide, tổng hợp slide từ day 1 đến day 3",
+    "pass": true,
+    "detail": "CITE:True | HELPFUL:True | FABRICATED:False | Reason: Bot đã trả lời chính xác về khả năng so sánh số lư..."
+  },
+  {
+    "case_id": "D35_BOT_02",
+    "query": "tham số số lượng phân cụm (centroids) là gì",
+    "pass": false,
+    "detail": "CITE:True | HELPFUL:False | FABRICATED:True | Reason: Không có thông tin về tham số số lượng phân cụm (c..."
+  },
+  {
+    "case_id": "D35_BOT_03",
+    "query": "Sự khác biệt giữa multi-step reasoning và suy luận 1 bước là gì?",
+    "pass": false,
+    "detail": "CITE:True | HELPFUL:False | FABRICATED:True | Reason: Không có thông tin về sự khác biệt giữa multi-step..."
+  },
+  {
+    "case_id": "D35_BOT_04",
+    "query": "Giới hạn của bạn có thể tạo bao nhiêu câu hỏi",
+    "pass": false,
+    "detail": "CITE:False | HELPFUL:True | FABRICATED:False | Reason: Tài liệu có thông tin về giới hạn của tôi tạo câu ..."
+  },
+  {
+    "case_id": "D35_BOT_05",
+    "query": "Tóm tắt toàn bộ trong 5 ý.  Liệt kê tất cả công thức.  Liệt kê toàn bộ thuật ngữ.  Tạo mindmap.  Tạo FAQ.",
+    "pass": true,
+    "detail": "CITE:True | HELPFUL:True | FABRICATED:False | Reason: Bot đã trả lời chính xác và đầy đủ các câu hỏi của..."
+  },
+  {
+    "case_id": "D1_HUB_01",
+    "query": "tìm kiếm các link tài liệu trong slide",
+    "pass": true,
+    "detail": "ROUTE: Day 99 - Không tìm thấy link tài liệu trong slide"
+  },
+  {
+    "case_id": "D1_HUB_02",
+    "query": "Mã SHA-256 của ZIP ảnh được cấp nằm ở đâu",
+    "pass": false,
+    "detail": "REJECT: Day 1 - Regex rejection"
+  },
+  {
+    "case_id": "D1_HUB_03",
+    "query": "3 thuộc tính này tìm ở đâu? - Quy tắc áp dụng: CHƯA ĐIỀN - Quyết định: CHƯA ĐIỀN - Nếu vẫn thiếu bằng chứng, bạn sẽ làm gì? CHƯA ĐIỀN",
+    "pass": true,
+    "detail": "ROUTE: Day 99 - Cần thêm thông tin để tìm kiếm thông tin chính xác"
+  },
+  {
+    "case_id": "D1_HUB_04",
+    "query": "_Prompt-Engineering-Tool-Calling” của buổi này) nộp mini lab 4 ở đâu",
+    "pass": false,
+    "detail": "REJECT: Day 1 - Không tìm thấy thông tin về mini lab 4"
+  },
+  {
+    "case_id": "D1_HUB_05",
+    "query": "” của buổi này) gửi cho tôi lại cái link trên",
+    "pass": false,
+    "detail": "WARN_PREREQUISITE: Day 3 - Regex warning"
+  },
+  {
+    "case_id": "D2_HUB_01",
+    "query": "Khi LLM provider timeout trong production, agent của bạn sẽ tự phục hồi hay làm sập cả workflow?",
+    "pass": true,
+    "detail": "WARN_PREREQUISITE: Day 7 - "
+  },
+  {
+    "case_id": "D2_HUB_02",
+    "query": "agent là gì",
+    "pass": true,
+    "detail": "WARN_PREREQUISITE: Day 3 - "
+  },
+  {
+    "case_id": "D2_HUB_03",
+    "query": "” của buổi này) Làm thế nào để System prompt đảm bảo tính ổn định của Agent?",
+    "pass": false,
+    "detail": "ROUTE: Day 7 - Để System prompt đảm bảo tính ổn định của Agent, bạn cần hiểu rõ về các khái niệm liên quan đến Agent và cách chúng hoạt động. Hãy đọc kỹ các tài liệu và hướng dẫn liên quan đến Agent và LLM, thực hành và thử nghiệm với các mô hình và quy trình khác nhau, và tìm kiếm sự giúp đỡ từ các chuyên gia và cộng đồng AI."
+  },
+  {
+    "case_id": "D2_HUB_04",
+    "query": "(Currently on the part “Day03: Từ chatbot đến agentic agent react (Mr. [HV])” of this lesson) đưa ra các câu hỏi mục tiêu bài học hôm nay (câu hỏi)",
+    "pass": false,
+    "detail": "ROUTE: Day 1 - Regex route"
+  },
+  {
+    "case_id": "D2_HUB_05",
+    "query": "vậy với RAG và để tool trong harness để model dùng tool search internet thì cái nào sẽ tốt hơn",
+    "pass": false,
+    "detail": "ROUTE: Day 1 - Regex route"
+  }
+]
