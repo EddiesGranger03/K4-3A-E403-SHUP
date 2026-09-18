@@ -4,17 +4,18 @@ import { useState, useRef, useEffect, Suspense } from "react";
 import { 
   RotateCcw, ChevronDown, ChevronRight, CheckCircle, Flag, ArrowLeft, 
   Send, Sparkles, X, FileText, ThumbsUp, ThumbsDown, BookOpen, 
-  Copy, Check, Monitor
+  Copy, Check, Monitor, ScrollText, Presentation
 } from "lucide-react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 
 import { DAY_METADATA, LESSON_CONTENT } from "@/constants/lessonData";
 import { getSlideData } from "@/constants/slidesData";
+import PdfViewer from "@/components/PdfViewer";
 
 type Message = { role: "user" | "bot"; text: string };
 type ContentView = "slide" | "lab" | "transcript";
-type SlideMode = "interactive" | "pdf";
+type SlideMode = "single" | "scroll" | "interactive";
 
 // ── Component ────────────────────────────────────────────────
 
@@ -38,8 +39,10 @@ function LessonContent() {
   
   const [page, setPage] = useState(initialSlide ? Number(initialSlide) : 1);
   const [contentView, setContentView] = useState<ContentView>(initialLab ? "lab" : "slide");
-  const [slideMode, setSlideMode] = useState<SlideMode>("interactive");
-  const [isAiOpen, setIsAiOpen] = useState(true);
+  const [slideMode, setSlideMode] = useState<SlideMode>("single");
+  const [isAiOpen, setIsAiOpen] = useState(false);
+  const [aiWidth, setAiWidth] = useState(380);
+  const [isResizing, setIsResizing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [transcriptContent, setTranscriptContent] = useState("");
   const [activeLabId, setActiveLabId] = useState<string | null>(initialLab ? String(initialLab) : null);
@@ -69,6 +72,40 @@ function LessonContent() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [contentView, totalSlides]);
+
+  // Handle resizing AI side panel
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      const newWidth = window.innerWidth - e.clientX;
+      if (newWidth >= 300 && newWidth <= Math.min(800, window.innerWidth - 300)) {
+        setAiWidth(newWidth);
+      }
+    };
+
+    const handleMouseUp = () => {
+      if (isResizing) {
+        setIsResizing(false);
+      }
+    };
+
+    if (isResizing) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+    } else {
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isResizing]);
 
   // When URL query params change (e.g. from Hub bot link click), update view
   useEffect(() => {
@@ -286,13 +323,98 @@ function LessonContent() {
         {/* ── CENTER: MAIN CONTENT ── */}
         <main className="flex-1 bg-[#F8F9FC] flex flex-col overflow-y-auto">
 
-          {/* ══════ SLIDE VIEW (SLIDE TƯƠNG TÁC + TÙY CHỌN PDF) ══════ */}
+          {/* ══════ SLIDE VIEW (CHẾ ĐỘ THEO TRANG / CUỘN DỌC / THẺ TƯƠNG TÁC) ══════ */}
           {contentView === "slide" && (
             <div className="flex-1 p-6 flex flex-col items-center">
-              <div className="w-full max-w-4xl flex flex-col gap-4">
+              <div className="w-full max-w-5xl flex flex-col gap-3.5">
 
-                {/* ── 1. SLIDE CANVAS ── */}
-                {slideMode === "interactive" ? (
+                {/* ── 1. SLIDE TOOLBAR (CHUYỂN CHẾ ĐỘ CUỘN DỌC / THEO TRANG) ── */}
+                <div className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm text-gray-600 flex-wrap gap-2.5">
+                  {/* Left: Mode Switcher (2 nút bấm chính theo yêu cầu) */}
+                  <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 text-xs font-semibold">
+                    <button
+                      onClick={() => setSlideMode("single")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                        slideMode === "single" 
+                          ? "bg-white text-indigo-700 shadow-sm font-bold" 
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                      title="Chế độ hiển thị 1 slide vừa vặn, không bị thừa mép"
+                    >
+                      <Presentation className="w-3.5 h-3.5" />
+                      <span>Theo trang (1 Slide)</span>
+                    </button>
+                    <button
+                      onClick={() => setSlideMode("scroll")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                        slideMode === "scroll" 
+                          ? "bg-white text-indigo-700 shadow-sm font-bold" 
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                      title="Hiển thị dạng cuộn dọc để lướt đọc liên tục"
+                    >
+                      <ScrollText className="w-3.5 h-3.5" />
+                      <span>Cuộn dọc</span>
+                    </button>
+                    <button
+                      onClick={() => setSlideMode("interactive")}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                        slideMode === "interactive" 
+                          ? "bg-white text-indigo-700 shadow-sm font-bold" 
+                          : "text-gray-600 hover:text-gray-900"
+                      }`}
+                      title="Chế độ tóm tắt kiến thức dạng thẻ tương tác"
+                    >
+                      <Monitor className="w-3.5 h-3.5" />
+                      <span>Thẻ tóm tắt</span>
+                    </button>
+                  </div>
+
+                  {/* Right: Actions */}
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => handleAskAiAboutSlide()}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg text-[12px] font-semibold shadow-sm transition-all cursor-pointer"
+                      title="Mở Trợ giảng AI và hỏi về slide hiện tại"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Hỏi AI về slide này</span>
+                    </button>
+                    {slideMode === "interactive" && (
+                      <button
+                        onClick={handleCopySlide}
+                        className="flex items-center gap-1 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 text-[11px] font-medium rounded-lg border border-gray-200 transition-colors cursor-pointer"
+                        title="Sao chép nội dung slide"
+                      >
+                        {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-gray-500" />}
+                        <span>{copied ? "Đã chép" : "Sao chép"}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* ── 2. SLIDE DISPLAY AREA ── */}
+                {slideMode === "single" && (
+                  <PdfViewer 
+                    pdfUrl={`/slides/day${day}.pdf`}
+                    currentPage={page}
+                    totalSlides={totalSlides}
+                    onPageChange={setPage}
+                    viewMode="single"
+                  />
+                )}
+
+                {slideMode === "scroll" && (
+                  <PdfViewer 
+                    pdfUrl={`/slides/day${day}.pdf`}
+                    currentPage={page}
+                    totalSlides={totalSlides}
+                    onPageChange={setPage}
+                    viewMode="scroll"
+                  />
+                )}
+
+                {slideMode === "interactive" && (
                   <div 
                     className="w-full bg-white rounded-2xl shadow-md border border-gray-200/90 overflow-hidden flex flex-col relative transition-all duration-200"
                     style={{ aspectRatio: "16/9.6", minHeight: "440px" }}
@@ -309,26 +431,6 @@ function LessonContent() {
                         <span className="px-2.5 py-1 bg-purple-50 border border-purple-100 text-purple-700 text-[11px] font-semibold rounded-md">
                           {currentSlide.tag}
                         </span>
-                      </div>
-
-                      {/* Interactive slide action buttons */}
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleAskAiAboutSlide()}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 text-[11px] font-semibold rounded-lg shadow-sm transition-all transform hover:scale-[1.02]"
-                          title="Hỏi Trợ giảng AI về nội dung slide này"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>Hỏi AI về slide này</span>
-                        </button>
-                        <button
-                          onClick={handleCopySlide}
-                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 text-[11px] font-medium rounded-lg border border-gray-200 transition-colors"
-                          title="Sao chép nội dung slide vào bộ nhớ tạm"
-                        >
-                          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-gray-500" />}
-                          <span>{copied ? "Đã chép" : "Sao chép"}</span>
-                        </button>
                       </div>
                     </div>
 
@@ -394,84 +496,7 @@ function LessonContent() {
                       </div>
                     </div>
                   </div>
-                ) : (
-                  /* PDF View (Khi người dùng chọn xem file gốc) */
-                  <div className="bg-[#8DAA91] rounded-2xl shadow-lg overflow-hidden relative" style={{ aspectRatio: "16/9.5" }}>
-                    <iframe 
-                      key={page}
-                      src={`/slides/day${day}.pdf#page=${page}&view=Fit&scrollbar=0&toolbar=0&navpanes=0`} 
-                      className="w-full h-full border-none absolute inset-0 z-10"
-                      title="Slide Viewer PDF"
-                    />
-                  </div>
                 )}
-
-                {/* ── 2. SLIDE TOOLBAR ── */}
-                <div className="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-2 shadow-sm text-gray-600 flex-wrap gap-2">
-                  {/* Left: Mode Switcher */}
-                  <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-200 text-xs font-semibold">
-                    <button
-                      onClick={() => setSlideMode("interactive")}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all ${
-                        slideMode === "interactive" 
-                          ? "bg-white text-indigo-700 shadow-sm font-bold" 
-                          : "text-gray-600 hover:text-gray-900"
-                      }`}
-                      title="Chế độ slide tương tác thông minh"
-                    >
-                      <Monitor className="w-3.5 h-3.5" />
-                      <span>Slide Tương Tác</span>
-                    </button>
-                    <button
-                      onClick={() => setSlideMode("pdf")}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-md transition-all ${
-                        slideMode === "pdf" 
-                          ? "bg-white text-indigo-700 shadow-sm font-bold" 
-                          : "text-gray-600 hover:text-gray-900"
-                      }`}
-                      title="Chế độ xem file PDF gốc"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Xem PDF Gốc</span>
-                    </button>
-                  </div>
-
-                  {/* Center: Pager */}
-                  <div className="flex items-center gap-1.5 text-[13px] font-semibold text-gray-700">
-                    <button 
-                      onClick={() => setPage((p) => Math.max(1, p - 1))} 
-                      disabled={page === 1}
-                      className="px-2.5 py-1 rounded-md hover:bg-gray-100 text-gray-700 disabled:opacity-30 transition-colors cursor-pointer"
-                      title="Trang trước"
-                    >
-                      ◄
-                    </button>
-                    <div className="flex items-center gap-1 px-2.5 py-0.5 bg-gray-50 border border-gray-200 rounded-md">
-                      <span className="font-bold text-indigo-600">{page}</span>
-                      <span className="text-gray-400">/</span>
-                      <span>{totalSlides}</span>
-                    </div>
-                    <button 
-                      onClick={() => setPage((p) => Math.min(totalSlides, p + 1))} 
-                      disabled={page === totalSlides}
-                      className="px-2.5 py-1 rounded-md hover:bg-gray-100 text-gray-700 disabled:opacity-30 transition-colors cursor-pointer"
-                      title="Trang sau"
-                    >
-                      ►
-                    </button>
-                  </div>
-
-                  {/* Right: Quick actions */}
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => handleAskAiAboutSlide()}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-[12px] font-semibold border border-indigo-200 transition-colors"
-                    >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Hỏi Trợ giảng</span>
-                    </button>
-                  </div>
-                </div>
 
                 {/* ── 3. GHI CHÚ BÀI GIẢNG ── */}
                 <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
@@ -584,10 +609,23 @@ function LessonContent() {
           )}
         </main>
 
-        {/* ── RIGHT SIDEBAR: TRỢ GIẢNG AI ── */}
+        {/* ── RIGHT SIDEBAR: TRỢ GIẢNG AI (RESIZABLE PANEL) ── */}
         {isAiOpen && (
-          <aside className="w-[320px] bg-white border-l border-gray-200 flex flex-col shrink-0 transition-all duration-300">
-            {/* Header */}
+          <div 
+            className="flex h-full shrink-0 relative"
+            style={{ width: `${aiWidth}px` }}
+          >
+            {/* Resizable Divider Handle (Kéo để chỉnh độ rộng) */}
+            <div 
+              onMouseDown={() => setIsResizing(true)}
+              className="w-1.5 hover:w-2 bg-gray-200 hover:bg-indigo-500 cursor-col-resize transition-all shrink-0 flex items-center justify-center group z-30 select-none"
+              title="Kéo sang trái/phải để tùy chỉnh độ rộng Trợ giảng AI"
+            >
+              <div className="w-0.5 h-6 bg-gray-400 group-hover:bg-white rounded-full transition-colors" />
+            </div>
+
+            <aside className="w-full h-full bg-white border-l border-gray-200 flex flex-col overflow-hidden">
+              {/* Header */}
             <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full flex items-center justify-center shadow-sm">
@@ -717,6 +755,7 @@ function LessonContent() {
               <p className="text-center text-[10px] text-gray-400 mt-2">Trợ giảng AI hỗ trợ học tập · Bám sát giáo trình bài giảng.</p>
             </div>
           </aside>
+        </div>
         )}
       </div>
     </div>
