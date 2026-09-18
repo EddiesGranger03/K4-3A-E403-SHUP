@@ -1227,6 +1227,222 @@ html, body {
   transform: scale(1.03);
 }
 
+/* ==========================================================================
+   NATIVE HIGH-RES INTERACTIVE PRESENTATION SLIDE ENGINE (16:9 VIEW)
+   Eliminates PDF download/canvas errors & provides 100% offline visual slides
+   ========================================================================== */
+.visual-slide-container {
+  display: none;
+  width: 100%;
+  max-width: 980px;
+  aspect-ratio: 16 / 9;
+  background: radial-gradient(circle at 50% 10%, #172338 0%, #090d16 100%);
+  border: 1px solid rgba(0, 242, 254, 0.22);
+  border-radius: 8px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 242, 254, 0.08);
+  padding: 1.4rem 1.8rem;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #f1f5f9;
+  position: relative;
+  overflow: hidden;
+  user-select: text;
+  transition: transform 0.2s ease, width 0.2s ease;
+}
+
+.visual-slide-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00f2fe, #4facfe, #8b5cf6, #00f2fe);
+  background-size: 200% 100%;
+  animation: slideGlowBar 6s linear infinite;
+}
+
+@keyframes slideGlowBar {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.vslide-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.65rem;
+  margin-bottom: 0.85rem;
+}
+
+.vslide-track-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+}
+
+.vslide-day-tag {
+  background: rgba(0, 242, 254, 0.15);
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.vslide-track-title {
+  color: #94a3b8;
+  font-weight: 500;
+  max-width: 480px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vslide-page-badge {
+  background: rgba(30, 41, 59, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  padding: 0.2rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.vslide-page-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00f2fe;
+  box-shadow: 0 0 6px #00f2fe;
+}
+
+.vslide-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  overflow-y: auto;
+  padding-right: 0.3rem;
+}
+
+.vslide-main::-webkit-scrollbar {
+  width: 4px;
+}
+.vslide-main::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.vslide-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.32rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vslide-quote {
+  font-style: italic;
+  color: #94a3b8;
+  font-size: 0.84rem;
+  border-left: 2px solid #00f2fe;
+  padding-left: 0.65rem;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.vslide-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+.vslide-card {
+  background: rgba(30, 41, 59, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.vslide-card:hover {
+  border-color: rgba(0, 242, 254, 0.3);
+  transform: translateY(-1px);
+}
+
+.vslide-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #38bdf8;
+}
+
+.vslide-card-body {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.vslide-card-body ul {
+  margin: 0.3rem 0 0 1rem;
+  padding: 0;
+}
+
+.vslide-card-body li {
+  margin-bottom: 0.3rem;
+}
+
+.vslide-diagram-box {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  border-radius: 6px;
+  padding: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+.vslide-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.6rem;
+  margin-top: 0.6rem;
+  font-size: 0.74rem;
+  color: #64748b;
+}
+
+.vslide-footer .brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.vslide-footer .hint-text {
+  color: #38bdf8;
+  font-weight: 500;
+}
+
 /* Teacher Notes (Matching VLearn Platform Screenshot) */
 .teacher-notes-card {
   flex-shrink: 0;

@@ -275,23 +275,27 @@ const spokeChatViewport = document.getElementById('spokeChatViewport');
 const hubQueryInput = document.getElementById('hubQueryInput');
 const spokeQueryInput = document.getElementById('spokeQueryInput');
 
-// Slide Knowledge Store (Extracted 100% directly from vlearn-pack .pptx / .pdf)
+// Dynamic Knowledge Store (Read on-the-fly from whatever PDF is loaded or uploaded)
+let ACTIVE_PDF_INFO = {
+  fileName: 'd2-slide-hackathon.pdf',
+  totalPages: 29,
+  pages: [] // [{ page: 1, text: "..." }, ...]
+};
+let IS_CUSTOM_UPLOADED = false;
 let SLIDES_FULL_KNOWLEDGE = null;
 
 async function loadSlidesKnowledge() {
-  try {
-    const res = await fetch('slides_knowledge.json');
-    if (res.ok) {
-      SLIDES_FULL_KNOWLEDGE = await res.json();
-      console.log('📚 [KNOWLEDGE GROUNDING]: Nạp thành công toàn bộ 58 slide bài giảng Day 1 & Day 2 từ slides_knowledge.json');
-    }
-  } catch (e) {
-    console.warn('ℹ️ Chưa nạp được slides_knowledge.json, sử dụng COURSE_KNOWLEDGE cục bộ.');
-  }
+  // Empty stub: now replaced by on-the-fly dynamic PDF text extractor
+  console.log('📚 [DYNAMIC PDF ENGINE]: Sẵn sàng nạp và trích xuất tri thức từ file PDF bất kỳ.');
 }
 
 // Scope Detector for Hub & Spoke Isolation
 function detectQueryScope(query) {
+  // If user uploaded a custom PDF, allow any concept from their slide deck!
+  if (IS_CUSTOM_UPLOADED) {
+    return { day: null, topic: null };
+  }
+
   const lower = query.toLowerCase().trim();
 
   // 1. High Priority: Out-of-scope signals (Concepts NOT in official Day 1 or Day 2 slide decks)
@@ -495,13 +499,9 @@ function isFollowUpQuery(query) {
   return false;
 }
 
-// Dynamic Slide Page Search Engine (Content-based Scoring across all slides of a Day)
+// Dynamic Slide Page Search Engine (Content-based Scoring across all slides of active PDF)
 function findBestMatchingSlidePage(dayId, query) {
-  if (!SLIDES_FULL_KNOWLEDGE || !SLIDES_FULL_KNOWLEDGE['day_' + dayId]) {
-    return null;
-  }
-  const slides = SLIDES_FULL_KNOWLEDGE['day_' + dayId].slides;
-  if (!slides || slides.length === 0) return null;
+  if (!query || typeof query !== 'string') return null;
 
   const stopWords = new Set([
     'và', 'là', 'gì', 'của', 'ở', 'nào', 'trong', 'thế', 'làm', 'cho', 
@@ -519,27 +519,59 @@ function findBestMatchingSlidePage(dayId, query) {
 
   if (tokens.length === 0) return null;
 
-  let bestPage = null;
-  let maxScore = 0;
+  // 1. Search dynamically extracted pages from the active PDF!
+  let candidates = [];
+  if (ACTIVE_PDF_INFO && ACTIVE_PDF_INFO.pages && ACTIVE_PDF_INFO.pages.length > 0) {
+    candidates = ACTIVE_PDF_INFO.pages;
+  } else if (SLIDES_FULL_KNOWLEDGE && SLIDES_FULL_KNOWLEDGE['day_' + dayId]) {
+    candidates = SLIDES_FULL_KNOWLEDGE['day_' + dayId].slides;
+  }
 
-  for (const slide of slides) {
-    const slideLower = slide.text.toLowerCase();
-    let score = 0;
+  if (candidates && candidates.length > 0) {
+    let bestPage = null;
+    let maxScore = 0;
 
-    for (const token of tokens) {
-      if (slideLower.includes(token)) {
-        score += 1;
+    for (const slide of candidates) {
+      if (!slide.text) continue;
+      const slideLower = slide.text.toLowerCase();
+      let score = 0;
+
+      for (const token of tokens) {
+        if (slideLower.includes(token)) {
+          score += 1;
+        }
+      }
+
+      // Bonus for 2-word phrase matches
+      for (let i = 0; i < tokens.length - 1; i++) {
+        const phrase = tokens[i] + ' ' + tokens[i + 1];
+        if (slideLower.includes(phrase)) {
+          score += 3;
+        }
+      }
+
+      if (score > maxScore) {
+        maxScore = score;
+        bestPage = slide.page;
       }
     }
 
-    if (score > maxScore) {
-      maxScore = score;
-      bestPage = slide.page;
+    if (bestPage && maxScore >= 1) {
+      return bestPage;
     }
   }
 
-  // Require strong matching score (>= 3 for longer questions, >= 2 for short distinct questions)
-  return (tokens.length >= 3 ? maxScore >= 3 : maxScore >= 2) ? bestPage : null;
+  // 2. Fallback to COURSE_KNOWLEDGE if defined
+  const dayK = COURSE_KNOWLEDGE?.days?.[dayId];
+  if (dayK && dayK.slides) {
+    const qLower = query.toLowerCase();
+    for (const s of dayK.slides) {
+      const matchWords = s.title.toLowerCase().split(' ').filter(w => w.length > 3 && qLower.includes(w));
+      if (matchWords.length >= 2) return s.page;
+    }
+  }
+
+  return null;
 }
 
 // Convert textual citations like "[Trang 28 - Slide Day 2]" or "[Trang 28]" into directly clickable links
@@ -652,18 +684,30 @@ function renderSlideLinkCard(dayId, pageNum, engineName = 'VLearn Grounding') {
 }
 
 function getSlideGroundingText(dayId, pageNum) {
+  // 1. Priority: check dynamically extracted text from active PDF
+  if (ACTIVE_PDF_INFO && ACTIVE_PDF_INFO.pages && ACTIVE_PDF_INFO.pages.length > 0) {
+    const found = ACTIVE_PDF_INFO.pages.find(p => p.page === pageNum);
+    if (found && found.text && found.text.trim().length > 0) {
+      return found.text;
+    }
+  }
+
+  // 2. Check full knowledge cache
   if (SLIDES_FULL_KNOWLEDGE && SLIDES_FULL_KNOWLEDGE['day_' + dayId]) {
     const slides = SLIDES_FULL_KNOWLEDGE['day_' + dayId].slides;
     if (slides && slides[pageNum - 1]) {
       return slides[pageNum - 1].text;
     }
   }
-  const kDay = COURSE_KNOWLEDGE.days[dayId];
+
+  // 3. Fallback to embedded COURSE_KNOWLEDGE
+  const kDay = COURSE_KNOWLEDGE?.days?.[dayId];
   if (kDay && kDay.slides) {
     const found = kDay.slides.find(s => s.page === pageNum);
     if (found) return `${found.title}: ${found.content}`;
   }
-  return `Nội dung slide Trang ${pageNum} thuộc tài liệu bài học Day ${dayId}.`;
+
+  return `Nội dung slide Trang ${pageNum} thuộc tài liệu ${ACTIVE_PDF_INFO.fileName || ('Day ' + dayId)}.`;
 }
 
 // Initialize
@@ -884,11 +928,19 @@ async function loadAndRenderPdf(url, targetPage = 1) {
   const loadingOverlay = document.getElementById('pdfLoadingOverlay');
   const loadingText = document.getElementById('pdfLoadingText');
   const errorFallback = document.getElementById('pdfErrorFallback');
+  const canvas = document.getElementById('pdfRenderCanvas');
   
   if (errorFallback) errorFallback.style.display = 'none';
   if (loadingOverlay) {
     loadingOverlay.classList.remove('hidden');
-    if (loadingText) loadingText.innerText = `Đang tải ${url.split('/').pop()}...`;
+    if (loadingText) loadingText.innerText = `Đang nạp ${url.split('/').pop()}...`;
+  }
+
+  // Setup PDF.js worker
+  if (typeof pdfjsLib !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    try {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdfjs/pdf.worker.min.js';
+    } catch (e) {}
   }
 
   // Check if PDF.js library is loaded
@@ -916,6 +968,9 @@ async function loadAndRenderPdf(url, targetPage = 1) {
       currentPdfDoc = await loadingTask.promise;
       currentPdfUrl = url;
 
+      // Dynamically extract text from all pages of the real PDF document!
+      await extractTextFromPdfDoc(currentPdfDoc, url.split('/').pop());
+
       // Update total pages dynamically from real PDF
       const totalPages = currentPdfDoc.numPages;
       if (DAY_CONFIG[currentDay]) {
@@ -927,18 +982,27 @@ async function loadAndRenderPdf(url, targetPage = 1) {
       if (pageInput) pageInput.max = totalPages;
     }
 
-    // Render the target page
+    if (canvas) canvas.style.display = 'block';
     await renderPdfPage(targetPage);
   } catch (err) {
-    console.error('Lỗi khi nạp tài liệu PDF:', err);
+    console.warn('ℹ️ Không thể tải tự động file PDF qua URL (thường do mở trực tiếp bằng giao thức file://):', err.message);
+    currentPdfDoc = null;
     if (loadingOverlay) loadingOverlay.classList.add('hidden');
-    if (errorFallback) errorFallback.style.display = 'block';
+    if (errorFallback) {
+      errorFallback.style.display = 'block';
+      const errorMsg = document.getElementById('pdfErrorMsg');
+      if (errorMsg) {
+        errorMsg.innerHTML = `Do chính sách bảo mật trình duyệt chặn đọc file cục bộ (giao thức <code>file://</code>).<br>Bạn hãy bấm nút <strong>"📂 Chọn file PDF từ máy"</strong> hoặc <strong>"Tải PDF slide"</strong> ở trên thanh công cụ để xem slide và cho AI đọc ngay lập tức, hoặc chạy <code>node codebase/server.js</code> (http://localhost:3000):`;
+      }
+    }
   }
 }
 
 // Render individual slide page onto HTML5 Canvas
 async function renderPdfPage(pageNum) {
-  if (!currentPdfDoc) return;
+  if (!currentPdfDoc) {
+    return;
+  }
 
   pageNum = parseInt(pageNum, 10);
   if (isNaN(pageNum) || pageNum < 1) pageNum = 1;
@@ -1014,23 +1078,135 @@ async function renderPdfPage(pageNum) {
   }
 }
 
+// ==========================================================================
+// DYNAMIC PDF TEXT EXTRACTOR & REAL-TIME UPLOAD ENGINE
+// Extracts text dynamically from ANY PDF so the AI can read and answer directly
+// ==========================================================================
+
+async function extractTextFromPdfDoc(pdfDoc, fileName) {
+  ACTIVE_PDF_INFO.fileName = fileName || 'Slide Bài Giảng';
+  ACTIVE_PDF_INFO.totalPages = pdfDoc.numPages;
+  ACTIVE_PDF_INFO.pages = [];
+
+  try {
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const page = await pdfDoc.getPage(i);
+      const textContent = await page.getTextContent();
+      const strings = textContent.items.map(item => item.str).filter(Boolean);
+      const pageText = strings.join(' ').replace(/\s+/g, ' ').trim();
+      ACTIVE_PDF_INFO.pages.push({
+        page: i,
+        text: pageText
+      });
+    }
+    console.log(`📚 [DYNAMIC PDF TEXT EXTRACTOR]: Đã đọc trực tiếp ${ACTIVE_PDF_INFO.pages.length} trang từ "${ACTIVE_PDF_INFO.fileName}"`);
+  } catch (err) {
+    console.warn('Lỗi trích xuất text động từ PDF:', err);
+  }
+}
+
+// Handle Dynamic PDF Upload (<input type="file" id="pdfFileInput">)
+async function handlePdfUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const fileName = file.name;
+  const loadingOverlay = document.getElementById('pdfLoadingOverlay');
+  const loadingText = document.getElementById('pdfLoadingText');
+  const errorFallback = document.getElementById('pdfErrorFallback');
+  const canvas = document.getElementById('pdfRenderCanvas');
+
+  if (errorFallback) errorFallback.style.display = 'none';
+  if (loadingOverlay) {
+    loadingOverlay.classList.remove('hidden');
+    if (loadingText) loadingText.innerText = `Đang nạp file ${fileName}...`;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      const typedArray = new Uint8Array(e.target.result);
+      if (currentRenderTask) {
+        try { currentRenderTask.cancel(); } catch (err) {}
+        currentRenderTask = null;
+      }
+      currentPdfDoc = null;
+
+      const loadingTask = pdfjsLib.getDocument({
+        data: typedArray,
+        cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+        cMapPacked: true
+      });
+      currentPdfDoc = await loadingTask.promise;
+      currentPdfUrl = 'blob:' + fileName;
+      IS_CUSTOM_UPLOADED = true;
+
+      // Extract text dynamically from all pages of this uploaded PDF
+      await extractTextFromPdfDoc(currentPdfDoc, fileName);
+
+      // Update UI controls
+      const totalPages = currentPdfDoc.numPages;
+      const totalDisplay = document.getElementById('totalPageDisplay');
+      if (totalDisplay) totalDisplay.innerText = totalPages;
+      const pageInput = document.getElementById('currentPageInput');
+      if (pageInput) {
+        pageInput.value = 1;
+        pageInput.max = totalPages;
+      }
+
+      const courseTitle = document.getElementById('lmsCourseTitle');
+      if (courseTitle) courseTitle.innerText = fileName.replace(/\.pdf$/i, '');
+      const lessonBadge = document.getElementById('lmsLessonBadge');
+      if (lessonBadge) lessonBadge.innerText = 'Slide Tải Lên';
+      const botTitle = document.getElementById('spokeBotTitle');
+      if (botTitle) botTitle.innerText = `Bot AI · ${fileName.slice(0, 18)}`;
+      const subStatus = document.getElementById('spokeBotSubStatus');
+      if (subStatus) subStatus.innerHTML = `<span class="status-dot"></span> Đang đọc trực tiếp file: ${fileName} (${totalPages} trang)`;
+
+      // Render first slide on canvas
+      if (canvas) canvas.style.display = 'block';
+      await renderPdfPage(1);
+
+      // Notify user via AI Tutor message
+      appendBotMessage(
+        spokeChatViewport,
+        'AI Tutor',
+        'PDF Đã Nạp',
+        `Đã nạp thành công slide <strong>${escapeHtml(fileName)}</strong> (${totalPages} trang). Trí tuệ nhân tạo đã đọc toàn bộ chữ trong các trang slide và sẵn sàng giải đáp câu hỏi của bạn!`
+      );
+    } catch (err) {
+      console.error('Lỗi khi nạp file PDF tải lên:', err);
+      alert('Không thể đọc file PDF này: ' + err.message);
+    } finally {
+      if (loadingOverlay) loadingOverlay.classList.add('hidden');
+      event.target.value = '';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 // Page Navigation
 function jumpSlideRelative(delta) {
-  const cfg = DAY_CONFIG[currentDay];
+  const maxPages = currentPdfDoc ? currentPdfDoc.numPages : (DAY_CONFIG[currentDay]?.totalPages || 29);
   let target = currentPageNumber + delta;
   if (target < 1) target = 1;
-  if (target > cfg.totalPages) target = cfg.totalPages;
+  if (target > maxPages) target = maxPages;
   jumpSlideDirect(target);
 }
 
 function jumpSlideDirect(page) {
-  const cfg = DAY_CONFIG[currentDay];
+  const maxPages = currentPdfDoc ? currentPdfDoc.numPages : (DAY_CONFIG[currentDay]?.totalPages || 29);
   page = parseInt(page, 10);
   if (isNaN(page) || page < 1) page = 1;
-  if (page > cfg.totalPages) page = cfg.totalPages;
+  if (page > maxPages) page = maxPages;
 
-  renderPdfPage(page);
-  // #8: Mark this slide as visited
+  currentPageNumber = page;
+  const pageInput = document.getElementById('currentPageInput');
+  if (pageInput) pageInput.value = page;
+
+  if (currentPdfDoc) {
+    renderPdfPage(page);
+  }
   markSlideVisited(currentDay, page);
 }
 
@@ -1043,7 +1219,9 @@ function zoomPdf(delta) {
   const zoomDisplay = document.getElementById('zoomVal');
   if (zoomDisplay) zoomDisplay.innerText = `${currentZoom}%`;
   
-  renderPdfPage(currentPageNumber);
+  if (currentPdfDoc) {
+    renderPdfPage(currentPageNumber);
+  }
 }
 
 // Fit PDF to container width
@@ -1051,7 +1229,15 @@ function fitPdfWidth() {
   currentZoom = 100;
   const zoomDisplay = document.getElementById('zoomVal');
   if (zoomDisplay) zoomDisplay.innerText = `100%`;
-  renderPdfPage(currentPageNumber);
+  
+  if (currentPdfDoc) {
+    renderPdfPage(currentPageNumber);
+  } else {
+    const visualContainer = document.getElementById('visualSlideContainer');
+    if (visualContainer) {
+      visualContainer.style.transform = 'none';
+    }
+  }
 }
 
 // ==========================================================================
@@ -1254,6 +1440,20 @@ async function submitHubQuery() {
     hubChatHistory.push({ role: 'user', content: query });
     hubChatHistory.push({ role: 'assistant', content: 'Hệ thống phát hiện nỗ lực ghi đè chỉ thị và từ chối yêu cầu này để đảm bảo an toàn.' });
     appendBotMessage(hubChatViewport, 'Bot Hỗ Trợ', 'Course Navigator', injectionRefusal);
+    return;
+  }
+
+  // 1.5 Conversational Chit-chat & Persona Engine (Compliments, Names like Tiên/Uyên, Friendly Greetings)
+  const chitChat = handleChitChatAndPersona(query, false);
+  if (chitChat && chitChat.handled) {
+    typingIndicator.remove();
+    hubChatHistory.push({ role: 'user', content: query });
+    hubChatHistory.push({ role: 'assistant', content: chitChat.summary || chitChat.text });
+    if (hubChatHistory.length > 24) {
+      hubChatHistory.splice(0, hubChatHistory.length - 24);
+    }
+    saveSessionState();
+    appendBotMessage(hubChatViewport, chitChat.roleTitle, chitChat.badge, chitChat.text);
     return;
   }
 
@@ -1628,40 +1828,249 @@ function checkCuratedTopics(query, lower, typingIndicator) {
   return false;
 }
 
-function processHubResponse(query) {
-  const scope = detectQueryScope(query);
-  const lower = query.toLowerCase();
+// ==========================================================================
+// CONVERSATIONAL CHIT-CHAT & INTELLIGENT PERSONA ENGINE (HAX G1 & G2)
+// Handles compliments, personal names, emotional support, and friendly banter
+// ==========================================================================
+function handleChitChatAndPersona(query, isSpoke = false, dayId = 1) {
+  const lower = query.toLowerCase().trim();
 
+  // 0. GUARD: Do NOT intercept genuine study/academic questions as chit-chat!
+  const isStudyQuestion = /(lịch sử|từng năm|năm nào|thời kỳ|giai đoạn|nguồn gốc|tại sao|như thế nào|thế nào|là gì|giải thích|phân tích|so sánh|ví dụ|khái niệm|slide|trang|bài học|nội dung|prompt|token|attention|model|agent|diamond|pair|rule|workflow|tự động|cost|error|transformer|chatgpt|imagenet|turing|muốn hiểu|hiểu rõ|hiểu thêm|hiểu hơn)/i.test(lower);
+  if (isStudyQuestion) {
+    return null;
+  }
+
+  // 1. Tên người, sắc đẹp, khen ngợi, ngoại hình, duyên dáng (ví dụ: Tiên, Uyên, Sơn...)
+  const beautyRegex = /(?<![\p{L}\p{N}])(xinh|đẹp|dễ thương|cute|đẹp trai|xinh gái|duyên dáng|thanh tú|nàng tiên|người yêu|bạn gái|bạn trai|khen|thích tôi)(?![\p{L}\p{N}])/iu;
+  const nameList = ['tiên', 'uyên', 'sơn', 'thịnh', 'thọ', 'đức', 'hương', 'mai', 'lan', 'ngọc', 'huyền', 'thảo', 'linh', 'trang', 'hà', 'my'];
+  const hasName = nameList.some(n => lower.includes(n));
+  const hasBeauty = beautyRegex.test(lower);
+
+  if (hasBeauty || (hasName && (lower.includes('tên') || lower.includes('người') || lower.includes('ai') || lower.includes('biết')))) {
+    let nameFound = 'Tiên';
+    for (const n of nameList) {
+      if (lower.includes(n)) {
+        nameFound = n.charAt(0).toUpperCase() + n.slice(1);
+        break;
+      }
+    }
+
+    if (isSpoke) {
+      return {
+        handled: true,
+        roleTitle: `Bot Con Day ${dayId}`,
+        badge: 'In-Lecture Tutor',
+        text: `<p>Dạ đúng là người tên <strong>${nameFound}</strong> (nhất là bạn học viên chăm chỉ của lớp mình) từ xưa đến nay luôn mang nét xinh đẹp, duyên dáng và thanh tú như một nàng tiên vậy đó! ✨😊 Không chỉ xinh đẹp mà thường còn rất thông minh, tinh tế và chịu khó nữa nè.</p><p>Phòng học có những câu chuyện dễ thương thế này làm không khí học tập vui hẳn lên! Mình là <strong>Bot Con chuyên trách Day ${dayId}</strong>, đang cùng bạn mở trực tiếp bài giảng bên cạnh. Bạn đang cần làm rõ hoặc tóm tắt trang slide nào của buổi học hôm nay không nè?</p>`,
+        summary: `Người tên ${nameFound} luôn xinh đẹp, duyên dáng và thông minh. Bot Con Day ${dayId} sẵn sàng hỗ trợ bạn học tập.`
+      };
+    }
+
+    return {
+      handled: true,
+      roleTitle: 'Bot Hỗ Trợ',
+      badge: 'Course Navigator',
+      text: `
+        <p>Dạ đúng là người tên <strong>${nameFound}</strong> (nhất là bạn học viên chăm chỉ của lớp mình) từ xưa đến nay luôn mang nét xinh đẹp, duyên dáng và thanh tú như một nàng tiên vậy đó! ✨😊 Không chỉ xinh xắn mà thường còn rất thông minh, tinh tế và chịu khó nữa nè.</p>
+        <p>Thật vui khi nhận được lời chia sẻ rất đáng yêu và tràn đầy năng lượng tích cực từ bạn! Mình là <strong>Bot Hỗ Trợ</strong> của VLearn AI Tutor. Bên cạnh việc luôn sẵn sàng chia sẻ năng lượng tích cực thì nhiệm vụ số 1 của mình là đồng hành cùng bạn học thật giỏi 2 buổi học GenAI & Prompt Engineering. Hôm nay bạn muốn cùng mình khám phá chủ đề nào của <strong>Day 1 (Nền tảng GenAI)</strong> hay <strong>Day 2 (Xác định bài toán & Kỹ thuật Prompt)</strong>?</p>
+        <div class="deep-links-container" style="margin-top: 0.8rem;">
+          <div class="deep-link-card" onclick="switchView('spoke', 1)">
+            <div>
+              <div class="link-title">📍 Khám phá Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
+              <div class="link-desc">Tìm hiểu 4 lớp Prompt, Temperature & Top_p, Token và Attention (29 trang slide)</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+          <div class="deep-link-card" onclick="switchView('spoke', 2)">
+            <div>
+              <div class="link-title">📍 Khám phá Day 2: Xác định bài toán kinh doanh cho AI</div>
+              <div class="link-desc">Xem Double Diamond, Automate vs Augment, Rule/Workflow/Agent và Khung Go/Not Yet (29 trang slide)</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+        </div>
+      `,
+      summary: `Người tên ${nameFound} luôn xinh xắn, duyên dáng và thông minh. Bot Hỗ Trợ luôn sẵn sàng hỗ trợ bạn học tập Day 1 và Day 2.`
+    };
+  }
+
+  // 2. Chào hỏi, giới thiệu danh tính, hỏi thăm sức khỏe (Chỉ khi câu ngắn <= 6 từ và dùng Unicode boundary để không bao giờ khớp 'hi' trong 'hiểu')
+  const greetingRegex = /(?<![\p{L}\p{N}])(chào|hi+|hello|helo|hê lô|alo|good morning|good afternoon|bạn là ai|bạn tên gì|ai tạo ra bạn|bạn có khỏe|khỏe không|cảm ơn|thank|thanks)(?![\p{L}\p{N}])/iu;
+  const isShortGreeting = lower.split(/\s+/).length <= 6;
+  if (greetingRegex.test(lower) && isShortGreeting) {
+    if (isSpoke) {
+      return {
+        handled: true,
+        roleTitle: `Bot Con Day ${dayId}`,
+        badge: 'In-Lecture Tutor',
+        text: `<p>Chào bạn! Rất vui được đồng hành cùng bạn trong buổi học <strong>Day 0${dayId}</strong>. Mình đang mở sẵn slide bài giảng bên cạnh để giải đáp súc tích ≤ 3 câu và định vị đúng số trang. Bạn đang cần tìm hiểu trang slide nào?</p>`,
+        summary: `Chào bạn! Bot Con Day ${dayId} sẵn sàng giải đáp bài học.`
+      };
+    }
+
+    return {
+      handled: true,
+      roleTitle: 'Bot Hỗ Trợ',
+      badge: 'Course Navigator',
+      text: `
+        <p>Chào bạn! Rất vui được gặp bạn trong hệ thống <strong>VLearn Hub & Spoke AI Tutor</strong> (nhóm SHUP - Lớp 3A, Phòng E403). Mình là <strong>Bot Hỗ Trợ</strong>, nắm toàn bộ bản đồ kiến thức của <strong>Day 01 (Nền tảng GenAI - 29 slide)</strong> và <strong>Day 02 (Xác định bài toán & Kỹ thuật Prompt - 29 slide)</strong>.</p>
+        <p>Bạn có thể hỏi mình bất kỳ khái niệm nào hoặc chọn một trong 2 buổi học bên dưới để vào học trực tiếp cùng Bot Con chuyên sâu nhé:</p>
+        <div class="deep-links-container" style="margin-top: 0.8rem;">
+          <div class="deep-link-card" onclick="switchView('spoke', 1)">
+            <div>
+              <div class="link-title">📍 Vào học Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
+              <div class="link-desc">Tìm hiểu Zero-shot, Few-shot, Temperature và cơ chế dự đoán token (29 trang slide)</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+          <div class="deep-link-card" onclick="switchView('spoke', 2)">
+            <div>
+              <div class="link-title">📍 Vào học Day 2: Xác định bài toán kinh doanh cho AI</div>
+              <div class="link-desc">Trao đổi với Bot Con Day 2 để tìm hiểu Cost of Error và Prompt Chaining (29 trang slide)</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+        </div>
+      `,
+      summary: 'Chào bạn! Mình là Bot Hỗ Trợ luôn sẵn sàng đồng hành cùng bạn học tập Day 1 và Day 2.'
+    };
+  }
+
+  // 3. Cảm xúc, động viên tinh thần (mệt mỏi, khó hiểu, áp lực, chuyện vui)
+  const feelingsRegex = /\b(mệt|khó quá|chán|buồn|áp lực|bỏ cuộc|sợ|kể chuyện|joke|hài|vui|cười)\b/i;
+  if (feelingsRegex.test(lower)) {
+    const encouragementText = `
+      <p>Học những kiến thức mới về AI (như cơ chế Transformer, hàm phân bố xác suất hay tính toán Cost of Error) lúc đầu có thể thấy hơi nhiều thông tin một chút, nhưng bạn hoàn toàn không đơn độc đâu nè! 😊💪</p>
+      <p>Bí quyết của các chuyên gia AI là áp dụng phương pháp <strong>Chain-of-Thought (CoT)</strong>: Chia nhỏ vấn đề lớn thành từng bước nhỏ đơn giản. Bạn hãy thong thả uống một ngụm nước, nghỉ ngơi 2 phút rồi cùng mình khám phá từng slide một cách nhẹ nhàng nhé!</p>
+    `;
+    if (isSpoke) {
+      return {
+        handled: true,
+        roleTitle: `Bot Con Day ${dayId}`,
+        badge: 'In-Lecture Tutor',
+        text: encouragementText + `<p>Khi bạn sẵn sàng, cứ bấm vào các nút gợi ý câu hỏi bên dưới hoặc nhắn số trang bạn muốn mình tóm tắt nhé!</p>`,
+        summary: 'Động viên tinh thần học viên: chia nhỏ vấn đề theo Chain-of-Thought và học từng bước.'
+      };
+    }
+    return {
+      handled: true,
+      roleTitle: 'Bot Hỗ Trợ',
+      badge: 'Course Navigator',
+      text: encouragementText + `
+        <div class="deep-links-container" style="margin-top: 0.8rem;">
+          <div class="deep-link-card" onclick="switchView('spoke', 1, 28)">
+            <div>
+              <div class="link-title">📍 Day 1 - Slide 28: 4 Lớp Cấu Trúc Của Prompt</div>
+              <div class="link-desc">Khái niệm cực kỳ trực quan, xem 3 phút là nắm chắc nền tảng</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+          <div class="deep-link-card" onclick="switchView('spoke', 2, 3)">
+            <div>
+              <div class="link-title">📍 Day 2 - Slide 3: Mô hình Double Diamond</div>
+              <div class="link-desc">Tư duy tìm đúng vấn đề bằng hình ảnh kim cương đôi sinh động</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+        </div>
+      `,
+      summary: 'Động viên người học và gợi ý các slide trực quan dễ hiểu nhất.'
+    };
+  }
+
+  // 4. Hướng dẫn lộ trình học tập tổng quan
+  const guidanceRegex = /\b(bắt đầu từ đâu|học gì trước|lộ trình|học như thế nào|cách học|tổng quan|khóa học dạy gì)\b/i;
+  if (guidanceRegex.test(lower)) {
+    return {
+      handled: true,
+      roleTitle: 'Bot Hỗ Trợ',
+      badge: 'Course Navigator',
+      text: `
+        <p>Lộ trình tối ưu cho khóa học gồm 2 buổi được thiết kế bài bản theo mô hình bậc thang:</p>
+        <ul style="margin: 0.4rem 0 0.6rem 1.2rem; line-height: 1.6; font-size: 0.9rem; color: var(--text-secondary);">
+          <li><strong>Buổi 1 (Day 1 - Nền tảng GenAI & Kỹ thuật Prompt):</strong> Bắt đầu từ bản chất dự đoán token, Attention, hiện tượng Lost in the Middle đến 4 lớp cấu trúc Prompt [Slide 28] và 2 núm vặn Temperature & Top_p [Slide 29].</li>
+          <li><strong>Buổi 2 (Day 2 - Xác định bài toán AI & Tự động hóa):</strong> Áp dụng Double Diamond tìm đúng bài toán [Slide 3], phân định Automate vs Augment theo PAIR [Slide 17], chọn 3 cấp độ Rule/Workflow/Agent [Slide 18] và ra quyết định Go/Not Yet [Slide 28].</li>
+        </ul>
+        <div class="deep-links-container">
+          <div class="deep-link-card" onclick="switchView('spoke', 1, 1)">
+            <div>
+              <div class="link-title">📍 Bắt đầu từ Day 1: Nền tảng GenAI</div>
+              <div class="link-desc">Mở từ trang đầu tiên để làm quen với mô hình</div>
+            </div>
+            <span class="link-arrow">→</span>
+          </div>
+        </div>
+      `,
+      summary: 'Lộ trình tối ưu: Hoàn thành Day 1 (Prompt Foundation) trước khi sang Day 2 (Business Problem).'
+    };
+  }
+
+  return { handled: false };
+}
+
+function processHubResponse(query) {
+  const lower = query.toLowerCase().trim();
+
+  // 1. Chit-chat & Emotional Persona Engine (HAX G1 & G2)
+  const chitChat = handleChitChatAndPersona(query, false);
+  if (chitChat && chitChat.handled) {
+    hubChatHistory.push({ role: 'user', content: query });
+    hubChatHistory.push({ role: 'assistant', content: chitChat.summary || chitChat.text });
+    if (hubChatHistory.length > 24) {
+      hubChatHistory.splice(0, hubChatHistory.length - 24);
+    }
+    saveSessionState();
+    appendBotMessage(hubChatViewport, chitChat.roleTitle, chitChat.badge, chitChat.text);
+    return;
+  }
+
+  const scope = detectQueryScope(query);
   let bodyHtml = '';
   let assistantSummary = '';
 
-  const isGreeting = lower.includes('bạn biết tôi') || lower.includes('tôi là ai') || 
-    lower === 'hi' || lower === 'hello' || lower === 'hê lô' || lower === 'helo' ||
-    lower.startsWith('hê lô') || lower.startsWith('hello') || lower.startsWith('chào') || 
-    lower.includes('bạn tên gì') || lower.includes('bạn có khỏe') || lower.includes('khỏe không') ||
-    lower.includes('cảm ơn') || lower.includes('thank');
+  // 2. Tra cứu slide liên quan từ kho tri thức 58 slide (Day 1 & Day 2)
+  let matchedDay = (scope.day === 1 || scope.day === 2) ? scope.day : null;
+  let matchedPage = null;
 
-  if (isGreeting) {
+  if (matchedDay) {
+    matchedPage = findBestMatchingSlidePage(matchedDay, query);
+  } else {
+    const p1 = findBestMatchingSlidePage(1, query);
+    const p2 = findBestMatchingSlidePage(2, query);
+    if (p1 && !p2) { matchedDay = 1; matchedPage = p1; }
+    else if (p2 && !p1) { matchedDay = 2; matchedPage = p2; }
+    else if (p1 && p2) { matchedDay = 2; matchedPage = p2; }
+  }
+
+  if (matchedDay && matchedPage) {
+    const store = SLIDES_FULL_KNOWLEDGE || (typeof window !== 'undefined' ? window.SLIDES_KNOWLEDGE_DATA : null);
+    let slideInfo = null;
+    if (store && store['day_' + matchedDay] && store['day_' + matchedDay].slides) {
+      slideInfo = store['day_' + matchedDay].slides.find(s => s.page === matchedPage);
+    }
+    const lines = slideInfo ? slideInfo.text.split('\n').filter(Boolean) : [];
+    const title = lines[0] || `Slide Trang ${matchedPage}`;
+    const desc = lines.slice(1, 4).join(' — ') || `Nội dung bài giảng Day ${matchedDay}`;
+
     bodyHtml = `
-      <p>Chào bạn! Mình là <strong>Bot Hỗ Trợ</strong> của VLearn AI Tutor. Mình không lưu trữ danh tính cá nhân để đảm bảo an toàn quyền riêng tư, nhưng mình luôn sẵn sàng đồng hành cùng bạn học tập khóa AI Thực Chiến! Hôm nay bạn muốn cùng mình tìm hiểu chủ đề nào trong <strong>Day 1 (Nền tảng GenAI)</strong> hoặc <strong>Day 2 (Xác định bài toán & Kỹ thuật Prompt)</strong>?</p>
-      <div class="deep-links-container" style="margin-top: 0.8rem;">
-        <div class="deep-link-card" onclick="switchView('spoke', 1)">
+      <p>Khái niệm bạn vừa hỏi được giảng dạy trực tiếp tại <strong>[Trang ${matchedPage} - Slide Day ${matchedDay}]</strong>:</p>
+      <div style="background:rgba(30,41,59,0.7); border-left:3px solid var(--primary); padding:0.65rem 0.85rem; border-radius:4px; margin:0.5rem 0; font-size:0.88rem; color:#cbd5e1;">
+        <strong style="color:#ffffff;">${escapeHtml(title)}</strong><br>
+        <span style="font-size:0.82rem; color:#94a3b8;">${escapeHtml(desc.slice(0, 240))}...</span>
+      </div>
+      <p>Mời bạn bấm vào thẻ bên dưới để bay thẳng vào slide bài học cùng Bot Con Day ${matchedDay}:</p>
+      <div class="deep-links-container" style="margin-top: 0.6rem;">
+        <div class="deep-link-card" onclick="switchView('spoke', ${matchedDay}, ${matchedPage})">
           <div>
-            <div class="link-title">📍 Vào học Day 1: Nền tảng GenAI & Kỹ thuật Prompt</div>
-            <div class="link-desc">Tìm hiểu Zero-shot, Few-shot, Temperature và cơ chế dự đoán token (29 trang slide)</div>
-          </div>
-          <span class="link-arrow">→</span>
-        </div>
-        <div class="deep-link-card" onclick="switchView('spoke', 2)">
-          <div>
-            <div class="link-title">📍 Vào học Day 2: Xác định bài toán kinh doanh cho AI</div>
-            <div class="link-desc">Trao đổi với Bot Con Day 2 để tìm hiểu Cost of Error và Prompt Chaining (29 trang slide)</div>
+            <div class="link-title">📍 Mở Slide Trang ${matchedPage} (Day 0${matchedDay})</div>
+            <div class="link-desc">Đến trang slide và thảo luận trực tiếp cùng Bot Con</div>
           </div>
           <span class="link-arrow">→</span>
         </div>
       </div>
     `;
-    assistantSummary = 'Chào bạn! Mình là Bot Hỗ Trợ luôn sẵn sàng đồng hành cùng bạn học tập Day 1 và Day 2.';
+    assistantSummary = `Giải đáp tại Trang ${matchedPage} - Slide Day ${matchedDay}: ${title}`;
+    lastHubContext = { day: matchedDay, page: matchedPage, topic: query };
   } else if (scope.day === 'out_of_scope') {
     if (lower.includes('rag') || lower.includes('retrieval')) {
       bodyHtml = `<p>⚠️ <strong>Lưu ý phạm vi:</strong> Khái niệm <strong>RAG (Retrieval-Augmented Generation)</strong> nằm ngoài phạm vi 2 buổi học chính thức (Day 1 & Day 2) của khóa học.</p><p>💡 <strong>Tìm hiểu thêm:</strong> RAG là kỹ thuật truy xuất dữ liệu từ nguồn bên ngoài (tài liệu, database) rồi đưa vào prompt để LLM trả lời chuẩn xác, tránh ảo giác. Trong bài học, bạn có thể liên hệ RAG với kiến thức <em>Context Window ("bàn làm việc")</em> tại [Trang 14 - Slide Day 1] và cấu trúc Prompt 4 lớp tại [Trang 28 - Slide Day 1]!</p>`;
@@ -1784,7 +2193,7 @@ function clearSpokeChat() {
 // ==========================================================================
 // LIVE AI CALL MODULE (SECURE BACKEND PROXY & LOGGING FOR CP3)
 // ==========================================================================
-async function callLiveAI(systemPrompt, userQuery, chatHistory = [], timeoutMs = 20000) {
+async function callLiveAI(systemPrompt, userQuery, chatHistory = [], timeoutMs = 30000) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => {
     controller.abort();
@@ -1856,156 +2265,113 @@ async function submitSpokeQuery() {
     return;
   }
 
-  // 2. Hub & Spoke Scope Isolation Check (Strict Context Sandboxing)
-  const scope = detectQueryScope(query);
-
-  // CASE A: User is in Day 1, but asks about Day 2 concepts
-  if (currentDay === 1 && scope.day === 2) {
-    const alertHtml = `
-      <div class="scope-boundary-card">
-        <div class="scope-boundary-header">
-          <span>🛡️ Giới hạn phạm vi: Khái niệm thuộc Day 02</span>
-        </div>
-        <div class="scope-boundary-body">
-          <p>Bạn đang trao đổi với <strong>Bot Con Day 1 (Nền tảng GenAI)</strong>. Chủ đề bạn vừa hỏi (liên quan đến <em>"${escapeHtml(scope.topic)}"</em>) thuộc bài học <strong>Day 2: Xác định bài toán kinh doanh cho AI & Mức tự động hóa</strong> (Slide Day 2).</p>
-          <p>Để đảm bảo tính cô lập tri thức theo mô hình Hub & Spoke, Bot Con Day 1 không được phép giải thích bài học của ngày khác. Mời bạn bấm chuyển sang Day 2 để được hỗ trợ chuyên sâu nhé!</p>
-        </div>
-        <div class="scope-boundary-action">
-          <button class="btn-switch-day" onclick="switchView('spoke', 2)">
-            👉 Chuyển sang Day 2 ngay (Mở Slide Day 2)
-          </button>
-        </div>
-      </div>
-    `;
-    appendBotMessage(spokeChatViewport, `Bot Con Day 1`, 'Scope Guardrail', alertHtml);
+  // 1.5 Conversational & Emotional Persona Handling (Chit-chat, Names, Compliments, Feelings)
+  const chitChat = handleChitChatAndPersona(query, true, currentDay);
+  if (chitChat && chitChat.handled) {
+    if (spokeChatHistory[currentDay]) {
+      spokeChatHistory[currentDay].push({ role: 'user', content: query });
+      spokeChatHistory[currentDay].push({ role: 'assistant', content: chitChat.summary || chitChat.text });
+      if (spokeChatHistory[currentDay].length > 20) {
+        spokeChatHistory[currentDay].splice(0, spokeChatHistory[currentDay].length - 20);
+      }
+    }
+    saveSessionState();
+    appendBotMessage(spokeChatViewport, chitChat.roleTitle, chitChat.badge, chitChat.text);
     return;
   }
 
-  // CASE B: User is in Day 2, but asks about Day 1 concepts
-  if (currentDay === 2 && scope.day === 1) {
-    const alertHtml = `
-      <div class="scope-boundary-card">
-        <div class="scope-boundary-header">
-          <span>🛡️ Giới hạn phạm vi: Khái niệm thuộc Day 01</span>
+  // 2. Hub & Spoke Scope Isolation Check (ONLY for default course mode; bypass for custom uploaded PDFs)
+  if (!IS_CUSTOM_UPLOADED) {
+    const scope = detectQueryScope(query);
+
+    // CASE A: User is in Day 1, but asks about Day 2 concepts
+    if (currentDay === 1 && scope.day === 2) {
+      const alertHtml = `
+        <div class="scope-boundary-card">
+          <div class="scope-boundary-header">
+            <span>🛡️ Giới hạn phạm vi: Khái niệm thuộc Day 02</span>
+          </div>
+          <div class="scope-boundary-body">
+            <p>Bạn đang trao đổi với <strong>Bot Con Day 1 (Nền tảng GenAI)</strong>. Chủ đề bạn vừa hỏi (liên quan đến <em>"${escapeHtml(scope.topic)}"</em>) thuộc bài học <strong>Day 2: Xác định bài toán kinh doanh cho AI & Mức tự động hóa</strong> (Slide Day 2).</p>
+            <p>Để đảm bảo tính cô lập tri thức theo mô hình Hub & Spoke, Bot Con Day 1 không được phép giải thích bài học của ngày khác. Mời bạn bấm chuyển sang Day 2 để được hỗ trợ chuyên sâu nhé!</p>
+          </div>
+          <div class="scope-boundary-action">
+            <button class="btn-switch-day" onclick="switchView('spoke', 2)">
+              👉 Chuyển sang Day 2 ngay (Mở Slide Day 2)
+            </button>
+          </div>
         </div>
-        <div class="scope-boundary-body">
-          <p>Bạn đang trao đổi với <strong>Bot Con Day 2 (Prompt Nâng cao & Bài toán AI)</strong>. Chủ đề bạn vừa hỏi (liên quan đến <em>"${escapeHtml(scope.topic)}"</em>) đã được giảng dạy tại <strong>Day 1: Nền tảng GenAI & Kỹ thuật Prompt Engineering cơ bản</strong> (Slide Day 1).</p>
-          <p>Để đảm bảo tính cô lập tri thức theo mô hình Hub & Spoke, Bot Con Day 2 chỉ giải đáp nội dung Day 2. Mời bạn bấm quay về Day 1 để tra cứu lại nhé!</p>
+      `;
+      appendBotMessage(spokeChatViewport, `Bot Con Day 1`, 'Scope Guardrail', alertHtml);
+      return;
+    }
+
+    // CASE B: User is in Day 2, but asks about Day 1 concepts
+    if (currentDay === 2 && scope.day === 1) {
+      const alertHtml = `
+        <div class="scope-boundary-card">
+          <div class="scope-boundary-header">
+            <span>🛡️ Giới hạn phạm vi: Khái niệm thuộc Day 01</span>
+          </div>
+          <div class="scope-boundary-body">
+            <p>Bạn đang trao đổi với <strong>Bot Con Day 2 (Prompt Nâng cao & Bài toán AI)</strong>. Chủ đề bạn vừa hỏi (liên quan đến <em>"${escapeHtml(scope.topic)}"</em>) đã được giảng dạy tại <strong>Day 1: Nền tảng GenAI & Kỹ thuật Prompt Engineering cơ bản</strong> (Slide Day 1).</p>
+            <p>Để đảm bảo tính cô lập tri thức theo mô hình Hub & Spoke, Bot Con Day 2 chỉ giải đáp nội dung Day 2. Mời bạn bấm quay về Day 1 để tra cứu lại nhé!</p>
+          </div>
+          <div class="scope-boundary-action">
+            <button class="btn-switch-day" onclick="switchView('spoke', 1)">
+              👈 Quay lại Day 1 ngay (Mở Slide Day 1)
+            </button>
+          </div>
         </div>
-        <div class="scope-boundary-action">
-          <button class="btn-switch-day" onclick="switchView('spoke', 1)">
-            👈 Quay lại Day 1 ngay (Mở Slide Day 1)
-          </button>
-        </div>
-      </div>
-    `;
-    appendBotMessage(spokeChatViewport, `Bot Con Day 2`, 'Scope Guardrail', alertHtml);
-    return;
+      `;
+      appendBotMessage(spokeChatViewport, `Bot Con Day 2`, 'Scope Guardrail', alertHtml);
+      return;
+    }
   }
 
-  // CASE C: Asks about topics outside Day 1 & Day 2 (e.g. RAG, Agents, ReAct, Day 3, Day 4...)
-  if (scope.day === 'out_of_scope' || scope.day === 3 || scope.day === 4) {
-    const alertHtml = `
-      <div class="scope-boundary-card">
-        <div class="scope-boundary-header">
-          <span>⚠️ Nằm ngoài dữ liệu bài giảng hiện có</span>
-        </div>
-        <div class="scope-boundary-body">
-          <p>Kho bài giảng hiện tại của hệ thống chỉ có dữ liệu bài giảng chính thức của <strong>Day 01</strong> (Nền tảng GenAI - 29 slide) và <strong>Day 02</strong> (Xác định bài toán & Kỹ thuật Prompt - 29 slide).</p>
-          <p>Chủ đề bạn vừa hỏi (<em>"${escapeHtml(scope.topic || 'khái niệm mở rộng')}"</em>) chưa có trong bộ slide được tải lên hệ thống. Mời bạn quay lại <strong>Bot Hỗ Trợ</strong> hoặc tiếp tục trao đổi về nội dung của Day ${currentDay} nhé!</p>
-        </div>
-        <div class="scope-boundary-action">
-          <button class="btn-switch-day" onclick="switchView('hub')">
-            🧭 Về Bot Hỗ Trợ
-          </button>
-        </div>
-      </div>
-    `;
-    appendBotMessage(spokeChatViewport, `Bot Con Day ${currentDay}`, 'Scope Guardrail', alertHtml);
-    return;
-  }
-
-  // 3. Question is Valid & IN-SCOPE for current Day!
-  // Check whether the user is asking a follow-up, clarification, or continuation:
+  // 3. Dynamic Slide Page Search (Search across real active PDF pages!)
   const isFollowUp = isFollowUpQuery(query);
   let targetPage = null;
 
   if (isFollowUp) {
-    // CONVERSATION MEMORY: Keep current slide context when following up
     targetPage = lastReferencedSlide[currentDay] || currentPageNumber || 1;
-    console.log(`🧠 [CONVERSATION MEMORY]: Câu hỏi nối tiếp/làm rõ ("${query}") -> Duy trì ngữ cảnh Slide Trang ${targetPage}`);
+    console.log(`🧠 [CONVERSATION MEMORY]: Câu hỏi nối tiếp/làm rõ -> Duy trì ngữ cảnh Slide Trang ${targetPage}`);
   } else {
-    // User is asking about a new concept or topic
-    const matchedPage = findBestMatchingSlidePage(currentDay, query);
-    if (matchedPage) {
-      targetPage = matchedPage;
-    } else {
-      if (currentDay === 1) {
-        if (lower.includes('4 lớp') || lower.includes('bốn lớp') || lower.includes('cấu trúc prompt') || lower.includes('system instruction') || lower.includes('lời dặn')) targetPage = 28;
-        else if (lower.includes('temperature') || lower.includes('top_p') || lower.includes('top-p') || lower.includes('núm vặn') || lower.includes('nhiệt độ')) targetPage = 29;
-        else if (lower.includes('attention') || lower.includes('chú ý') || lower.includes('tự chú ý')) targetPage = 15;
-        else if (lower.includes('context') || lower.includes('lost in the middle') || lower.includes('bàn làm việc')) targetPage = 14;
-        else if (lower.includes('token') || lower.includes('mảnh chữ')) targetPage = 13;
-        else if (lower.includes('agent') || lower.includes('5 bộ phận') || lower.includes('vòng lặp') || lower.includes('giải phẫu')) targetPage = 24;
-        else if (lower.includes('cot') || lower.includes('chain of thought') || lower.includes('giấy nháp') || lower.includes('nghĩ từng bước')) targetPage = 22;
-        else if (lower.includes('chọn model') || lower.includes('tầng 1') || lower.includes('tầng 2') || lower.includes('frontier')) targetPage = 26;
-        else if (lower.includes('rlhf') || lower.includes('reward model') || lower.includes('uốn nắn')) targetPage = 19;
-        else if (lower.includes('pre-training') || lower.includes('sft') || lower.includes('tạo ra llm')) targetPage = 18;
-        else if (lower.includes('transformer') || lower.includes('2017')) targetPage = 8;
-        else if (lower.includes('discriminative') || lower.includes('generative') || lower.includes('ba nhóm')) targetPage = 4;
-        else if (lower.includes('chi phí') || lower.includes('input token') || lower.includes('output token')) targetPage = 27;
-      } else if (currentDay === 2) {
-        if (lower.includes('double diamond') || lower.includes('norman') || lower.includes('tìm đúng vấn đề')) targetPage = 3;
-        else if (lower.includes('phân kỳ') || lower.includes('hội tụ') || lower.includes('5 whys') || lower.includes('affinity mapping') || lower.includes('diamond 1')) targetPage = 4;
-        else if (lower.includes('cursor') || lower.includes('artifact') || lower.includes('notebooklm') || lower.includes('case study')) targetPage = 5;
-        else if (lower.includes('4 lenses') || lower.includes('lăng kính') || lower.includes('lặp lại') || lower.includes('tốn thời gian') || lower.includes('điểm đau')) targetPage = 6;
-        else if (lower.includes('anti-pattern') || lower.includes('sai lầm') || lower.includes('solution-first')) targetPage = 7;
-        else if (lower.includes('pair') || lower.includes('reframe') || lower.includes('how might we') || lower.includes('can ai solve')) targetPage = 8;
-        else if (lower.includes('quick problem card') || lower.includes('problem card') || lower.includes('thẻ bài toán')) targetPage = 9;
-        else if (lower.includes('định lượng') || lower.includes('baseline') || lower.includes('target') || lower.includes('measurement')) targetPage = 11;
-        else if (lower.includes('khi nào ai không tốt') || lower.includes('không nên dùng ai') || lower.includes('lỗi quá tốn kém') || lower.includes('chi phí sai sót') || lower.includes('cost of error')) targetPage = 15;
-        else if (lower.includes('hệ thống ai') || lower.includes('kiến trúc') || lower.includes('model context planning tools')) targetPage = 16;
-        else if (lower.includes('automate') || lower.includes('augment') || lower.includes('tự động hóa') || lower.includes('tự động hoá')) targetPage = 17;
-        else if (lower.includes('rule') || lower.includes('workflow') || lower.includes('agent') || lower.includes('3 cấp độ') || lower.includes('3 mức giải pháp')) targetPage = 18;
-        else if (lower.includes('prompt chaining') || lower.includes('routing') || lower.includes('parallelization') || lower.includes('workflow patterns')) targetPage = 20;
-        else if (lower.includes('reward function') || lower.includes('hàm thưởng') || lower.includes('fp') || lower.includes('tp') || lower.includes('fn') || lower.includes('tn') || lower.includes('báo động giả')) targetPage = 22;
-        else if (lower.includes('precision') || lower.includes('recall') || lower.includes('đánh đổi')) targetPage = 23;
-        else if (lower.includes('problem statement') || lower.includes('9 trường') || lower.includes('actor') || lower.includes('bottleneck')) targetPage = 27;
-        else if (lower.includes('go') || lower.includes('not yet') || lower.includes('no-go') || lower.includes('khung ra quyết định')) targetPage = 28;
-        else if (lower.includes('6 nguyên tắc') || lower.includes('nguyên tắc cốt lõi') || lower.includes('recap')) targetPage = 29;
-      }
-    }
+    targetPage = findBestMatchingSlidePage(currentDay, query);
   }
 
-  if (!targetPage) targetPage = lastReferencedSlide[currentDay] || currentPageNumber || 1;
+  if (!targetPage) {
+    targetPage = lastReferencedSlide[currentDay] || currentPageNumber || 1;
+  }
   lastReferencedSlide[currentDay] = targetPage;
 
-  // Auto-synchronize the slide canvas to the exact page ONLY if page changes!
+  // Auto-synchronize the slide canvas to the exact page if changed
   if (targetPage !== currentPageNumber) {
     jumpSlideDirect(targetPage);
   }
 
   // Show typing indicator
-  const typingIndicator = appendTypingIndicator(spokeChatViewport, `Bot Con Day ${currentDay}`);
+  const botDisplayName = IS_CUSTOM_UPLOADED ? `AI Tutor` : `Bot Con Day ${currentDay}`;
+  const typingIndicator = appendTypingIndicator(spokeChatViewport, botDisplayName);
 
-  const cfg = DAY_CONFIG[currentDay];
+  // Retrieve the REAL extracted text of the slide
   const slideTextGrounding = getSlideGroundingText(currentDay, targetPage);
+  const activeFileName = ACTIVE_PDF_INFO.fileName || (DAY_CONFIG[currentDay]?.slideFile || 'slide.pdf');
 
-  const systemContext = `Bạn là Bot Con AI Tutor độc quyền của Buổi học Day ${currentDay}: ${cfg.courseTitle}.
-TÀI LIỆU SLIDE CÔ LẬP DUY NHẤT BẠN ĐƯỢC PHÉP TRUY CẬP: File slide ${cfg.slideFile} (Học viên đang mở Trang ${targetPage}).
-[TRÍCH XUẤT NỘI DUNG THẬT TỪ SLIDE TRANG ${targetPage}]:
+  const systemContext = `Bạn là AI Tutor VLearn hỗ trợ học tập trực tiếp từ tài liệu slide bài giảng.
+TÀI LIỆU SLIDE ĐANG TRÌNH CHIẾU: ${activeFileName} (Học viên đang mở Trang ${targetPage}/${ACTIVE_PDF_INFO.totalPages || 29}).
+[NỘI DUNG VĂN BẢN TRÍCH XUẤT TỪ SLIDE TRANG ${targetPage}]:
 """
 ${slideTextGrounding}
 """
-QUY TẮC BẢO MẬT & PHẠM VI (HUB & SPOKE - TUYỆT ĐỐI TUÂN THỦ):
-1. GIỚI HẠN BÀI HỌC CỐT LÕI: Bạn CHỈ ĐƯỢC GIẢI THÍCH CHI TIẾT KIẾN THỨC CÓ TRONG BÀI GIẢNG SLIDE DAY ${currentDay}. TUYỆT ĐỐI KHÔNG ĐƯỢC ĐƯA RA NGOÀI PHẠM VI BÀI HỌC.
-2. TỪ CHỐI KIẾN THỨC NGOÀI SLIDE: Nếu học viên hỏi về các khái niệm nằm ngoài bài giảng Day ${currentDay} (như RAG, ReAct, Vector DB, Fine-tuning, hoặc bài học của Day khác), bạn PHẢI từ chối lịch sự, nêu rõ chủ đề này không nằm trong bài giảng Day ${currentDay}, và hướng dẫn học viên quay lại Bot Hỗ Trợ trung tâm để được tìm hiểu mở rộng.
-3. PHƯƠNG PHÁP SƯ PHẠM & TRỰC QUAN: Đối với các kiến thức thuộc bài học, bạn hãy giải thích chi tiết, sư phạm, trực quan và dễ hiểu, có ví dụ minh họa thực tế để học viên thực sự nắm chắc bản chất bài học.
-4. DUY TRÌ TRÍ NHỚ HỘI THOẠI: Kết nối tự nhiên với các lượt trao đổi trước đó trong lịch sử để giải đáp sâu sắc các câu hỏi làm rõ, ví dụ thêm, hoặc so sánh của học viên.
-5. Bắt buộc kết thúc câu trả lời bằng mã trích dẫn: [Trang ${targetPage} - Slide Day ${currentDay}].
-6. Bảo vệ liêm chính học thuật: Tuyệt đối không cung cấp đáp án trắc nghiệm A/B/C/D.`;
+QUY TẮC SƯ PHẠM VÀ TRẢ LỜI:
+1. DỰA TRÊN NỘI DUNG THẬT CỦA SLIDE: Bạn giải thích chi tiết, cặn kẽ và sư phạm dựa trên nội dung được trích xuất từ slide trang ${targetPage} ở trên.
+2. DỄ HIỂU & TRỰC QUAN: Dùng ví dụ minh họa thực tế để giúp học viên hiểu sâu bản chất, không trả lời sáo rỗng.
+3. LIÊN HỆ ĐA LƯỢT: Kết nối tự nhiên với lịch sử trò chuyện nếu học viên hỏi tiếp nối hoặc cần làm rõ thêm.
+4. BẮT BUỘC KÈM MÃ TRÍCH DẪN: Kết thúc câu trả lời bằng trích dẫn dạng: [Trang ${targetPage}].
+5. TUYỆT ĐỐI KHÔNG giải hộ đáp án trắc nghiệm A/B/C/D.`;
 
-  // Prepare recent history turns for context continuity (clean HTML & truncate to keep tokens small)
+  // Prepare recent history turns for context continuity
   const historyForAPI = (spokeChatHistory[currentDay] || []).slice(-8).map(m => {
     const cleanContent = String(m.content).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     return {
@@ -2014,113 +2380,90 @@ QUY TẮC BẢO MẬT & PHẠM VI (HUB & SPOKE - TUYỆT ĐỐI TUÂN THỦ):
     };
   });
 
-  // Ưu tiên gọi AI Thật qua Backend Server bảo mật
+  // Call Live AI via Backend Server (NVIDIA NIM Llama 3.2)
   const liveResult = await callLiveAI(systemContext, query, historyForAPI);
   if (liveResult && liveResult.text) {
     typingIndicator.remove();
 
     if (!liveResult.text.includes('[Trang')) {
-      liveResult.text += ` [Trang ${targetPage} - Slide Day ${currentDay}]`;
+      liveResult.text += ` [Trang ${targetPage}]`;
     }
 
-    // Lưu vào bộ nhớ hội thoại
     spokeChatHistory[currentDay].push({ role: 'user', content: query });
     spokeChatHistory[currentDay].push({ role: 'assistant', content: liveResult.text });
     if (spokeChatHistory[currentDay].length > 20) {
       spokeChatHistory[currentDay] = spokeChatHistory[currentDay].slice(-20);
     }
-    saveSessionState(); // #6
+    saveSessionState();
 
     const linkCardHtml = renderSlideLinkCard(currentDay, targetPage, liveResult.engineName);
     const formattedHtml = `
       ${formatAiResponse(liveResult.text, currentDay)}
       ${linkCardHtml}
     `;
-    appendBotMessage(spokeChatViewport, `Bot Con Day ${currentDay}`, liveResult.engineName, formattedHtml);
+    appendBotMessage(spokeChatViewport, botDisplayName, liveResult.engineName, formattedHtml);
     return;
   }
 
-  // Fallback sang Động cơ RAG Cục bộ nếu Backend Server chưa chạy hoặc lỗi mạng
+  // Dynamic Offline Fallback: Extract directly from active slide text (NO Rule-based dictionaries!)
   setTimeout(() => {
     typingIndicator.remove();
-    processSpokeResponse(query, targetPage);
-  }, 450);
+    processSpokeDynamicResponse(query, targetPage, slideTextGrounding, activeFileName);
+  }, 400);
 }
 
-function processSpokeResponse(query, targetPage) {
-  const lower = query.toLowerCase();
+function processSpokeDynamicResponse(query, targetPage, slideText, fileName) {
   let answerText = '';
-  let citation = `[Trang ${targetPage} - Slide Day ${currentDay}]`;
 
-  if (currentDay === 1) {
-    if (lower.includes('4 lớp') || lower.includes('bốn lớp') || lower.includes('cấu trúc prompt') || lower.includes('system instruction')) {
-      answerText = `Cấu trúc một prompt chuẩn mực gồm 4 lớp: Lớp 1 là System instruction (lời dặn đầu ca về vai trò và giới hạn); Lớp 2 là User input (yêu cầu trong lượt này); Lớp 3 là Context bổ sung (tài liệu tra sổ bày lên bàn làm việc); và Lớp 4 là Output mong muốn (định dạng kết quả trả lời). Viết rõ cả 4 lớp là bạn đã làm tốt một nửa kỹ nghệ prompt.`;
-      citation = `[Trang 28 - Slide Day 1]`;
-    } else if (lower.includes('temperature') || lower.includes('top_p') || lower.includes('top-p') || lower.includes('núm vặn') || lower.includes('nhiệt độ')) {
-      answerText = `Temperature là "núm vặn độ liều": T = 0 giúp câu trả lời tất định, ổn định và hợp với code hoặc phân tích dữ liệu, còn T cao làm tăng tính đa dạng nhưng dễ lạc đề. Top_p chỉ giữ lại nhóm token có xác suất cộng dồn >= p (thường 0.9) để loại bỏ các từ đuôi dài rủi ro. Cả hai núm này chỉ thay đổi cách chọn từ chứ không làm model thông minh hơn.`;
-      citation = `[Trang 29 - Slide Day 1]`;
-    } else if (lower.includes('attention') || lower.includes('chú ý') || lower.includes('tự chú ý')) {
-      answerText = `Cơ chế Attention cho phép mỗi token chủ động quay đầu nhìn lại các token trước đó trong câu để chấm điểm mức độ liên quan và khóa nghĩa theo ngữ cảnh. Đây là bước ngoặt kỹ thuật cốt lõi giúp Transformer hiểu sâu sắc văn bản thay vì chỉ đọc tuần tự từng chữ.`;
-      citation = `[Trang 15 - Slide Day 1]`;
-    } else if (lower.includes('context') || lower.includes('lost in the middle') || lower.includes('bàn làm việc')) {
-      answerText = `Context là "bàn làm việc có hạn" của model, mọi thứ muốn model thấy đều phải bày lên bàn. Hiện tượng Lost in the Middle chỉ ra rằng model chú ý nhiều nhất ở đầu và cuối prompt, thông tin quan trọng đặt ở giữa rất dễ bị bỏ sót.`;
-      citation = `[Trang 14 - Slide Day 1]`;
-    } else if (lower.includes('agent') || lower.includes('5 bộ phận') || lower.includes('vòng lặp') || lower.includes('giải phẫu')) {
-      answerText = `Một AI Agent là một vòng lặp gồm 5 bộ phận: Goal (mục tiêu cần đạt) → Reasoning (bộ não LLM chia bước) → Tools (công cụ thực thi) → Memory (sổ tay ghi nhớ các bước) → Action (hành động thực tế). Vòng lặp này lặp lại liên tục cho đến khi hoàn thành mục tiêu.`;
-      citation = `[Trang 24 - Slide Day 1]`;
-    } else if (lower.includes('cot') || lower.includes('chain of thought') || lower.includes('giấy nháp')) {
-      answerText = `Chain-of-Thought (Wei et al. 2022) cho phép mô hình viết nháp suy luận từng bước trước khi đưa ra kết quả cuối cùng. Kỹ thuật này giúp giải quyết các bài toán số học hoặc logic phức tạp, biến câu trả lời từ sai thành đúng.`;
-      citation = `[Trang 22 - Slide Day 1]`;
-    } else if (lower.includes('token') || lower.includes('mảnh chữ')) {
-      answerText = `Model không đọc từ nguyên vẹn mà chia nhỏ văn bản thành các mảnh gọi là token. Tiếng Việt và JSON tốn token hơn tiếng Anh do dấu thanh và ký tự đặc biệt, và mỗi token vào hay ra đều có chi phí tính tiền riêng.`;
-      citation = `[Trang 13 - Slide Day 1]`;
+  if (slideText && slideText.trim().length > 10) {
+    const rawSentences = slideText
+      .split(/(?<=[.?!;:\n•—·])\s+/)
+      .map(s => s.replace(/^[•—·\-\s]+/, '').trim())
+      .filter(s => s.length > 8);
+
+    const queryTokens = query.toLowerCase()
+      .replace(/[^\p{L}\p{N}\s]/gu, ' ')
+      .split(/\s+/)
+      .filter(t => t.length > 1);
+
+    const scored = rawSentences.map(sent => {
+      const lower = sent.toLowerCase();
+      let score = 0;
+      queryTokens.forEach(t => {
+        if (lower.includes(t)) score += 2;
+      });
+      return { text: sent, score };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+    const topSentences = scored.slice(0, 4).map(s => s.text);
+
+    if (topSentences.length > 0) {
+      answerText = `Dựa trên nội dung được đọc trực tiếp từ slide Trang ${targetPage} (${escapeHtml(fileName)}):\n\n` +
+        topSentences.map(s => `• ${s}`).join('\n') +
+        `\n\nBạn có thể theo dõi slide đang hiển thị trên màn hình để xem cấu trúc và sơ đồ chi tiết! [Trang ${targetPage}]`;
     } else {
-      answerText = `Khái niệm bạn đang hỏi được trích xuất trực tiếp từ slide Trang ${targetPage} của bài học Day 1 (Nền tảng GenAI & LLM Foundation). Bạn có thể theo dõi slide đang hiển thị ở khung bên trái để nắm cấu trúc chi tiết!`;
-      citation = `[Trang ${targetPage} - Slide Day 1]`;
+      answerText = `Nội dung slide Trang ${targetPage} (${escapeHtml(fileName)}):\n\n${slideText.slice(0, 300)}... [Trang ${targetPage}]`;
     }
-  } else if (currentDay === 2) {
-    if (lower.includes('double diamond') || lower.includes('norman') || lower.includes('tìm đúng vấn đề')) {
-      answerText = `Mô hình Double Diamond gồm hai viên kim cương: Diamond 1 là Tìm đúng vấn đề (phân kỳ để khám phá và hội tụ để định nghĩa bài toán gốc); Diamond 2 là Tìm đúng giải pháp (phân kỳ thử nghiệm và hội tụ để triển khai). Giải pháp xuất sắc cho sai vấn đề còn tệ hơn không có giải pháp.`;
-      citation = `[Trang 3 - Slide Day 2]`;
-    } else if (lower.includes('automate') || lower.includes('augment') || lower.includes('tự động hóa') || lower.includes('tự động hoá')) {
-      answerText = `Theo Google PAIR, chọn Automate (AI làm thay) khi tác vụ lặp lại, tẻ nhạt, có đáp án đúng đồng thuận và chi phí sai sót thấp. Ngược lại, chọn Augment (AI hỗ trợ con người) khi bài toán có rủi ro cao về tiền bạc, pháp lý hoặc cần trách nhiệm cá nhân của con người.`;
-      citation = `[Trang 17 - Slide Day 2]`;
-    } else if (lower.includes('rule') || lower.includes('workflow') || lower.includes('agent') || lower.includes('3 cấp độ') || lower.includes('3 mức giải pháp')) {
-      answerText = `Hệ thống chia làm ba cấp độ kỹ thuật: Cấp 1 là Rule/Script (logic if/else cố định, đúng 100%); Cấp 2 là LLM Feature/Workflow (đầu vào linh hoạt, có gate kiểm tra); Cấp 3 là Agent (tự gọi tool và tự ra quyết định). Luôn ưu tiên giải pháp đơn giản nhất, chỉ tăng độ phức tạp khi thực sự cần thiết.`;
-      citation = `[Trang 18 - Slide Day 2]`;
-    } else if (lower.includes('prompt chaining') || lower.includes('routing') || lower.includes('parallelization') || lower.includes('workflow patterns')) {
-      answerText = `Có 3 mẫu workflow cơ bản: Prompt Chaining (chia chuỗi bước tuần tự có gate kiểm tra để đổi độ trễ lấy độ chính xác); Routing (phân nhánh để câu dễ đi model rẻ, câu khó đi model mạnh); và Parallelization (chạy song song rồi tổng hợp hoặc vote để giảm rủi ro).`;
-      citation = `[Trang 20 - Slide Day 2]`;
-    } else if (lower.includes('reward function') || lower.includes('fp') || lower.includes('fn') || lower.includes('hàm thưởng')) {
-      answerText = `Reward Function định nghĩa cách hệ thống hiểu đúng/sai qua ma trận nhầm lẫn: False Positive (báo động giả) và False Negative (bỏ sót). Chi phí của FP và FN không đối xứng nhau, việc lựa chọn ưu tiên bên nào sẽ quyết định trực tiếp trải nghiệm của người dùng cuối.`;
-      citation = `[Trang 22 - Slide Day 2]`;
-    } else if (lower.includes('go') || lower.includes('not yet') || lower.includes('no-go')) {
-      answerText = `Khung quyết định gồm 3 trạng thái: Go (bài toán rõ ràng, chỉ số khả thi, kiểm soát được rủi ro); Not Yet (có triển vọng nhưng cần bổ sung dữ liệu thực tế và chuẩn hóa quy trình); No-Go (AI không mang lại giá trị vượt trội hoặc giải pháp phi AI tối ưu hơn).`;
-      citation = `[Trang 28 - Slide Day 2]`;
-    } else if (lower.includes('problem statement') || lower.includes('9 trường') || lower.includes('actor') || lower.includes('bottleneck')) {
-      answerText = `Một Problem Statement chuẩn cho hệ thống AI gồm 6 yếu tố bài toán cốt lõi (Actor, Workflow, Bottleneck, Impact, Success Metric, Boundary) kết hợp với 3 yếu tố quyết định AI (Điểm can thiệp, Mức chọn Rule/Workflow/Agent, Rủi ro & HITL).`;
-      citation = `[Trang 27 - Slide Day 2]`;
-    } else {
-      answerText = `Khái niệm bạn vừa hỏi được định nghĩa chi tiết tại slide bài giảng đang mở của Day 2 (Xác định bài toán kinh doanh cho AI & Mức tự động hóa). Bạn có thể tham khảo trực tiếp cấu trúc và ví dụ ở khung slide bên trái!`;
-      citation = `[Trang ${targetPage} - Slide Day 2]`;
-    }
+  } else {
+    answerText = `Trang slide số ${targetPage} của tài liệu ${escapeHtml(fileName)} hiện đang được hiển thị ở khung bên cạnh. [Trang ${targetPage}]`;
   }
 
-  // Lưu vào bộ nhớ hội thoại
+  // Save in chat history
   spokeChatHistory[currentDay].push({ role: 'user', content: query });
   spokeChatHistory[currentDay].push({ role: 'assistant', content: answerText });
   if (spokeChatHistory[currentDay].length > 12) {
     spokeChatHistory[currentDay] = spokeChatHistory[currentDay].slice(-12);
   }
-  saveSessionState(); // #6
+  saveSessionState();
 
-  const linkCardHtml = renderSlideLinkCard(currentDay, targetPage, 'VLearn Local Engine');
-  const linkifiedText = linkifySlideCitations(escapeHtml(answerText), currentDay);
-  const html = `
-    <p>${linkifiedText}</p>
+  const botDisplayName = IS_CUSTOM_UPLOADED ? `AI Tutor` : `Bot Con Day ${currentDay}`;
+  const linkCardHtml = renderSlideLinkCard(currentDay, targetPage, 'Dynamic PDF Reader');
+  const formattedHtml = `
+    ${formatAiResponse(answerText, currentDay)}
     ${linkCardHtml}
   `;
-  appendBotMessage(spokeChatViewport, `Bot Con Day ${currentDay}`, 'In-Lecture Tutor', html);
+  appendBotMessage(spokeChatViewport, botDisplayName, 'Dynamic PDF Reader', formattedHtml);
 }
 
 // Helpers for Chat UI

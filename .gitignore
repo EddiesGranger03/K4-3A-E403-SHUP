@@ -1,11 +1,11 @@
-# Security: DO NOT commit course data pack
+# Security: DO NOT commit raw course data pack
 data/
 vlearn-pack/
-codebase/slides/
 *.csv
 *.jsonl
 *.pdf
 !demo-slides.pdf
+!codebase/slides/*.pdf
 
 # Environment variables & API keys (Strictly Ignored)
 .env

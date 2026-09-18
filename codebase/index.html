@@ -293,6 +293,11 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                   <span>Mở file gốc</span>
                 </button>
+                <button class="fullscreen-btn" onclick="document.getElementById('pdfFileInput').click()" title="Tải lên file PDF bài giảng mới để AI đọc">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span>Tải PDF slide</span>
+                </button>
+                <input type="file" id="pdfFileInput" accept="application/pdf" style="display: none;" onchange="handlePdfUpload(event)">
               </div>
             </div>
 
@@ -306,9 +311,12 @@
                 <canvas id="pdfRenderCanvas"></canvas>
                 <div id="pdfErrorFallback" class="pdf-error-fallback" style="display: none;">
                   <div class="error-icon">📑</div>
-                  <h4>Không thể hiển thị Canvas Slide</h4>
-                  <p>Trình duyệt chưa hiển thị được canvas. Bạn có thể mở trực tiếp file bài giảng bằng nút bên dưới:</p>
-                  <button class="btn-fallback-open" onclick="openPdfFullscreen()">Mở PDF trong tab mới</button>
+                  <h4>Không thể tự động tải file PDF qua file://</h4>
+                  <p id="pdfErrorMsg">Trình duyệt chặn đọc file cục bộ qua CORS (giao thức file://). Bạn có thể chọn trực tiếp file PDF bên dưới hoặc chạy <code>node codebase/server.js</code>:</p>
+                  <div style="display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; margin-top: 0.8rem;">
+                    <button class="btn-fallback-open" onclick="document.getElementById('pdfFileInput').click()">📂 Chọn file PDF từ máy</button>
+                    <button class="btn-fallback-open" style="background: rgba(255,255,255,0.15); color: #fff;" onclick="openPdfFullscreen()">Mở PDF trong tab mới</button>
+                  </div>
                 </div>
               </div>
             </div>

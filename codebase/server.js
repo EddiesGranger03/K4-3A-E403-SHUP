@@ -146,12 +146,12 @@ const server = http.createServer(async (req, res) => {
         console.log(`📜 [SYSTEM PROMPT]: ${systemPrompt.slice(0, 120)}...`);
         const startTime = Date.now();
 
-        // #4: Server-side 25s timeout so the Node.js process never hangs
+        // #4: Server-side 35s timeout so the Node.js process never hangs prematurely
         const nvidiaController = new AbortController();
         const nvidiaTimeoutId = setTimeout(() => {
           nvidiaController.abort();
-          console.warn(`⏱️ [SERVER TIMEOUT]: NVIDIA NIM request vượt quá 25 giây, abort!`);
-        }, 25000);
+          console.warn(`⏱️ [SERVER TIMEOUT]: NVIDIA NIM request vượt quá 35 giây, abort!`);
+        }, 35000);
 
         const nvidiaRes = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
           method: 'POST',
