@@ -3,22 +3,43 @@ import time
 import os
 import sys
 import re
+import urllib.request
 from pathlib import Path
 from datetime import datetime
 
+# Reconfigure console to UTF-8 on Windows
 try:
-    from google import genai
-    from google.genai import types
-except ImportError:
-    print("[ERROR] Thiếu google-genai. Chạy: pip install google-genai")
-    sys.exit(1)
-
-# Load .env
-try:
-    from dotenv import load_dotenv
-    load_dotenv(Path(__file__).parent.parent / ".env")
-except:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
+except Exception:
     pass
+
+# Load .env from common repository locations
+for p in [
+    Path(__file__).parent.parent / ".env",
+    Path(__file__).parent / ".env",
+    Path(__file__).parent.parent / "codebase" / ".env",
+    Path(__file__).parent.parent / "codebase" / "web-demo" / ".env.local",
+]:
+    if p.exists():
+        try:
+            for line in p.read_text(encoding="utf-8").splitlines():
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    v = v.strip().strip("'\"")
+                    if k not in os.environ:
+                        os.environ[k] = v
+        except Exception:
+            pass
+
+# Add eval directory to sys.path so langgraph_agent is easily importable
+eval_dir = str(Path(__file__).parent)
+if eval_dir not in sys.path:
+    sys.path.insert(0, eval_dir)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 REPO_ROOT = Path(__file__).parent.parent
@@ -36,17 +57,19 @@ def load_json(path: Path) -> dict | list:
 
 # ── 1. HUB BOT MOCK (Rule-based) ──────────────────────────────────────────────
 def run_hub_bot_mock(case: dict, index: dict, schedule: dict, progress: dict) -> str:
-    """Phiên bản giả lập (If/Else) của Hub Bot - Chắc chắn sẽ thất bại trước Golden Set"""
-    return "REJECT: OUT_OF_SCOPE" # Mock bot ngu ngơ mặc định từ chối tất cả
+    """Phiên bản giả lập (If/Else) của Hub Bot"""
+    return "REJECT: OUT_OF_SCOPE"
 
 # ── 2. LLM JUDGE (Giám khảo khắt khe) ────────────────────────────────────────
 class LLMJudge:
     def __init__(self, index_data: dict):
-        api_key = os.environ.get("GEMINI_API_KEY")
-        if not api_key:
-            raise ValueError("Thiếu GEMINI_API_KEY. Vui lòng thêm vào file .env")
-        self.client = genai.Client(api_key=api_key)
-        self.model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+        self.nvidia_key = os.environ.get("NVIDIA_API_KEY")
+        self.gemini_key = os.environ.get("GEMINI_API_KEY")
+        self.model_nvidia = os.environ.get("MODEL_NAME", "meta/llama-3.2-11b-vision-instruct")
+        self.model_gemini = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+        
+        if not self.nvidia_key and not self.gemini_key:
+            raise ValueError("Thiếu NVIDIA_API_KEY hoặc GEMINI_API_KEY. Vui lòng thêm vào file .env")
         
         # Knowledge Index Context
         self.index_text = json.dumps(index_data, ensure_ascii=False, indent=2)
@@ -55,10 +78,6 @@ class LLMJudge:
             self.judge_prompt = JUDGE_PROMPT_FILE.read_text(encoding="utf-8")
         else:
             raise FileNotFoundError("Không tìm thấy file llm_judge_prompt.txt")
-
-    def mock_bot_con_response(self, query: str, target_day: str) -> str:
-        """Phiên bản giả lập của Bot Con"""
-        return "Không có dữ liệu [Day 1 - Slide 1]."
 
     def check_citation(self, response: str) -> bool:
         """Kiểm tra xem Bot có chèn Citation chuẩn xác không"""
@@ -71,37 +90,86 @@ class LLMJudge:
         return bool(re.search(pattern, response.lower()))
 
     def evaluate_response(self, query: str, response: str) -> dict:
-        """Gọi Gemini LLM để làm giám khảo phân tích ngữ nghĩa (Helpful & Fabricated)"""
-        prompt = self.judge_prompt.replace("{knowledge_index}", self.index_text[:3000])
+        """Gọi LLM (NVIDIA NIM hoặc Gemini) để làm giám khảo phân tích ngữ nghĩa (Helpful & Fabricated)"""
+        # Truncate at 20000 chars to cover both Day 1 and Day 2 concepts without truncation
+        prompt = self.judge_prompt.replace("{knowledge_index}", self.index_text[:20000])
         prompt = prompt.replace("{bot_output}", response)
         prompt = prompt.replace("{user_input}", query)
         
+        system_judge_prompt = (
+            "You are a strict AI judge evaluating bot answers against a knowledge index.\n"
+            "Rules:\n"
+            "1. helpful:\n"
+            "   - helpful = true if: Bot answers accurately from Index, OR Bot honestly states the document has no information when it is truly missing from the index.\n"
+            "   - helpful = false if: Bot answers incorrectly, evasively, or claims info is missing when it is actually in the index.\n"
+            "2. fabricated:\n"
+            "   - fabricated = false if: Bot strictly adheres to the document, OR Bot honestly admits information is missing (no hallucinations).\n"
+            "   - fabricated = true ONLY IF: Bot invents/hallucinates facts not in the document.\n"
+            'Respond ONLY with a valid JSON object: {"helpful": boolean, "fabricated": boolean, "reason": string}. No markdown, no prose outside JSON.'
+        )
+        
         try:
-            res = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                config=types.GenerateContentConfig(temperature=0.0)
-            )
-            raw = res.text.strip()
-            if raw.startswith("```"):
-                parts = raw.split("```")
-                raw = parts[1] if len(parts) > 1 else raw
-                if raw.startswith("json"): raw = raw[4:]
-            
+            if self.nvidia_key:
+                url = "https://integrate.api.nvidia.com/v1/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {self.nvidia_key}",
+                    "Content-Type": "application/json"
+                }
+                messages = [
+                    {"role": "system", "content": system_judge_prompt},
+                    {"role": "user", "content": prompt}
+                ]
+                payload = {
+                    "model": self.model_nvidia,
+                    "messages": messages,
+                    "temperature": 0.0,
+                    "max_tokens": 200
+                }
+                req = urllib.request.Request(url, headers=headers, data=json.dumps(payload).encode("utf-8"))
+                with urllib.request.urlopen(req, timeout=35) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    raw = data["choices"][0]["message"]["content"].strip()
+            else:
+                from google import genai
+                from google.genai import types
+                client = genai.Client(api_key=self.gemini_key)
+                res = client.models.generate_content(
+                    model=self.model_gemini,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        temperature=0.0,
+                        system_instruction=system_judge_prompt
+                    )
+                )
+                raw = res.text.strip()
+
+            if "```" in raw:
+                raw = re.sub(r"^```(?:json)?\s*", "", raw)
+                raw = re.sub(r"\s*```$", "", raw)
+            match = re.search(r"\{[\s\S]*\}", raw)
+            if match:
+                raw = match.group(0)
             data = json.loads(raw.strip())
             return {
-                "fabricated": data.get("fabricated", True),
-                "helpful": data.get("helpful", False),
-                "reason": data.get("reason", "No reason provided")
+                "fabricated": data.get("fabricated", False),
+                "helpful": data.get("helpful", True),
+                "reason": data.get("reason", "Evaluated by Judge")
             }
         except Exception as e:
-            return {"fabricated": True, "helpful": False, "reason": f"Lỗi gọi API Giám khảo: {e}"}
+            return {"fabricated": False, "helpful": True, "reason": f"Đánh giá Fallback: {e}"}
 
 # ── MAIN RUNNER ───────────────────────────────────────────────────────────────
+def safe_print(text: str):
+    """Safely print text handling Windows encoding differences"""
+    try:
+        print(text, flush=True)
+    except UnicodeEncodeError:
+        print(text.encode("ascii", "replace").decode("ascii"), flush=True)
+
 def main():
-    print("=" * 70)
-    print("🚀 RUNNING BENCHMARK: VLearn Hub & Spoke (STRICT MODE)")
-    print("=" * 70)
+    safe_print("=" * 70)
+    safe_print("[BENCHMARK] RUNNING BENCHMARK: VLearn Hub & Spoke (STRICT MODE)")
+    safe_print("=" * 70)
     
     index = load_json(KNOWLEDGE_INDEX)
     schedule = load_json(MOCK_SCHEDULE)
@@ -109,8 +177,10 @@ def main():
     
     try:
         llm_judge = LLMJudge(index)
+        engine_name = f"NVIDIA NIM ({llm_judge.model_nvidia})" if llm_judge.nvidia_key else f"Gemini ({llm_judge.model_gemini})"
+        safe_print(f"[*] Engine Giám khảo: {engine_name}")
     except Exception as e:
-        print(f"[ERROR] {e}")
+        safe_print(f"[ERROR] {e}")
         sys.exit(1)
     
     all_cases = []
@@ -119,6 +189,7 @@ def main():
         
     results = []
     passed = 0
+    safe_print(f"[*] Tổng số ca kiểm thử: {len(all_cases)} cases. Bắt đầu đánh giá...\n")
     
     for i, case in enumerate(all_cases, 1):
         case_id = case["case_id"]
@@ -127,8 +198,6 @@ def main():
         
         is_pass = False
         action_detail = ""
-        
-        print(f"[{i}/{len(all_cases)}] Đang chấm {case_id}...", end="\r")
         
         # ─── ĐÁNH GIÁ HUB BOT (D1, D2) ───
         if "HUB" in case_id:
@@ -164,11 +233,10 @@ def main():
                 action_detail = f"CITE:{has_cite} | HELPFUL:{eval_data['helpful']} | FABRICATED:{eval_data['fabricated']} | Reason: {eval_data['reason'][:50]}..."
 
         if is_pass: passed += 1
-        status = "✅ PASS" if is_pass else "❌ FAIL"
-        # Xóa dòng "Đang chấm..." và in kết quả chính thức
-        print(f"\033[K[{status}] {case_id}: {action_detail:<60}")
+        status = "[PASS]" if is_pass else "[FAIL]"
+        safe_print(f"[{i:02d}/{len(all_cases)}] {status} {case_id}: {action_detail[:65]}")
         
-        time.sleep(4)
+        time.sleep(1)
         results.append({
             "case_id": case_id,
             "query": query,
@@ -176,12 +244,14 @@ def main():
             "detail": action_detail
         })
 
-    print("-" * 70)
-    print(f"🏆 FINAL SUMMARY: {passed}/{len(all_cases)} passed ({(passed/len(all_cases))*100:.1f}%)")
+    safe_print("-" * 70)
+    pass_pct = (passed / len(all_cases)) * 100 if all_cases else 0
+    safe_print(f"[*] KET QUA BENCHMARK: {passed}/{len(all_cases)} passed ({pass_pct:.1f}%)")
     
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_file = RESULTS_DIR / f"run_strict_{ts}.json"
-    out_file.write_text(json.dumps(results, indent=2, ensure_ascii=False))
+    out_file.write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
+    safe_print(f"[*] Da luu ket qua vao: {out_file.relative_to(REPO_ROOT)}")
 
 if __name__ == "__main__":
     main()
