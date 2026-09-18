@@ -83,10 +83,11 @@ class VLearnAgent:
                 
         elif self.gemini_key:
             try:
-                from google import genai
-                from google.genai import types
-                client = genai.Client(api_key=self.gemini_key)
-                config = types.GenerateContentConfig(
+                import importlib
+                genai_mod = importlib.import_module("google.genai")
+                types_mod = importlib.import_module("google.genai.types")
+                client = genai_mod.Client(api_key=self.gemini_key)
+                config = types_mod.GenerateContentConfig(
                     temperature=0.0,
                     system_instruction=system_prompt if system_prompt else None
                 )
@@ -241,3 +242,10 @@ def run_spoke_agent_real(query: str, target_day_str: str, index: dict) -> str:
     }
     res_state = agent.spoke_node(state)
     return res_state["final_response"]
+
+if __name__ == "__main__":
+    print("=" * 60)
+    print("[*] VLearn Agent module loaded successfully.")
+    print(f"[*] Engine: {'NVIDIA NIM' if agent.nvidia_key else 'Google Gemini'}")
+    print(f"[*] Model: {agent.model_nvidia if agent.nvidia_key else agent.model_gemini}")
+    print("=" * 60)

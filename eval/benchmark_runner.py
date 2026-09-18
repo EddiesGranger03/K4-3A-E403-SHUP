@@ -37,9 +37,15 @@ for p in [
             pass
 
 # Add eval directory to sys.path so langgraph_agent is easily importable
-eval_dir = str(Path(__file__).parent)
+eval_dir = str(Path(__file__).resolve().parent)
 if eval_dir not in sys.path:
     sys.path.insert(0, eval_dir)
+
+# Import LangGraph agent cleanly with IDE resolution support
+try:
+    from eval.langgraph_agent import run_hub_agent_real, run_spoke_agent_real
+except ImportError:
+    from langgraph_agent import run_hub_agent_real, run_spoke_agent_real
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 REPO_ROOT = Path(__file__).parent.parent
@@ -129,19 +135,22 @@ class LLMJudge:
                 with urllib.request.urlopen(req, timeout=35) as resp:
                     data = json.loads(resp.read().decode("utf-8"))
                     raw = data["choices"][0]["message"]["content"].strip()
-            else:
-                from google import genai
-                from google.genai import types
-                client = genai.Client(api_key=self.gemini_key)
+            elif self.gemini_key:
+                import importlib
+                genai_mod = importlib.import_module("google.genai")
+                types_mod = importlib.import_module("google.genai.types")
+                client = genai_mod.Client(api_key=self.gemini_key)
                 res = client.models.generate_content(
                     model=self.model_gemini,
                     contents=prompt,
-                    config=types.GenerateContentConfig(
+                    config=types_mod.GenerateContentConfig(
                         temperature=0.0,
                         system_instruction=system_judge_prompt
                     )
                 )
                 raw = res.text.strip()
+            else:
+                raise ValueError("Thiếu API Key cho Giám khảo AI. Vui lòng kiểm tra file .env")
 
             if "```" in raw:
                 raw = re.sub(r"^```(?:json)?\s*", "", raw)
@@ -201,7 +210,6 @@ def main():
         
         # ─── ĐÁNH GIÁ HUB BOT (D1, D2) ───
         if "HUB" in case_id:
-            from langgraph_agent import run_hub_agent_real
             bot_action = run_hub_agent_real(case, index, schedule, progress)
             action_detail = bot_action
             
@@ -215,7 +223,6 @@ def main():
         # ─── ĐÁNH GIÁ BOT CON (D3, D4, D5) ───
         elif "BOT" in case_id:
             target_day = case["input"].get("target_bot", "Day 1")
-            from langgraph_agent import run_spoke_agent_real
             bot_response = run_spoke_agent_real(query, target_day, index)
             
             if expected_action == "REJECT":
