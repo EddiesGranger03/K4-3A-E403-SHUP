@@ -1,218 +1,152 @@
 import { NextResponse } from "next/server";
-import {
-  GoogleGenAI,
-  FunctionCallingConfigMode,
-  Type,
-} from "@google/genai";
+import { callUniversalLLM, getEnvVar } from "@/lib/aiProvider";
 import fs from "fs";
 import path from "path";
 
-const apiKey = process.env.GEMINI_API_KEY;
-const ai = new GoogleGenAI({ apiKey });
+// ── Tra cứu Knowledge Index ──────────────────────────────────────────────────
+function search_knowledge_index(query: string, indexData: Record<string, any>) {
+  const q = query.toLowerCase().trim();
+  const tokens = q.split(/\s+/).filter((t) => t.length > 1);
 
-// ── Tool implementation (runs server-side) ──────────────────────────────────
-function search_knowledge_index(query: string, indexData: Record<string, any>): string {
-  const q = query.toLowerCase();
-  const matched = Object.entries(indexData).filter(([_, v]) => {
+  const matched = Object.entries(indexData).filter(([id, v]) => {
     const name = (v.concept_name || "").toLowerCase();
-    const keywords: string[] = v.keywords || [];
-    return (
-      name.includes(q) ||
-      keywords.some((kw: string) => kw.toLowerCase().includes(q)) ||
-      q.includes(name)
-    );
+    const idLower = id.toLowerCase();
+    const keywords: string[] = (v.keywords || []).map((k: string) => k.toLowerCase());
+
+    if (name.includes(q) || idLower.includes(q) || q.includes(name)) return true;
+    if (keywords.some((kw) => kw.includes(q) || q.includes(kw))) return true;
+
+    // Token match
+    const matchCount = tokens.filter(
+      (tok) => name.includes(tok) || idLower.includes(tok) || keywords.some((kw) => kw.includes(tok))
+    ).length;
+
+    return matchCount >= Math.min(2, tokens.length);
   });
 
-  if (matched.length === 0) {
-    return JSON.stringify({
-      error: "Không tìm thấy khái niệm này trong giáo trình hiện tại. Hãy thông báo cho học viên biết nội dung này có thể chưa được cập nhật hoặc nằm ngoài phạm vi khóa học."
-    });
-  }
-
-  return JSON.stringify(
-    matched.map(([id, v]) => ({
-      concept_id: id,
-      concept_name: v.concept_name,
-      day: v.day,
-      level: v.level,
-      slides: v.slides,
-      prerequisites: v.prerequisites,
-      keywords: v.keywords,
-    }))
-  );
+  return matched.map(([id, v]) => ({
+    concept_id: id,
+    concept_name: v.concept_name,
+    day: v.day,
+    level: v.level,
+    slides: Array.isArray(v.slides) ? v.slides : [1],
+    prerequisites: v.prerequisites || [],
+    keywords: v.keywords || [],
+    summary: v.summary || "",
+  }));
 }
 
-// ── Gemini FunctionDeclaration ──────────────────────────────────────────────
-const searchTool = {
-  functionDeclarations: [
-    {
-      name: "search_knowledge_index",
-      description:
-        "Tim kiem trong Knowledge Index de lay metadata ve khai niem: Day, Slide numbers, Level, Prerequisites, Summary. Ket qua tra ve JSON co truong 'slides' (mang so trang), 'day' (so ngay), 'concept_id'.",
-      parameters: {
-        type: Type.OBJECT,
-        properties: {
-          query: {
-            type: Type.STRING,
-            description: "Tu khoa hoac ten khai niem can tim, VD: 'RAG', 'AI Agent', 'bai toan AI'.",
-          },
-        },
-        required: ["query"],
-      },
-    },
-  ],
-};
-
-// ── Deep-link format instructions injected into Turn 2 ──────────────────────
 const ROUTING_FORMAT = `
-=== HUONG DAN TAO DEEP-LINK ===
-Khi dieu huong hoc vien, su dung cac format sau:
+=== HƯỚNG DẪN TẠO DEEP-LINK ===
+Khi điều hướng học viên, bạn PHẢI sử dụng đúng định dạng sau:
+- Đến slide cụ thể:    [👉 Mở Day X - Slide Y](#deep-link-day-X-slide-Y)
+- Đến tổng quan Day:   [👉 Mở trợ lý Day X](#deep-link-day-X)
 
-- Den slide cu the:    [👉 Mo Day X - Slide Y](#deep-link-day-X-slide-Y)
-- Den lab item cu the: [👉 Mo Lab Day X - Bai Z](#deep-link-day-X-lab-Z)
-- Den tong quan day:   [👉 Mo tro ly Day X](#deep-link-day-X)
-
-Vi du: neu khai niem o Day 1, slides=[3], thi viet: [👉 Mo Day 1 - Slide 3](#deep-link-day-1-slide-3)
+Ví dụ: Nếu khái niệm ở Day 2, Slide 6, hãy viết:
+[👉 Mở Day 2 - Slide 6](#deep-link-day-2-slide-6)
 `;
 
-
-// ── API Route ───────────────────────────────────────────────────────────────
-const LOG = (step: string, data?: unknown) =>
-  console.log(`[HUB] ${step}`, data !== undefined ? JSON.stringify(data, null, 2) : "");
-
 export async function POST(req: Request) {
-  LOG("=== REQUEST START ===");
-
   try {
-    // ── 0. Parse body ───────────────────────────────────────
     const body = await req.json();
-    const { query, studentDay = 1 } = body;
-    LOG("0. Body parsed", { query, studentDay });
+    const { query, studentDay = 2 } = body;
 
-    // ── 1. Check API key ────────────────────────────────────
-    const apiKeyStatus = process.env.GEMINI_API_KEY
-      ? `SET (${process.env.GEMINI_API_KEY.slice(0, 8)}...)`
-      : "MISSING ❌";
-    LOG("1. GEMINI_API_KEY", apiKeyStatus);
-
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("[HUB] ❌ GEMINI_API_KEY is not set! Create .env.local with GEMINI_API_KEY=your_key");
-      return NextResponse.json(
-        { error: "GEMINI_API_KEY chua duoc set. Tao file .env.local va dien key vao." },
-        { status: 500 }
-      );
+    if (!query || typeof query !== "string") {
+      return NextResponse.json({ reply: "Vui lòng nhập câu hỏi để mình hỗ trợ bạn định hướng nhé!" });
     }
 
-    // ── 2. Load knowledge index ─────────────────────────────
+    // 1. Load knowledge index
     let indexPath = path.join(process.cwd(), "..", "..", "eval", "knowledge_index.json");
     if (!fs.existsSync(indexPath)) {
       indexPath = path.join(process.cwd(), "eval", "knowledge_index.json");
     }
-    LOG("2. Index path", indexPath);
     let indexData: Record<string, any> = {};
     if (fs.existsSync(indexPath)) {
-      indexData = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
-      LOG("2. Index loaded", { conceptCount: Object.keys(indexData).length });
-    } else {
-      LOG("2. Index NOT found, using empty");
+      try {
+        indexData = JSON.parse(fs.readFileSync(indexPath, "utf-8"));
+      } catch (e) {
+        // ignore parse error
+      }
     }
 
-    // ── 3. Load hub prompt ──────────────────────────────────
+    // 2. Tra cứu kiến thức
+    const matchedConcepts = search_knowledge_index(query, indexData);
+
+    // 3. Load Hub Prompt
     let promptPath = path.join(process.cwd(), "..", "bots", "hub_bot_prompt.txt");
     if (!fs.existsSync(promptPath)) {
       promptPath = path.join(process.cwd(), "codebase", "bots", "hub_bot_prompt.txt");
     }
-    LOG("3. Prompt path", promptPath);
-    let systemPrompt = "Ban la VLearn Hub Bot.";
+
+    let systemPrompt = "Bạn là VLearn Hub Bot, người điều hướng học viên.";
     if (fs.existsSync(promptPath)) {
       systemPrompt = fs.readFileSync(promptPath, "utf-8")
-        .replace("{student_progress}", `Hoc vien dang o Day ${studentDay}. Da hoc: Cac kien thuc co ban Day ${studentDay}.`)
-        .replace("{cohort_schedule}", `Cohort 4 hien dang mo den Day 2. Cac Day > 2 chua mo.`);
-      LOG("3. Prompt loaded", { chars: systemPrompt.length });
-    } else {
-      LOG("3. Prompt file NOT found, using default");
+        .replace("{student_progress}", `Học viên hiện đang học Day ${studentDay}. Đã hoàn thành các bài học trước đó.`)
+        .replace("{cohort_schedule}", `Lớp Cohort 4 hiện tại đang mở đến Day 2. Các Day 3, 4, 5, 6 chưa mở.`);
     }
 
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-    LOG("4. Model", model);
+    // 4. Bổ sung dữ liệu tra cứu và format vào prompt
+    const contextPrompt = `
+${systemPrompt}
 
-    // Helper: safely pull text-only parts
-    const extractTextParts = (res: Awaited<ReturnType<typeof ai.models.generateContent>>) =>
-      (res.candidates?.[0]?.content?.parts ?? [])
-        .filter((p: any) => typeof p.text === "string")
-        .map((p: any) => p.text as string)
-        .join("")
-        .trim();
+${ROUTING_FORMAT}
 
-    // ── 5. Turn 1 ───────────────────────────────────────────
-    LOG("5. Calling Turn 1 (with tool)...");
-    const t1Start = Date.now();
+=== KẾT QUẢ TRA CỨU KNOWLEDGE INDEX CHO CÂU HỎI HIỆN TẠI ===
+${
+  matchedConcepts.length > 0
+    ? JSON.stringify(matchedConcepts, null, 2)
+    : "KHÔNG TÌM THẤY khái niệm nào trong giáo trình 6 buổi."
+}
 
-    const turn1 = await ai.models.generateContent({
-      model,
-      contents: [{ role: "user", parts: [{ text: `${systemPrompt}\n\nCau hoi hoc vien: "${query}"` }] }],
-      config: {
-        temperature: 0.1,
-        tools: [searchTool],
-        toolConfig: { functionCallingConfig: { mode: FunctionCallingConfigMode.AUTO } },
-      },
-    });
+QUY TẮC QUAN TRỌNG:
+1. Nếu tìm thấy khái niệm ở Day 1 hoặc Day 2: Hãy tóm tắt ngắn gọn 1-2 câu và TẠO DEEP LINK [👉 Mở Day X - Slide Y](#deep-link-day-X-slide-Y).
+2. Nếu khái niệm ở Day > 2: Cảnh báo học viên rằng Day đó chưa mở cho Cohort 4 (mới mở đến Day 2).
+3. Nếu không tìm thấy: Lịch sự thông báo nằm ngoài phạm vi khóa học.
+4. BẠN LÀ HUB BOT: TUYỆT ĐỐI KHÔNG giải thích bài dài lê thê, nhiệm vụ chính là ĐIỀU HƯỚNG bằng Deep-Link!
+`.trim();
 
-    LOG(`5. Turn 1 done in ${Date.now() - t1Start}ms`);
-    const turn1Parts = turn1.candidates?.[0]?.content?.parts ?? [];
-    LOG("5. Turn 1 parts", turn1Parts.map((p: any) => p.functionCall ? { type: "functionCall", name: p.functionCall.name, args: p.functionCall.args } : { type: "text", preview: p.text?.slice(0, 80) }));
+    // 5. Gọi AI Model (ưu tiên NVIDIA NIM với Llama 3.2 hoặc Gemini)
+    try {
+      const { text, engine } = await callUniversalLLM(
+        [
+          { role: "system", content: contextPrompt },
+          { role: "user", content: query },
+        ],
+        { temperature: 0.2, max_tokens: 500 }
+      );
 
-    const fnCallParts = turn1Parts.filter((p: any) => p.functionCall !== undefined);
+      return NextResponse.json({ reply: text, engine });
+    } catch (aiError: any) {
+      console.warn("[Hub AI Call Warning, switching to Grounded Routing Fallback]:", aiError.message);
 
-    if (fnCallParts.length === 0) {
-      const directReply = extractTextParts(turn1);
-      LOG("5. No function call → direct reply", { preview: directReply.slice(0, 100) });
-      return NextResponse.json({ reply: directReply || "Khong co phan hoi." });
+      // Fallback thông minh: Tự động sinh phản hồi đúng chuẩn nếu API gặp sự cố
+      if (matchedConcepts.length > 0) {
+        const top = matchedConcepts[0];
+        const slideNo = top.slides[0] || 1;
+
+        if (top.day > 2) {
+          return NextResponse.json({
+            reply: `Khái niệm **${top.concept_name}** thuộc nội dung **Day ${top.day}**.\n\n` +
+              `Tuy nhiên, hiện tại lớp Cohort 4 mới mở đến **Day 2**. Lộ trình bài học này sẽ được mở trong các buổi tiếp theo. Hãy tập trung hoàn thành tốt kiến thức Day 1 và Day 2 trước nhé!`
+          });
+        }
+
+        return NextResponse.json({
+          reply: `Tuyệt vời! Khái niệm **"${top.concept_name}"** (${top.level}) nằm trong **Day ${top.day}**.\n\n` +
+            `Tài liệu bài giảng và bài tập thực hành đã sẵn sàng. Bạn có thể mở trực tiếp tại slide số ${slideNo}:\n\n` +
+            `[👉 Mở Day ${top.day} - Slide ${slideNo}](#deep-link-day-${top.day}-slide-${slideNo})`
+        });
+      }
+
+      return NextResponse.json({
+        reply: `Rất tiếc, khái niệm bạn vừa hỏi hiện chưa có trong nội dung bài giảng 6 buổi của khóa học AI Thực Chiến.\n\n` +
+          `Bạn có thể kiểm tra lại từ khóa hoặc hỏi về các chủ đề như *LLM Foundation (Day 1)*, *Xác định bài toán AI & Automation (Day 2)* nhé!`
+      });
     }
-
-    // ── 6. Execute tools ────────────────────────────────────
-    LOG("6. Executing tools...");
-    const toolResponses = fnCallParts.map((p: any) => {
-      const fc = p.functionCall;
-      const toolQuery = fc.args?.query || query;
-      LOG(`6. Tool call: ${fc.name}(${toolQuery})`);
-      const toolResult = search_knowledge_index(toolQuery, indexData);
-      LOG("6. Tool result preview", toolResult.slice(0, 200));
-      return { functionResponse: { name: fc.name as string, response: { result: toolResult } } };
+  } catch (fatalError: any) {
+    console.error("[Hub Route Fatal Error]:", fatalError);
+    return NextResponse.json({
+      reply: `Chào bạn! Mình có thể giúp bạn tìm bài học trong khóa AI Thực Chiến. Bạn hãy thử hỏi: *"Tìm hiểu về Prompting"* hoặc *"Xác định bài toán AI nằm ở buổi nào?"* nhé!`
     });
-
-    // ── 7. Turn 2 ───────────────────────────────────────────
-    LOG("7. Calling Turn 2 (text-only, no tools)...");
-    const t2Start = Date.now();
-
-    const turn2 = await ai.models.generateContent({
-      model,
-      contents: [
-        { role: "user", parts: [{ text: `${systemPrompt}\n\nCau hoi hoc vien: "${query}"` }] },
-        { role: "model", parts: turn1Parts },
-        { role: "user", parts: toolResponses as any },
-      ],
-      config: { temperature: 0.2 },
-    });
-
-    LOG(`7. Turn 2 done in ${Date.now() - t2Start}ms`);
-    const finalReply = extractTextParts(turn2);
-    LOG("7. Final reply preview", finalReply.slice(0, 200));
-    LOG("=== REQUEST END (success) ===");
-
-    return NextResponse.json({ reply: finalReply || "Khong co phan hoi." });
-
-  } catch (error: any) {
-    console.error("[HUB] ❌ ERROR:", {
-      message: error?.message,
-      cause: error?.cause?.message ?? error?.cause,
-      code: error?.code,
-      status: error?.status,
-      stack: error?.stack?.split("\n").slice(0, 6).join("\n"),
-    });
-    return NextResponse.json(
-      { error: `[Hub Error] ${error?.message}`, cause: String(error?.cause ?? "") },
-      { status: 500 }
-    );
   }
 }
