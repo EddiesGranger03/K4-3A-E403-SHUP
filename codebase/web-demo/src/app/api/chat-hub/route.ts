@@ -86,6 +86,11 @@ export async function POST(req: Request) {
     }
 
     // 4. Bổ sung dữ liệu tra cứu và format vào prompt
+    const topConcept = matchedConcepts[0];
+    const topSlide = topConcept ? (topConcept.slides[0] || 1) : 1;
+    const topDay = topConcept ? topConcept.day : 2;
+    const topName = topConcept ? topConcept.concept_name : "";
+
     const contextPrompt = `
 ${systemPrompt}
 
@@ -98,11 +103,21 @@ ${
     : "KHÔNG TÌM THẤY khái niệm nào trong giáo trình 6 buổi."
 }
 
-QUY TẮC QUAN TRỌNG:
-1. Nếu tìm thấy khái niệm ở Day 1 hoặc Day 2: Hãy tóm tắt ngắn gọn 1-2 câu và TẠO DEEP LINK [👉 Mở Day X - Slide Y](#deep-link-day-X-slide-Y).
-2. Nếu khái niệm ở Day > 2: Cảnh báo học viên rằng Day đó chưa mở cho Cohort 4 (mới mở đến Day 2).
-3. Nếu không tìm thấy: Lịch sự thông báo nằm ngoài phạm vi khóa học.
-4. BẠN LÀ HUB BOT: TUYỆT ĐỐI KHÔNG giải thích bài dài lê thê, nhiệm vụ chính là ĐIỀU HƯỚNG bằng Deep-Link!
+=== HƯỚNG DẪN TRẢ LỜI BẮT BUỘC ===
+${
+  matchedConcepts.length > 0
+    ? `Khái niệm tìm thấy: "${topName}", thuộc Day ${topDay}, Slide ${topSlide}.
+${
+  topDay <= 2
+    ? `- Day ${topDay} HIỆN TẠI ĐÃ MỞ (Cohort 4 đang học Day 1 và Day 2).
+- Hãy trả lời: Tuyệt vời! Khái niệm "${topName}" (${topConcept.level || "basic"}) nằm trong **Day ${topDay}** (Slide ${topSlide}).
+- BẮT BUỘC tạo nút deep-link: [👉 Mở Day ${topDay} - Slide ${topSlide}](#deep-link-day-${topDay}-slide-${topSlide})
+- TUYỆT ĐỐI KHÔNG nói Day ${topDay} chưa mở!`
+    : `- Khái niệm thuộc Day ${topDay} (chưa mở). Hãy nhắc nhở học viên tập trung học Day 1 và Day 2 trước.`
+}
+- TUYỆT ĐỐI KHÔNG sao chép các ký tự ngoặc nhọn như {concept}, {slide}, {day}, {slide_line}.`
+    : `Không tìm thấy trong giáo trình, lịch sự thông báo ngoài phạm vi khóa học.`
+}
 `.trim();
 
     // 5. Gọi AI Model (ưu tiên NVIDIA NIM với Llama 3.2 hoặc Gemini)
@@ -112,10 +127,35 @@ QUY TẮC QUAN TRỌNG:
           { role: "system", content: contextPrompt },
           { role: "user", content: query },
         ],
-        { temperature: 0.2, max_tokens: 500 }
+        { temperature: 0.1, max_tokens: 500 }
       );
 
-      return NextResponse.json({ reply: text, engine });
+      let cleanText = text;
+      if (matchedConcepts.length > 0) {
+        const top = matchedConcepts[0];
+        const slideNo = top.slides[0] || 1;
+
+        // Dọn sạch triệt để mọi placeholder nếu LLM vô tình sao chép
+        cleanText = cleanText
+          .replace(/\{concept\}/gi, top.concept_name)
+          .replace(/\{level\}/gi, top.level || "basic")
+          .replace(/\{day\}/gi, String(top.day))
+          .replace(/\{slide\}/gi, String(slideNo))
+          .replace(/\{slide_line\}/gi, "1")
+          .replace(/\{date\}/gi, "tuần tới")
+          .replace(/\{current_day\}/gi, "2")
+          .replace(/#deep-link-day-\d+-slide-\{slide\}[^)]*/gi, `#deep-link-day-${top.day}-slide-${slideNo}`)
+          .replace(/#deep-link-day-\{day\}-slide-\d+[^)]*/gi, `#deep-link-day-${top.day}-slide-${slideNo}`)
+          .replace(/#deep-link-day-\{day\}-slide-\{slide\}[^)]*/gi, `#deep-link-day-${top.day}-slide-${slideNo}`)
+          .replace(/#deep-link-day-(\d+)-slide-(\d+)-highlight-[^\)]+/gi, `#deep-link-day-$1-slide-$2`);
+
+        // Đảm bảo luôn có nút link bấm nếu thuộc Day 1 hoặc Day 2
+        if (!cleanText.includes("#deep-link-day-") && top.day <= 2) {
+          cleanText += `\n\n[👉 Mở Day ${top.day} - Slide ${slideNo}](#deep-link-day-${top.day}-slide-${slideNo})`;
+        }
+      }
+
+      return NextResponse.json({ reply: cleanText, engine });
     } catch (aiError: any) {
       console.warn("[Hub AI Call Warning, switching to Grounded Routing Fallback]:", aiError.message);
 
