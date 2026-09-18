@@ -4,7 +4,6 @@ vlearn-pack/
 *.csv
 *.jsonl
 *.pdf
-!demo-slides.pdf
 !SHUP-slides.pdf
 !codebase/web-demo/public/slides/*.pdf
 
