@@ -5,7 +5,6 @@ vlearn-pack/
 *.jsonl
 *.pdf
 !demo-slides.pdf
-!codebase/slides/*.pdf
 !codebase/web-demo/public/slides/*.pdf
 
 # Environment variables & API keys (Strictly Ignored)

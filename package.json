@@ -8,7 +8,6 @@
     "build": "npm --prefix codebase/web-demo run build",
     "start": "npm --prefix codebase/web-demo run start",
     "lint": "npm --prefix codebase/web-demo run lint",
-    "node-server": "node codebase/server.js",
     "benchmark": "python eval/benchmark_runner.py"
   }
 }

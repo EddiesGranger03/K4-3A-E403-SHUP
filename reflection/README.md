@@ -6,10 +6,10 @@ Mục đích: Chứa bài viết thu hoạch phản tư cá nhân (Personal Refl
 
 | STT | Thành viên | Mã học viên | Vai trò đảm nhiệm | Tệp Reflection chi tiết |
 |---|---|---|---|---|
-| 1 | **Nguyễn Khánh Sơn** | 2A202602388 | **Đội trưởng kiêm Kỹ sư Nòng cốt (Product Lead & Lead Builder)** | [`reflection_son.md`](reflection_son.md) |
-| 2 | **Bùi Thị Thu Uyên** | 2A202602613 | **User Research & Data Mining Lead** | [`reflection_uyen.md`](reflection_uyen.md) |
-| 3 | **Lê Châu Trần Phát** | 2A2026025245 | **AI & Evaluation Lead** | [`reflection_phat.md`](reflection_phat.md) |
-| 4 | **Ngô Xuân Hoàng** | 2A202602597 | **Frontend UI/UX & Testing Engineer** | [`reflection_hoang.md`](reflection_hoang.md) |
+| 1 | **Nguyễn Khánh Sơn** | 2A202602388 | **Đội trưởng kiêm Kỹ sư Nòng cốt (Product Lead & Lead Builder)** | [`2A202602388_NguyenKhanhSon.md`](2A202602388_NguyenKhanhSon.md) |
+| 2 | **Bùi Thị Thu Uyên** | 2A202602613 | **User Research & Data Mining Lead** | [`2A202602613_BuiThiThuUyen.md`](2A202602613_BuiThiThuUyen.md) |
+| 3 | **Lê Châu Trần Phát** | 2A2026025245 | **AI & Evaluation Lead** | [`2A2026025245_LeChauTranPhat.md`](2A2026025245_LeChauTranPhat.md) |
+| 4 | **Ngô Xuân Hoàng** | 2A202602597 | **Frontend UI/UX & Testing Engineer** | [`2A202602597_NgoXuanHoang.md`](2A202602597_NgoXuanHoang.md) |
 
 ### 📌 Nội dung chuẩn hóa trong từng bài viết:
 1. **Vai trò & Trách nhiệm:** Phân định rõ ràng mảng việc phụ trách trong 47.5h.

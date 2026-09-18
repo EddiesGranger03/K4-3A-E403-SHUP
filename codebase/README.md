@@ -2,7 +2,7 @@
 
 > **Track dự thi:** Track A · VLearn Tutor (A1 · Tối ưu AI Tutor có sẵn)  
 > **Nhóm thực hiện:** SHUP · Lớp 3A · Phòng E403 · Cụm 4  
-> **Mức hoàn thiện prototype:** Working Prototype hoàn chỉnh với 2 phương án khởi chạy (Next.js Fullstack hiện đại & Node.js Standalone siêu nhẹ), tích hợp luồng đa tác tử Hub & Spoke, kết nối Live AI an toàn qua backend proxy (NVIDIA NIM Llama 3.2 & Google Gemini), bảo mật API Key tuyệt đối qua `.env`, có Auto-Index Pipeline và bộ Benchmark LLM-as-a-Judge.
+> **Mức hoàn thiện prototype:** Working Prototype hoàn chỉnh trên nền tảng Next.js 15 Fullstack hiện đại (App Router, Tailwind CSS, TypeScript), tích hợp luồng đa tác tử Hub & Spoke, kết nối Live AI an toàn qua backend proxy (Google Gemini & NVIDIA NIM), bảo mật API Key tuyệt đối qua `.env`, có Auto-Index Pipeline và bộ Benchmark LLM-as-a-Judge 20 ca kiểm thử.
 
 ---
 
@@ -10,22 +10,21 @@
 
 ```
 codebase/
-├── web-demo/                  # [Khuyến nghị] Ứng dụng Fullstack Next.js 15 App Router
-│   ├── src/app/page.tsx       # Giao diện Hub (Điều hướng liên Day, Cohort K4, Gemini Tool Calling)
-│   ├── src/app/lesson/[day]/  # Giao diện Spoke Lesson (PDF Iframe, Scroll Lock, Markdown Transcript)
+├── web-demo/                  # Ứng dụng Fullstack Next.js 15 App Router (Mã nguồn chính)
+│   ├── src/app/page.tsx       # Giao diện Hub (Điều hướng liên Day, Cohort K4, AI Router)
+│   ├── src/app/lesson/[day]/  # Giao diện Spoke Lesson (PDF Canvas/Iframe, Resizable AI Panel, Transcript Markdown)
 │   ├── src/app/api/           # API routes (/api/chat-hub, /api/chat-spoke)
+│   ├── src/components/        # Component tái sử dụng (PdfViewer Canvas Mozilla Engine)
+│   ├── src/constants/         # Dữ liệu bài giảng và danh mục khái niệm
+│   ├── src/lib/               # Module AI Provider đa tầng (Gemini & NVIDIA NIM)
 │   ├── public/slides/         # File PDF bài giảng thật (day1.pdf, day2.pdf)
-│   └── public/transcripts/    # File transcript bài giảng Markdown (day1.md, day2.md)
+│   ├── public/transcripts/    # File transcript bài giảng Markdown (day1.md, day2.md)
+│   └── public/vendor/pdfjs/   # Mozilla PDF.js Canvas Engine cục bộ
 ├── pipeline/                  # Công cụ tự động hóa Auto-Index Pipeline
 │   └── auto_index.py          # Script Python bóc tách PDF/Transcript và sinh Knowledge Index
 ├── bots/                      # System prompts chính thức cho Hub Bot và Bot Con
-│   ├── hub_bot_prompt.txt
-│   └── bot_con_prompt.txt
-├── server.js                  # [Phương án Standalone] Node.js Proxy Server thuần (zero npm dependency)
-├── app.js                     # Script điều phối giao diện Standalone + Offline RAG fallback
-├── index.html                 # Giao diện Standalone 2 tầng (Canvas PDF.js, Dark Mode, Slide Upload)
-├── style.css                  # Thiết kế Dark Mode theo nguyên tắc HAX/PAIR
-├── slides/                    # Slide PDF bài giảng Day 1 & Day 2 cho bản Standalone
+│   ├── hub_bot_prompt.txt     # Prompt định tuyến Hub & Spoke (chống lạc đề, trích dẫn bài học)
+│   └── bot_con_prompt.txt     # Prompt Bot Con chuyên sâu (Micro-answer + Cầu nối sư phạm về slide)
 └── workflow.png               # Sơ đồ luồng đa tác tử Hub & Spoke (Nghiệm thu CP2)
 ```
 
@@ -33,43 +32,21 @@ codebase/
 
 ## ⚡ 2. Hướng dẫn Khởi chạy và Trải nghiệm Prototype
 
-Giám khảo và TA có thể lựa chọn 1 trong 2 phương án tùy thuộc vào môi trường máy tính:
+### 🌟 Khởi chạy Fullstack Next.js App
 
-### 🌟 Phương án 1 (Khuyến nghị): Fullstack Next.js App (`codebase/web-demo/`)
-*Trải nghiệm trọn vẹn kiến trúc Hub & Spoke hiện đại, PDF Iframe thật có khóa cuộn và tab Transcript Markdown.*
+Từ thư mục gốc dự án:
+```bash
+# 1. Cấu hình API Key (nếu chưa có file .env):
+cp .env.example .env
 
-1. **Di chuyển vào thư mục web-demo:**
-   ```bash
-   cd codebase/web-demo
-   ```
-2. **Cấu hình API Key:**
-   Tạo file `.env.local` (hoặc copy từ `.env.example`):
-   ```bash
-   cp .env.example .env.local
-   ```
-   *(Điền `GEMINI_API_KEY=AIzaSy...` của bạn vào file `.env.local`)*
-3. **Cài đặt thư viện & Khởi chạy:**
-   ```bash
-   npm install
-   npm run dev
-   ```
-4. **Truy cập:** Mở trình duyệt tại [http://localhost:3000](http://localhost:3000)
-   - Trải nghiệm Hub Bot điều hướng thông minh bằng Tool Calling tại trang chủ.
-   - Bấm vào một buổi học (Day 1 hoặc Day 2) để kiểm chứng PDF Iframe cuộn khóa (Scroll Lock), Tab Transcript Markdown và hỏi đáp Bot Con.
+# 2. Khởi chạy ứng dụng dev server:
+npm run dev
+```
+*(Hoặc di chuyển trực tiếp vào `codebase/web-demo` và chạy `npm run dev`)*
 
----
-
-### 🚀 Phương án 2: Standalone Node.js Proxy Server (`codebase/`)
-*Khởi chạy siêu tốc trong 2 giây, không cần `npm install` các gói thư viện nặng, tích hợp NVIDIA NIM và Offline Fallback 100%.*
-
-1. **Khởi chạy server tại thư mục gốc:**
-   ```bash
-   node codebase/server.js
-   ```
-2. **Truy cập:** Mở trình duyệt tại [http://localhost:3000](http://localhost:3000)
-   - Nếu có cấu hình `NVIDIA_API_KEY` trong file `.env` gốc, server tự động kết nối mô hình Llama 3.2.
-   - Nếu không có mạng hoặc chưa set key, hệ thống tự động kích hoạt **Offline Grounding Engine** dựa trên dữ liệu đã khai phá từ `vlearn-pack/`, bảo đảm 100% không bao giờ gặp lỗi gián đoạn demo.
-   - Hỗ trợ nút **"Tải PDF slide"** để tải lên file PDF tùy ý và đọc nội dung trực tiếp tại chỗ.
+Truy cập trình duyệt tại: [http://localhost:3000](http://localhost:3000)
+- **Hub Bot (Trang chủ):** Nhập câu hỏi tự do về AI/ML, nhận định vị bài giảng liên Day kèm nút chuyển hướng Deep-link tức thì.
+- **Spoke Lesson (Trang bài học):** Chọn Day 1 hoặc Day 2 để xem slide PDF bằng bộ đọc Canvas chính xác (chế độ Theo trang không bị chườm lề / chế độ Cuộn dọc), thanh trượt co giãn Resizable Side Panel cho Trợ giảng AI, và tab Transcript Markdown.
 
 ---
 
@@ -100,7 +77,7 @@ Minh bạch hóa các thành phần chạy thật và mô phỏng phục vụ c�
 | Hạng mục | Trạng thái | Chi tiết kỹ thuật |
 |---|:---:|---|
 | **Luồng AI Hub & Spoke** | ✅ **Chạy thật (Working)** | Hub Router dùng Function Calling phân tích ý định; Bot Con nạp đúng context theo Day trích dẫn số trang chính xác. |
-| **Giao diện Học tập** | ✅ **Chạy thật (Working)** | Next.js Split-screen: PDF Iframe thật khóa cuộn (`#page=X`), Transcript Markdown bôi đen copy được, Standalone PDF.js Canvas. |
+| **Giao diện Học tập** | ✅ **Chạy thật (Working)** | Next.js Split-screen: Bộ đọc Mozilla PDF.js Canvas tích hợp (Chế độ Theo trang chuẩn xác / Cuộn dọc), Trợ giảng AI Resizable Side Panel, và Tab Transcript Markdown. |
 | **Deep-linking** | ✅ **Chạy thật (Working)** | Phản hồi của Hub Bot tự động điều hướng sang URL Spoke tương ứng kèm tham số trang và nhảy trang chính xác. |
 | **Pipeline tự động hóa** | ✅ **Chạy thật (Working)** | `auto_index.py` dùng `pdfplumber` bóc tách slide, gọi AI sinh JSON index và lưu log token sử dụng. |
 | **Bảo mật & An toàn** | ✅ **Chạy thật (Working)** | Toàn bộ API Key nằm ở backend proxy (`.env`), chặn đứng Prompt Injection (`T00274`, `T00236`) và từ chối ngoài lề. |
