@@ -8,34 +8,41 @@ footer: 'Trình diễn Checkpoint 5 · AI Thực Chiến 2026'
 style: |
   section {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    padding: 38px 48px;
-    background: #0f172a;
-    color: #f8fafc;
+    padding: 36px 48px;
+    background: #FAF7F0;
+    color: #1e293b;
     font-size: 20px;
   }
   h1 {
-    color: #38bdf8;
-    font-size: 30px;
+    color: #0f172a;
+    font-size: 29px;
     margin-top: 0;
-    margin-bottom: 12px;
-    border-bottom: 2px solid #1e293b;
+    margin-bottom: 10px;
+    border-bottom: 2px solid #e2d9cc;
     padding-bottom: 8px;
   }
   h2 {
-    color: #94a3b8;
-    font-size: 22px;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    color: #0369a1;
+    font-size: 21px;
+    margin-top: 6px;
+    margin-bottom: 6px;
   }
   p, li {
     line-height: 1.45;
-    color: #cbd5e1;
+    color: #334155;
   }
   strong {
-    color: #ffffff;
+    color: #0f172a;
+  }
+  code {
+    background: #eee8dc;
+    color: #0369a1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 17px;
   }
   .highlight {
-    color: #38bdf8;
+    color: #0284c7;
     font-weight: 600;
   }
   .badge {
@@ -45,65 +52,75 @@ style: |
     font-size: 13px;
     font-weight: 700;
     background: #0284c7;
-    color: #fff;
+    color: #ffffff;
   }
   .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 18px;
   }
   .grid-3 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
+    gap: 14px;
   }
   .card {
-    background: #1e293b;
+    background: #ffffff;
     border-radius: 10px;
-    padding: 14px 18px;
-    border: 1px solid #334155;
+    padding: 13px 17px;
+    border: 1px solid #e7dfd0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
   }
   .card-danger {
-    background: #450a0a;
-    border: 1px solid #991b1b;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
   }
   .card-success {
-    background: #064e3b;
-    border: 1px solid #059669;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
   }
   .card-info {
-    background: #082f49;
-    border: 1px solid #0284c7;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
   }
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 17px;
+    font-size: 16.5px;
     margin-top: 8px;
+    background: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e7dfd0;
   }
   th {
-    background: #1e293b;
-    color: #38bdf8;
+    background: #f4efea;
+    color: #0f172a;
     padding: 8px 12px;
     text-align: left;
-    border-bottom: 2px solid #38bdf8;
+    border-bottom: 2px solid #0284c7;
+    font-weight: 700;
   }
   td {
     padding: 7px 12px;
-    border-bottom: 1px solid #334155;
-    color: #cbd5e1;
+    border-bottom: 1px solid #f1ece1;
+    color: #334155;
   }
   blockquote {
-    background: #1e293b;
-    border-left: 4px solid #38bdf8;
+    background: #ffffff;
+    border-left: 4px solid #0284c7;
     margin: 8px 0;
     padding: 8px 14px;
     font-style: italic;
-    color: #e2e8f0;
+    color: #0f172a;
+    border-top: 1px solid #e7dfd0;
+    border-right: 1px solid #e7dfd0;
+    border-bottom: 1px solid #e7dfd0;
+    border-radius: 0 8px 8px 0;
   }
   footer, header {
     font-size: 12px;
-    color: #64748b;
+    color: #78716c;
   }
 ---
 
@@ -117,16 +134,16 @@ style: |
   </div>
   
   <div class="card card-danger">
-    <h2>📊 Bằng Chứng Dữ Liệu (13.494 Chatlogs)</h2>
+    <h2 style="color: #b91c1c;">📊 Bằng Chứng Dữ Liệu (13.494 Chatlogs)</h2>
     <ul>
-      <li><strong style="color: #f87171;">1.151 ca (8.5%):</strong> Lỗi hỏi ngoài lề (D4), hỏi triết học / công nghệ xa bài học mà bot vẫn trả lời lan man 1.000 từ.</li>
-      <li><strong style="color: #f87171;">271 ca (2.0%):</strong> Lỗi ảo giác (D3/D5), bot bịa đặt thông số kỹ thuật thay vì thừa nhận tài liệu chưa đề cập.</li>
-      <li><strong style="color: #f87171;">97 ca:</strong> Học viên Day 1 hỏi vượt cấp sang RAG/Agent Day 3–4 gây đứt gãy lộ trình sư phạm (D2).</li>
+      <li><strong style="color: #dc2626;">1.151 ca (8.5%):</strong> Lỗi hỏi ngoài lề (D4), hỏi triết học / công nghệ xa bài học mà bot vẫn trả lời lan man 1.000 từ.</li>
+      <li><strong style="color: #dc2626;">271 ca (2.0%):</strong> Lỗi ảo giác (D3/D5), bot bịa đặt thông số kỹ thuật thay vì thừa nhận tài liệu chưa đề cập.</li>
+      <li><strong style="color: #dc2626;">97 ca:</strong> Học viên Day 1 hỏi vượt cấp sang RAG/Agent Day 3–4 gây đứt gãy lộ trình sư phạm (D2).</li>
     </ul>
   </div>
 </div>
 
-<div class="card" style="margin-top: 12px;">
+<div class="card" style="margin-top: 10px;">
   <strong>💡 Nhận định cốt lõi:</strong> Học viên không cần một "bách khoa toàn thư nói nhiều". Họ cần <strong>định vị chính xác trang tài liệu gốc</strong> và <strong>ngăn ngừa học nhảy cóc mất căn bản</strong>.
 </div>
 
@@ -199,11 +216,11 @@ style: |
 
 | Chiều Đánh Giá | Quality Bar Cam Kết (CP4) | Thực Tế Đạt Được | Đánh Giá Nghiệm Thu |
 |---|:---:|:---:|:---|
-| **D1: Routing Precision** (Đúng bài, đúng slide) | $\ge 90\%$ | <strong style="color: #4ade80;">100%</strong> (5/5) | 🟢 Xuất sắc · Điều hướng chuẩn xác tuyệt đối |
-| **D2: Prerequisite Accuracy** (Cảnh báo vượt cấp) | $100\%$ | <strong style="color: #4ade80;">100%</strong> (5/5) | 🟢 Xuất sắc · Chặn đứng mọi ca nhảy cóc kiến thức |
-| **D3: Zero-Hallucination Rate** (Không bịa đặt) | $\ge 95\%$ | <strong style="color: #4ade80;">100%</strong> (5/5) | 🟢 Xuất sắc · 100% câu trả lời có căn cứ slide |
-| **D4: Out-of-scope Handling** (Xử lý ngoài luồng) | $\ge 80\%$ | <strong style="color: #facc15;">80.0%</strong> (4/5) | 🟡 Đạt chuẩn · Từ chối an toàn bẫy injection |
-| **TỔNG THỂ (Overall Pass Rate)** | $\ge 85\%$ | <strong style="color: #38bdf8;">95.0% (19/20)</strong> | 🏆 **VƯỢT QUALITY BAR CAM KẾT** |
+| **D1: Routing Precision** (Đúng bài, đúng slide) | $\ge 90\%$ | <strong style="color: #16a34a;">100%</strong> (5/5) | 🟢 Xuất sắc · Điều hướng chuẩn xác tuyệt đối |
+| **D2: Prerequisite Accuracy** (Cảnh báo vượt cấp) | $100\%$ | <strong style="color: #16a34a;">100%</strong> (5/5) | 🟢 Xuất sắc · Chặn đứng mọi ca nhảy cóc kiến thức |
+| **D3: Zero-Hallucination Rate** (Không bịa đặt) | $\ge 95\%$ | <strong style="color: #16a34a;">100%</strong> (5/5) | 🟢 Xuất sắc · 100% câu trả lời có căn cứ slide |
+| **D4: Out-of-scope Handling** (Xử lý ngoài luồng) | $\ge 80\%$ | <strong style="color: #d97706;">80.0%</strong> (4/5) | 🟡 Đạt chuẩn · Từ chối an toàn bẫy injection |
+| **TỔNG THỂ (Overall Pass Rate)** | $\ge 85\%$ | <strong style="color: #0284c7;">95.0% (19/20)</strong> | 🏆 **VƯỢT QUALITY BAR CAM KẾT** |
 
 <div class="card card-info" style="margin-top: 10px;">
   <strong>🔍 Phân tích ca thất bại đáng kể nhất (D35_BOT_05):</strong> Học viên ép sinh 5 ý + công thức + mindmap làm bot vượt ngưỡng token $\rightarrow$ <em>Xử lý: Khóa cứng <code>max_tokens: 260-320</code> và áp dụng cơ chế Progressive Disclosure (chỉ đào sâu khi người học hỏi tiếp).</em>
@@ -237,8 +254,8 @@ style: |
   </div>
 </div>
 
-<div class="card card-success" style="margin-top: 12px;">
-  <strong>💡 Bài học đắt giá:</strong> "Một ràng buộc giao diện vật lý (Physical UI Constraints) hiệu quả gấp 10 lần việc nhồi nhét prompt nhắc nhở mô hình."
+<div class="card card-success" style="margin-top: 10px;">
+  <strong style="color: #166534;">💡 Bài học đắt giá:</strong> "Một ràng buộc giao diện vật lý (Physical UI Constraints) hiệu quả gấp 10 lần việc nhồi nhét prompt nhắc nhở mô hình."
 </div>
 
 ---
@@ -267,5 +284,5 @@ style: |
 </div>
 
 <div class="card" style="margin-top: 10px; text-align: center;">
-  <strong style="color: #38bdf8;">VLearn Hub & Spoke — Nền tảng Gia sư Thích ứng Thông minh · Nhóm SHUP · Phòng E403</strong>
+  <strong style="color: #0284c7;">VLearn Hub & Spoke — Nền tảng Gia sư Thích ứng Thông minh · Nhóm SHUP · Phòng E403</strong>
 </div>
