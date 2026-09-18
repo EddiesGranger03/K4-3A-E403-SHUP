@@ -42,6 +42,62 @@ export default function HomePage() {
     setLoading(false);
   };
 
+  // Render inline formatting: **bold** and `code`
+  const renderInline = (str: string, keyPrefix: string): React.ReactNode[] => {
+    const tokens: React.ReactNode[] = [];
+    const regex = /(\*\*.*?\*\*|`.*?`)/g;
+    const parts = str.split(regex);
+    parts.forEach((part, idx) => {
+      if (!part) return;
+      if (part.startsWith("**") && part.endsWith("**")) {
+        tokens.push(
+          <strong key={`${keyPrefix}-b-${idx}`} className="font-semibold text-gray-900">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      } else if (part.startsWith("`") && part.endsWith("`")) {
+        tokens.push(
+          <code key={`${keyPrefix}-c-${idx}`} className="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono text-xs border border-indigo-100">
+            {part.slice(1, -1)}
+          </code>
+        );
+      } else {
+        tokens.push(part);
+      }
+    });
+    return tokens;
+  };
+
+  const renderMarkdown = (txt: string, keyOffset: number) => {
+    const rawParagraphs = txt.split(/\n\s*\n/);
+    return rawParagraphs.map((para, pIdx) => {
+      const trimmed = para.trim();
+      if (!trimmed) return null;
+
+      const lines = trimmed.split("\n");
+      return (
+        <div key={`p-${keyOffset}-${pIdx}`} className="mb-3.5 last:mb-0 space-y-1.5">
+          {lines.map((line, lIdx) => {
+            const cleanLine = line.trim();
+            if (cleanLine.startsWith("- ") || cleanLine.startsWith("• ") || cleanLine.startsWith("* ")) {
+              return (
+                <div key={`l-${keyOffset}-${pIdx}-${lIdx}`} className="flex items-start gap-2 pl-2 leading-relaxed">
+                  <span className="text-indigo-500 font-bold shrink-0 mt-0.5">•</span>
+                  <span className="flex-1 text-gray-800">{renderInline(cleanLine.slice(2), `b-${keyOffset}-${pIdx}-${lIdx}`)}</span>
+                </div>
+              );
+            }
+            return (
+              <p key={`l-${keyOffset}-${pIdx}-${lIdx}`} className="leading-relaxed text-gray-800">
+                {renderInline(line, `t-${keyOffset}-${pIdx}-${lIdx}`)}
+              </p>
+            );
+          })}
+        </div>
+      );
+    });
+  };
+
   // Parse deep-links: [label](#deep-link-day-X-slide-Y) or [label](#deep-link-day-X)
   const renderBotText = (text: string) => {
     const parts: React.ReactNode[] = [];
@@ -67,26 +123,21 @@ export default function HomePage() {
       }
 
       parts.push(
-        <button
-          key={m.index}
-          onClick={() => router.push(url)}
-          className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
-        >
-          {label} <ChevronRight className="w-3 h-3" />
-        </button>
+        <div key={`btn-${m.index}`} className="my-3 pt-1">
+          <button
+            onClick={() => router.push(url)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs font-semibold rounded-xl shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+          >
+            <span>{label}</span>
+            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+          </button>
+        </div>
       );
       last = m.index + m[0].length;
     }
     if (last < text.length) parts.push(renderMarkdown(text.slice(last), parts.length + 100));
     return parts;
   };
-
-  const renderMarkdown = (txt: string, keyOffset: number) =>
-    txt.split("\n").map((line, i) => (
-      <span key={keyOffset + i} className="block">
-        {line.replace(/\*\*(.*?)\*\*/g, "$1")}
-      </span>
-    ));
 
   const isEmpty = messages.length === 0;
 
@@ -144,13 +195,17 @@ export default function HomePage() {
                   </div>
                 )}
                 <div
-                  className={`max-w-[82%] px-4 py-3 rounded-2xl text-[14px] leading-relaxed ${
+                  className={`max-w-[85%] px-5 py-3.5 rounded-2xl text-[14px] leading-relaxed shadow-xs ${
                     msg.role === "user"
                       ? "bg-indigo-600 text-white rounded-tr-md"
-                      : "bg-white text-gray-800 border border-gray-200 rounded-tl-md shadow-sm"
+                      : "bg-white text-gray-800 border border-gray-200/90 rounded-tl-md shadow-sm"
                   }`}
                 >
-                  {msg.role === "user" ? msg.text : renderBotText(msg.text)}
+                  {msg.role === "user" ? (
+                    <div className="whitespace-pre-wrap leading-relaxed">{msg.text}</div>
+                  ) : (
+                    <div className="leading-relaxed">{renderBotText(msg.text)}</div>
+                  )}
                 </div>
               </div>
             ))}

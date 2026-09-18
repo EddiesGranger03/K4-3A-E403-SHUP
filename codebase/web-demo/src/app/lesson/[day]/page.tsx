@@ -175,6 +175,109 @@ function LessonContent() {
   const activeLabIndex = LAB_ITEMS.findIndex((l) => l.id === activeLabId);
   const isEmpty = messages.length === 0;
 
+  // Helper render text inline with **bold** and `code`
+  const renderInlineSpoke = (str: string, keyPrefix: string): React.ReactNode[] => {
+    const tokens: React.ReactNode[] = [];
+    const regex = /(\*\*.*?\*\*|`.*?`)/g;
+    const parts = str.split(regex);
+    parts.forEach((part, idx) => {
+      if (!part) return;
+      if (part.startsWith("**") && part.endsWith("**")) {
+        tokens.push(
+          <strong key={`${keyPrefix}-b-${idx}`} className="font-semibold text-gray-900">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      } else if (part.startsWith("`") && part.endsWith("`")) {
+        tokens.push(
+          <code key={`${keyPrefix}-c-${idx}`} className="px-1 py-0.5 rounded bg-gray-100 text-indigo-700 font-mono text-xs">
+            {part.slice(1, -1)}
+          </code>
+        );
+      } else {
+        tokens.push(part);
+      }
+    });
+    return tokens;
+  };
+
+  const renderSpokeBotMessage = (text: string) => {
+    const citationRegex = /\[(?:Day\s*(\d+)\s*[-–—]\s*)?(?:Slide|Trang)\s*(\d+)[^\]]*\]/gi;
+    const paragraphs = text.split(/\n\s*\n/);
+
+    return (
+      <div className="space-y-3 text-[13px] leading-relaxed text-gray-800">
+        {paragraphs.map((para, pIdx) => {
+          const trimmed = para.trim();
+          if (!trimmed) return null;
+
+          const lines = trimmed.split("\n");
+          return (
+            <div key={`sp-p-${pIdx}`} className="space-y-1.5">
+              {lines.map((line, lIdx) => {
+                const lineTrimmed = line.trim();
+                const isBullet = lineTrimmed.startsWith("- ") || lineTrimmed.startsWith("• ") || lineTrimmed.startsWith("* ");
+                const rawLine = isBullet ? lineTrimmed.slice(2) : line;
+
+                const elements: React.ReactNode[] = [];
+                let lastIdx = 0;
+                let match: RegExpExecArray | null;
+                const reg = new RegExp(citationRegex.source, "gi");
+
+                while ((match = reg.exec(rawLine)) !== null) {
+                  if (match.index > lastIdx) {
+                    elements.push(...renderInlineSpoke(rawLine.slice(lastIdx, match.index), `sub-${pIdx}-${lIdx}-${lastIdx}`));
+                  }
+                  const targetDayNum = match[1] ? Number(match[1]) : Number(day);
+                  const targetSlideNum = Number(match[2]);
+                  const citationLabel = match[0];
+
+                  elements.push(
+                    <button
+                      key={`cite-${pIdx}-${lIdx}-${match.index}`}
+                      onClick={() => {
+                        if (targetDayNum.toString() === day?.toString()) {
+                          setPage(targetSlideNum);
+                          if (contentView !== "slide") setContentView("slide");
+                        } else {
+                          router.push(`/lesson/${targetDayNum}?slide=${targetSlideNum}`);
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 mx-1 px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-[11.5px] rounded-md border border-indigo-200 transition-all hover:scale-105"
+                      title={`Nhấn để chuyển ngay đến Day ${targetDayNum} - Slide ${targetSlideNum}`}
+                    >
+                      <BookOpen className="w-3 h-3 text-indigo-600" />
+                      <span>{citationLabel}</span>
+                    </button>
+                  );
+                  lastIdx = match.index + match[0].length;
+                }
+                if (lastIdx < rawLine.length) {
+                  elements.push(...renderInlineSpoke(rawLine.slice(lastIdx), `sub-${pIdx}-${lIdx}-${lastIdx}`));
+                }
+
+                if (isBullet) {
+                  return (
+                    <div key={`sp-l-${pIdx}-${lIdx}`} className="flex items-start gap-2 pl-1 leading-relaxed">
+                      <span className="text-indigo-500 font-bold shrink-0 mt-0.5">•</span>
+                      <span className="flex-1">{elements}</span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <p key={`sp-l-${pIdx}-${lIdx}`} className="leading-relaxed">
+                    {elements}
+                  </p>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const handleLabClick = (id: string) => {
     setActiveLabId(id);
     setContentView("lab");
@@ -698,12 +801,16 @@ function LessonContent() {
                       <Sparkles className="w-3 h-3 text-white" />
                     </div>
                   )}
-                  <div className={`max-w-[88%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
+                  <div className={`max-w-[88%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed shadow-xs ${
                     msg.role === "user"
                       ? "bg-indigo-600 text-white rounded-tr-sm"
                       : "bg-white border border-gray-100 text-gray-800 shadow-sm rounded-tl-sm"
                   }`}>
-                    {msg.text}
+                    {msg.role === "user" ? (
+                      <div className="whitespace-pre-wrap leading-relaxed">{msg.text}</div>
+                    ) : (
+                      renderSpokeBotMessage(msg.text)
+                    )}
                   </div>
                 </div>
               ))}

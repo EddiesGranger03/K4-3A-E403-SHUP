@@ -57,17 +57,44 @@ export async function POST(req: Request) {
       );
 
       let cleanText = text.trim();
-      // Đảm bảo luôn có trích dẫn slide kết nối bài học nếu chưa có
+
+      // Đảm bảo luôn có trích dẫn slide kết nối bài học nếu câu trả lời chưa có trích dẫn hợp lệ
       if (!cleanText.includes(`[Day ${targetDay}`) && !cleanText.toLowerCase().includes("nằm ngoài chủ đề")) {
         const qLower = query.toLowerCase();
-        const matched = Object.entries(indexData).find(([_, v]: [string, any]) => {
-          if (v.day !== targetDay) return false;
-          const name = (v.concept_name || "").toLowerCase();
-          const kw: string[] = (v.keywords || []).map((k: string) => k.toLowerCase());
-          return name.includes(qLower) || qLower.includes(name) || kw.some((k) => qLower.includes(k));
-        });
-        const slideNo = matched ? (matched[1].slides?.[0] || 1) : (targetDay === 1 && (qLower.includes("năm") || qLower.includes("lịch sử") || qLower.includes("chatgpt") || qLower.includes("openai")) ? 9 : 1);
-        cleanText += ` [Day ${targetDay} - Slide ${slideNo}]`;
+        let targetSlideNo = 1;
+
+        // Ưu tiên các keyword mốc đặc thù
+        if (targetDay === 1) {
+          if (qLower.includes("chatgpt") || qLower.includes("2022") || qLower.includes("openai") || qLower.includes("bùng nổ")) targetSlideNo = 9;
+          else if (qLower.includes("transformer") || qLower.includes("self-attention") || qLower.includes("2017")) targetSlideNo = 8;
+          else if (qLower.includes("imagenet") || qLower.includes("2009")) targetSlideNo = 7;
+          else if (qLower.includes("chuyên gia") || qLower.includes("1980")) targetSlideNo = 6;
+          else if (qLower.includes("lịch sử") || qLower.includes("1950") || qLower.includes("turing")) targetSlideNo = 5;
+          else if (qLower.includes("tầng") || qLower.includes("phân cấp") || qLower.includes("hierarchy") || (qLower.includes("deep learning") && qLower.includes("machine learning"))) targetSlideNo = 3;
+          else if (qLower.includes("nhóm ai") || qLower.includes("3 nhóm") || qLower.includes("ba nhóm")) targetSlideNo = 4;
+          else if (qLower.includes("token")) targetSlideNo = 13;
+          else if (qLower.includes("context window") || qLower.includes("ngữ cảnh")) targetSlideNo = 14;
+          else if (qLower.includes("attention")) targetSlideNo = 15;
+          else if (qLower.includes("scaling law")) targetSlideNo = 16;
+          else if (qLower.includes("moe") || qLower.includes("tham số")) targetSlideNo = 17;
+          else if (qLower.includes("huấn luyện") || qLower.includes("pre-training")) targetSlideNo = 18;
+          else if (qLower.includes("rlhf") || qLower.includes("sft")) targetSlideNo = 19;
+          else if (qLower.includes("ảo giác") || qLower.includes("hallucination")) targetSlideNo = 20;
+          else if (qLower.includes("agent") || qLower.includes("tác nhân")) targetSlideNo = 21;
+          else if (qLower.includes("chain of thought") || qLower.includes("cot")) targetSlideNo = 22;
+          else if (qLower.includes("prompt")) targetSlideNo = 23;
+        } else if (targetDay === 2) {
+          if (qLower.includes("double diamond") || qLower.includes("kim cương")) targetSlideNo = 3;
+          else if (qLower.includes("pair") || qLower.includes("google")) targetSlideNo = 8;
+          else if (qLower.includes("problem card")) targetSlideNo = 9;
+          else if (qLower.includes("jtbd") || qLower.includes("người dùng")) targetSlideNo = 10;
+          else if (qLower.includes("roi") || qLower.includes("định lượng")) targetSlideNo = 11;
+          else if (qLower.includes("ma trận") || qLower.includes("impact")) targetSlideNo = 12;
+          else if (qLower.includes("augment") || qLower.includes("automate")) targetSlideNo = 13;
+          else if (qLower.includes("cost of error") || qLower.includes("sai số")) targetSlideNo = 14;
+        }
+
+        cleanText += ` [Day ${targetDay} - Slide ${targetSlideNo}]`;
       }
 
       return NextResponse.json({ reply: cleanText, engine });
@@ -85,7 +112,7 @@ export async function POST(req: Request) {
 
       if (matched.length > 0) {
         const top = matched[0][1];
-        const slideNo = Array.isArray(top.slides) ? top.slides[0] : 1;
+        const slideNo = Array.isArray(top.slides) ? top.slides[0] : (top.slide_refs?.[0]?.page || 1);
         return NextResponse.json({
           reply: `Khái niệm **${top.concept_name}** được giảng dạy chi tiết trong nội dung Day ${targetDay}.\n\n` +
             `• ${top.summary || "Bạn có thể tham khảo trực tiếp sơ đồ và ví dụ trên slide."}\n\n` +
