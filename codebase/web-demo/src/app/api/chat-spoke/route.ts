@@ -53,7 +53,7 @@ export async function POST(req: Request) {
           { role: "system", content: systemPrompt },
           { role: "user", content: query },
         ],
-        { temperature: 0.2, max_tokens: 600 }
+        { temperature: 0.2, max_tokens: 320 }
       );
 
       let cleanText = text.trim();

@@ -134,7 +134,7 @@ HƯỚNG DẪN TRẢ LỜI THÔNG MINH (PEDAGOGICAL BRIDGE):
           { role: "system", content: contextPrompt },
           { role: "user", content: query },
         ],
-        { temperature: 0.3, max_tokens: 500 }
+        { temperature: 0.2, max_tokens: 260 }
       );
 
       let cleanText = text;
