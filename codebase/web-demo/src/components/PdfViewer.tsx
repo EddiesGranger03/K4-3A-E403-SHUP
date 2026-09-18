@@ -108,25 +108,43 @@ export default function PdfViewer({
     };
   }, [pdfUrl]);
 
+  const renderSeqRef = useRef(0);
+
   // ── 2. Render Single Page on Canvas (Theo trang - Không bị thừa mép) ────────────
   const renderSinglePage = useCallback(async () => {
     if (!pdfDoc || !canvasRef.current || !containerRef.current || viewMode !== "single") return;
 
+    const currentSeq = ++renderSeqRef.current;
+
+    // Await cancellation of previous render task if active
+    if (renderTaskRef.current) {
+      try {
+        renderTaskRef.current.cancel();
+        await renderTaskRef.current.promise;
+      } catch {
+        // Expected cancellation
+      }
+      renderTaskRef.current = null;
+    }
+
+    // If another render was initiated while cancelling, drop this one
+    if (currentSeq !== renderSeqRef.current) {
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
     try {
       setRendering(true);
-      if (renderTaskRef.current) {
-        renderTaskRef.current.cancel();
-      }
-
       const pageNum = Math.min(Math.max(1, currentPage), pdfDoc.numPages);
       const page = await pdfDoc.getPage(pageNum);
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
 
-      const container = containerRef.current;
-      const availableWidth = container.clientWidth - 32;
-      const availableHeight = container.clientHeight - 32;
+      if (currentSeq !== renderSeqRef.current) return;
+
+      const availableWidth = Math.max(200, container.clientWidth - 32);
+      const availableHeight = Math.max(200, container.clientHeight - 32);
 
       const unscaledViewport = page.getViewport({ scale: 1 });
       
@@ -135,11 +153,14 @@ export default function PdfViewer({
       const fitScale = Math.min(scaleX, scaleY > 0 ? scaleY : scaleX) * zoom;
       const viewport = page.getViewport({ scale: fitScale });
 
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.floor(viewport.width * dpr);
       canvas.height = Math.floor(viewport.height * dpr);
       canvas.style.width = `${Math.floor(viewport.width)}px`;
       canvas.style.height = `${Math.floor(viewport.height)}px`;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
       ctx.save();
       ctx.scale(dpr, dpr);
@@ -152,12 +173,19 @@ export default function PdfViewer({
       const task = page.render(renderContext);
       renderTaskRef.current = task;
       await task.promise;
-      setRendering(false);
+
+      if (currentSeq === renderSeqRef.current) {
+        renderTaskRef.current = null;
+        setRendering(false);
+      }
     } catch (err: any) {
       if (err?.name !== "RenderingCancelledException") {
         console.error("Render page error:", err);
       }
-      setRendering(false);
+      if (currentSeq === renderSeqRef.current) {
+        renderTaskRef.current = null;
+        setRendering(false);
+      }
     }
   }, [pdfDoc, currentPage, zoom, viewMode]);
 
@@ -167,13 +195,21 @@ export default function PdfViewer({
     }
   }, [renderSinglePage, viewMode, currentPage, zoom]);
 
+  // Debounced ResizeObserver to prevent rapid-fire render calls during resize
   useEffect(() => {
     if (!containerRef.current || viewMode !== "single") return;
+    let timeoutId: any = null;
     const observer = new ResizeObserver(() => {
-      renderSinglePage();
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        renderSinglePage();
+      }, 120);
     });
     observer.observe(containerRef.current);
-    return () => observer.disconnect();
+    return () => {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+    };
   }, [renderSinglePage, viewMode]);
 
   return (
@@ -210,6 +246,7 @@ export default function PdfViewer({
         {viewMode === "single" && !error && (
           <div className="w-full h-full flex items-center justify-center p-3 select-none overflow-hidden">
             <canvas 
+              key={`canvas-page-${currentPage}`}
               ref={canvasRef} 
               className="rounded-lg shadow-2xl transition-all max-w-full max-h-full object-contain"
             />
